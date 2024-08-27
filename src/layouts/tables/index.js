@@ -24,6 +24,7 @@ function Tables() {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
+        
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
@@ -52,6 +53,8 @@ function Tables() {
               </MDBox>
             </Card>
           </Grid>
+
+
           <Grid item xs={12}>
             <Card>
               <MDBox
@@ -79,6 +82,8 @@ function Tables() {
               </MDBox>
             </Card>
           </Grid>
+
+
         </Grid>
       </MDBox>
       <Footer />

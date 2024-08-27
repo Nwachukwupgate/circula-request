@@ -64,6 +64,11 @@ export default function data() {
           </MDTypography>
         ),
       },
+
+
+
+
+      
       {
         author: <Author image={team3} name="Alexa Liras" email="alexa@creative-tim.com" />,
         function: <Job title="Programator" description="Developer" />,

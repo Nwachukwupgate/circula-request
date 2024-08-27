@@ -39,8 +39,8 @@ function DataTable({
   const entries = entriesPerPage.entries
     ? entriesPerPage.entries.map((el) => el.toString())
     : ["5", "10", "15", "20", "25"];
-  const columns = useMemo(() => table.columns, [table]);
-  const data = useMemo(() => table.rows, [table]);
+  const columns = useMemo(() => table?.columns, [table]);
+  const data = useMemo(() => table?.rows, [table]);
 
   const tableInstance = useTable(
     { columns, data, initialState: { pageIndex: 0 } },
@@ -90,10 +90,10 @@ function DataTable({
     value > pageOptions.length || value < 0 ? gotoPage(0) : gotoPage(Number(value));
 
   // Customized page options starting from 1
-  const customizedPageOptions = pageOptions.map((option) => option + 1);
+  const customizedPageOptions = pageOptions?.map((option) => option + 1);
 
   // Setting value for the pagination input
-  const handleInputPaginationValue = ({ target: value }) => gotoPage(Number(value.value - 1));
+  const handleInputPaginationValue = ({ target: value }) => gotoPage(Number(value?.value - 1));
 
   // Search input value state
   const [search, setSearch] = useState(globalFilter);
@@ -126,8 +126,8 @@ function DataTable({
 
   if (pageIndex === 0) {
     entriesEnd = pageSize;
-  } else if (pageIndex === pageOptions.length - 1) {
-    entriesEnd = rows.length;
+  } else if (pageIndex === pageOptions?.length - 1) {
+    entriesEnd = rows?.length;
   } else {
     entriesEnd = pageSize * (pageIndex + 1);
   }
@@ -140,7 +140,7 @@ function DataTable({
             <MDBox display="flex" alignItems="center">
               <Autocomplete
                 disableClearable
-                value={pageSize.toString()}
+                value={pageSize?.toString()}
                 options={entries}
                 onChange={(event, newValue) => {
                   setEntriesPerPage(parseInt(newValue, 10));
@@ -182,25 +182,25 @@ function DataTable({
                   align={column.align ? column.align : "left"}
                   sorted={setSortedValue(column)}
                 >
-                  {column.render("Header")}
+                  {column?.render("Header")}
                 </DataTableHeadCell>
               ))}
             </TableRow>
           ))}
         </MDBox>
         <TableBody {...getTableBodyProps()}>
-          {page.map((row, key) => {
+          {page?.map((row, key) => {
             prepareRow(row);
             return (
-              <TableRow key={key} {...row.getRowProps()}>
-                {row.cells.map((cell, idx) => (
+              <TableRow key={key} {...row?.getRowProps()}>
+                {row?.cells?.map((cell, idx) => (
                   <DataTableBodyCell
                     key={idx}
-                    noBorder={noEndBorder && rows.length - 1 === key}
-                    align={cell.column.align ? cell.column.align : "left"}
-                    {...cell.getCellProps()}
+                    noBorder={noEndBorder && rows?.length - 1 === key}
+                    align={cell.column.align ? cell?.column.align : "left"}
+                    {...cell?.getCellProps()}
                   >
-                    {cell.render("Cell")}
+                    {cell?.render("Cell")}
                   </DataTableBodyCell>
                 ))}
               </TableRow>

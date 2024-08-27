@@ -4,6 +4,8 @@
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 
+import { useGetProfileQuery } from "api/apiSlice";
+
 // @mui icons
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -39,11 +41,12 @@ import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
 
 function Overview() {
+  const {data, isLoading } = useGetProfileQuery()
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox mb={2} />
-      <Header>
+      <Header data={data}>
         <MDBox mt={5} mb={3}>
           <Grid container spacing={1}>
             <Grid item xs={12} md={6} xl={4}>
@@ -53,12 +56,22 @@ function Overview() {
               <Divider orientation="vertical" sx={{ ml: -2, mr: 1 }} />
               <ProfileInfoCard
                 title="profile information"
-                description="Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer is no. If two equally difficult paths, choose the one more painful in the short term (pain avoidance is creating an illusion of equality)."
+                description={
+                  data?.role?.name === 'md'
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Managing Director of God Made Homes. As the MD, I oversee all operations within the company, ensuring strategic alignment and efficient management of resources to meet our long-term goals.`
+                    : data?.role?.name === 'coo'
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Chief Operating Officer at God Made Homes. I focus on optimizing our day-to-day operations and ensuring that all our departments are running efficiently to support the company's objectives.`
+                    : data?.role?.name === 'cto'
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Chief Technology Officer at God Made Homes. I am responsible for the company's technological direction, ensuring we leverage cutting-edge technology to enhance our services and operations.`
+                    : data?.role?.name === 'ict'
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, part of the ICT team at God Made Homes. My role involves managing and supporting the company's IT infrastructure, ensuring seamless communication and secure data management across the organization.`
+                    : `Hi, I’m ${data?.surname} ${data?.firstName}, a dedicated staff member at God Made Homes, working to contribute to the success and smooth operation of our company every day.`
+                }
                 info={{
-                  fullName: "Alec M. Thompson",
-                  mobile: "(44) 123 1234 123",
-                  email: "alecthompson@mail.com",
-                  location: "USA",
+                  fullName: `${data?.surname} ${data?.firstName}`,
+                  country: "NGA",
+                  email: data?.email,
+                  location: "Lagos",
                 }}
                 social={[
                   {
