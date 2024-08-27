@@ -5,7 +5,7 @@ export const apiSlice = createApi({
     reducerPath: 'api', // Unique name for this API slice
     
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:5000/', // Adjust the base URL as per your environment
+        baseUrl: 'https://request-circulars.onrender.com/', // Adjust the base URL as per your environment
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
