@@ -37,10 +37,10 @@ const EmployeeTable = ({employees,loading:isLoading}) => {
     ),
     function: (
       <MDBox lineHeight={1} textAlign="left">
-        <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-          {employee?.departmentId}
+        <MDTypography display="block" variant="button" color="text" fontWeight="medium">
+          {employee?.department?.name || "No Department"}
         </MDTypography>
-        <MDTypography variant="caption">{employee?.roleId}</MDTypography>
+        <MDTypography variant="caption">{employee?.role?.name || "No Role"}</MDTypography>
       </MDBox>
     ),
     status: (

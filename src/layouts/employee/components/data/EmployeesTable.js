@@ -44,7 +44,7 @@ export default function data({employees}) {
 
     rows: employees && employees?.employees?.map((employee) => ({
         author: <Author image={team2} name={employee?.surname} email={employee?.email} />,
-        function: <Job title={employee?.departmentId} description={employee?.roleId} />,
+        function: <Job title={employee?.department?.name || "No Department"} description={employee?.role?.name || "No Department"} />,
         status: (
         <MDBox ml={-1}>
             <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />

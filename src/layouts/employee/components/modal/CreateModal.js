@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -22,7 +22,7 @@ import { toast } from 'react-toastify';
 const CreateModal = ({ handleClose, modalType, departmentData, roleData }) => {
   const {data} = useGetDepartmentQuery()
   const {data:roles} = useGetRoleQuery()
-  const [createEmployee] = useCreateEmployeeMutation()
+  const [createEmployee, {data: employeeData, error, isSuccess}] = useCreateEmployeeMutation()
 
     const [formValues, setFormValues] = useState({
         firstName: '',
@@ -46,14 +46,36 @@ const CreateModal = ({ handleClose, modalType, departmentData, roleData }) => {
         e.preventDefault();
         console.log('Form Submitted', formValues);
         // Add logic to handle form submission, e.g., API call
-        try{
-          await createEmployee(formValues)
-          toast.success('User Created!')
-          handleClose();
-        }catch(err){
-          toast.error("Try again Creating user failed", err)
-        }
+        // try{
+        //   const info = await createEmployee(formValues)
+        //   toast.success(info.message)
+        //   handleClose();
+        // }catch(err){
+        //   toast.error(err.message)
+        // }
+        createEmployee(formValues)
+        .then((info) => {
+            console.log(info);       
+            toast.success(employeeData.message);           
+        })
+        .catch((err) => {
+          console.log(err);       
+          toast.error(err.message ?? err.data.message);
+        });
     };
+
+    useEffect(()=> {
+      if(error) {
+        console.log("err in useefect", error.data.message); 
+        console.log("employeeData in employeeData", employeeData);     
+        toast.error(error.message ?? error.data.message);
+      }
+      if(isSuccess){
+        console.log("employeeData in employeeData", employeeData.message);  
+        toast.success(employeeData.message);  
+        handleClose();    
+      }
+    },[employeeData, error, isSuccess, handleClose])
 
     return (
       <>

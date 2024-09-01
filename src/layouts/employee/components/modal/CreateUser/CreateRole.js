@@ -35,8 +35,8 @@ const CreateRole = ({ rolesClose, openRoles }) => {
         e.preventDefault();
         console.log('Form Submitted', formValues);
         try{
-            await createRoles(formValues)
-            toast.success("Cannot Create Role!")
+            await createRoles(formValues).unwrap();
+            toast.success("Role Created!")
             rolesClose()
         }catch(err){
             toast.error("Cannot Create Role!")

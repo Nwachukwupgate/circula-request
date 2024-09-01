@@ -5,7 +5,8 @@ export const apiSlice = createApi({
     reducerPath: 'api', // Unique name for this API slice
     
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://request-circulars.onrender.com/', // Adjust the base URL as per your environment
+        // baseUrl: 'https://request-circulars.onrender.com/', // Adjust the base URL as per your environment
+        baseUrl: 'http://localhost:5000',
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
@@ -62,7 +63,10 @@ export const apiSlice = createApi({
         }),
 
         getRequest: builder.query({
-            query: () => `api/requests`,
+            query: (params) => ({
+                url: `api/requests/filterby`,
+                params
+            }),
             // transformResponse: (response) => response.data,
             providesTags: ['Request']
         }),
@@ -103,9 +107,22 @@ export const apiSlice = createApi({
             invalidatesTags: ['Request'], // Tag to invalidate, ensuring fresh data fetch if needed
         }),
 
+        getRequestID: builder.query({
+            query: (id) => `api/requests/${id}`,
+            // transformResponse: (response) => response.data,
+            providesTags: ['Request']
+        }),
 
+        updateRequestStatus: builder.mutation({
+            query: ({ id, status }) => ({
+                url: `/requests/${id}/status`, // Endpoint URL
+                method: 'PATCH',
+                body: { status }, // The request body containing the new status
+            }),
+            invalidatesTags: ['Request'], // Tag to invalidate, ensuring fresh data fetch if needed
+        }),
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation } = apiSlice;
+export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation } = apiSlice;

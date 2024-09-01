@@ -31,7 +31,7 @@ const CreateModal = ({ handleClose, modalType, deptClose, openDepts }) => {
         console.log('Form Submitted', formValues);
         // Add logic to handle form submission, e.g., API call
         try{
-          await createDepartment(formValues)
+          await createDepartment(formValues).unwrap();
           toast.success("Department Created!")
           handleClose()
         }catch(err){

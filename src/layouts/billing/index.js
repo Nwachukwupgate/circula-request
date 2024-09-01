@@ -35,10 +35,11 @@ function Billing() {
 
   return (
     <>
-    <CreateRequest open={open} handleClose={handleClose} />
+    <CreateRequest  open={open} handleClose={handleClose} />
     <DashboardLayout>
       <DashboardNavbar absolute isMini />
-      <MDBox mt={8}>
+        <div className="pb-6">
+        <MDBox mt={8} >
         <MDBox mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={7}>
@@ -54,6 +55,7 @@ function Billing() {
           Click to Make Request
         </MDButton>
       </MDBox>
+        </div>
       <Footer />
     </DashboardLayout>
     </>
