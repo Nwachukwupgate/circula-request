@@ -2,6 +2,7 @@ import { useState } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
+import MDButton from '@mui/material/Button';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -50,6 +51,9 @@ function BillingInformation() {
       </MDBox>
       <MDBox pt={1} pb={2} px={2}>
         <div className="cursor-pointer">
+          <div> 
+          <MDButton size="small" color='success' variant='contained' type="submit">Today</MDButton>
+          </div>
           <MDBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
             {data && data.map(request => (
               <Bill
