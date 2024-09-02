@@ -11,6 +11,10 @@ import MDTypography from "components/MDTypography";
 // Billing page components
 import Bill from "layouts/billing/components/Bill";
 import DraggableDialog from "../Bill/BillDetails";
+import { DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
 import { useGetRequestQuery } from "api/apiSlice";
 
@@ -53,6 +57,30 @@ function BillingInformation() {
         <div className="cursor-pointer">
           <div> 
           <MDButton size="small" color='success' variant='contained' type="submit">Today</MDButton>
+          <MDButton size="small" color='success' variant='contained' type="submit">Yesterday</MDButton>
+          {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="start Date"
+                value={startDate ? dayjs(startDate) : null}
+                onChange={handleDateChange}
+                slotProps={{
+                  field: { clearable: true, onClear: () => setCleared(true) },
+                }}
+                required
+              />
+            </LocalizationProvider>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="End Date"
+                value={endDate ? dayjs(endDate) : null}
+                onChange={handleDateChange}
+                slotProps={{
+                  field: { clearable: true, onClear: () => setCleared(true) },
+                }}
+                required
+              />
+            </LocalizationProvider> */}
           </div>
           <MDBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
             {data && data.map(request => (
