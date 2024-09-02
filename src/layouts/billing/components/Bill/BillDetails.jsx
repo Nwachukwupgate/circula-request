@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import MDButton from '@mui/material/Button';
-import { useGetRequestIDQuery, useUpdateRequestStatusMutation } from 'api/apiSlice';
+import { useGetRequestIDQuery, useUpdateRequestStatusMutation, useGetProfileQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 
 
@@ -33,6 +33,7 @@ export default function DraggableDialog({ open, onClose, id }) {
     const [status, setStatus] = useState('');
     const [updateRequestStatus, { isLoading, isSuccess, isError, error }] = useUpdateRequestStatusMutation();
     const { data } = useGetRequestIDQuery(id);
+    const {data: info } = useGetProfileQuery()
 
     const handleChange = (event) => {
         setStatus(event.target.value);
@@ -221,30 +222,34 @@ export default function DraggableDialog({ open, onClose, id }) {
                             </p>
                         </div>
 
-                        <div>
-                        <FormControl variant="standard" sx={{ m: 1, minWidth: 250 }} fullWidth>
-                            <InputLabel id="demo-simple-select-standard-label">Status</InputLabel>
-                            <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={status}
-                            onChange={handleChange}
-                            label="status"
-                            sx={{  height:40}}
-                            >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
-                                <MenuItem value="approved">Approve</MenuItem>
-                                <MenuItem value="rejected">Reject</MenuItem>
-                                <MenuItem value="paid">Pay</MenuItem>
-                            </Select>
-                        </FormControl>
-                        </div>
+                        {info?.role.name === 'cfo' || 'coo' || 'md' || 'account hod' || 'hod' &&
+                        <>
+                            <div>
+                                <FormControl variant="standard" sx={{ m: 1, minWidth: 250 }} fullWidth>
+                                    <InputLabel id="demo-simple-select-standard-label">Status</InputLabel>
+                                    <Select
+                                    labelId="demo-simple-select-standard-label"
+                                    id="demo-simple-select-standard"
+                                    value={status}
+                                    onChange={handleChange}
+                                    label="status"
+                                    sx={{  height:40}}
+                                    >
+                                        <MenuItem value="">
+                                            <em>None</em>
+                                        </MenuItem>
+                                        <MenuItem value="approved">Approve</MenuItem>
+                                        <MenuItem value="rejected">Reject</MenuItem>
+                                        <MenuItem value="paid">Pay</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </div>
 
-                        <div className='flex justify-end mt-6'>
-                            <MDButton size="small" color='success' variant='contained' type="submit" onClick={handleSubmit}>{status} Request</MDButton>
-                        </div>
+                            <div className='flex justify-end mt-6'>
+                                <MDButton size="small" color='success' variant='contained' type="submit" onClick={handleSubmit}>{status} Request</MDButton>
+                            </div>
+                        </>
+                        }
                     </Box>
                 </Box>
             </DialogContent>

@@ -21,6 +21,8 @@ import { useGetRequestQuery } from "api/apiSlice";
 function BillingInformation() {
   const [open, setOpen] = useState(false);
   const [id, setId] = useState(null)
+  const [cleared, setCleared] = useState(false);
+
   console.log("id", id);
   
   const [filter, setFilter] = useState('all');
@@ -34,13 +36,35 @@ function BillingInformation() {
   });
 
   const handleClickOpen = (id) => {
-    console.log("Clicked id:", id)
     setId(id)
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleDateChange = (newValue) => {
+    setStartDate( newValue.format('YYYY-MM-DD'));
+  };
+
+  const handleEndDateChange = (newValue) => {
+    setEndDate(newValue.format('YYYY-MM-DD'));
+  };
+
+  const handleTodayClick = () => {
+    const today = dayjs().format('YYYY-MM-DD');
+    setStartDate(today);
+    setEndDate(today);
+    setFilter('dateRange'); // or any other filter value if needed
+  };
+
+  // Function to handle the 'Yesterday' button click
+  const handleYesterdayClick = () => {
+    const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
+    setStartDate(yesterday);
+    setEndDate(yesterday);
+    setFilter('dateRange'); // or any other filter value if needed
   };
 
   return (
@@ -55,10 +79,26 @@ function BillingInformation() {
       </MDBox>
       <MDBox pt={1} pb={2} px={2}>
         <div className="cursor-pointer">
-          <div> 
-          <MDButton size="small" color='success' variant='contained' type="submit">Today</MDButton>
-          <MDButton size="small" color='success' variant='contained' type="submit">Yesterday</MDButton>
-          {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <div className="flex gap-6"> 
+          <MDButton
+            size="small"
+            color="success"
+            variant="contained"
+            type="submit"
+            onClick={handleTodayClick}
+          >
+            Today
+          </MDButton>          
+          <MDButton
+            size="small"
+            color="success"
+            variant="contained"
+            type="submit"
+            onClick={handleYesterdayClick}
+          >
+            Yesterday
+          </MDButton>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="start Date"
                 value={startDate ? dayjs(startDate) : null}
@@ -74,13 +114,13 @@ function BillingInformation() {
               <DatePicker
                 label="End Date"
                 value={endDate ? dayjs(endDate) : null}
-                onChange={handleDateChange}
+                onChange={handleEndDateChange}
                 slotProps={{
                   field: { clearable: true, onClear: () => setCleared(true) },
                 }}
                 required
               />
-            </LocalizationProvider> */}
+            </LocalizationProvider>
           </div>
           <MDBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
             {data && data.map(request => (
