@@ -79,16 +79,16 @@ const routes = [
     name: "Log Out",
     key: "sign-in",
     icon: <Icon fontSize="small">log Out</Icon>,
-    // route: "/authentication/sign-in",
+    route: "/authentication/sign-in",
     component: <SignIn />,
     protected: false,
-    onClick: () => {
-      // Clear local storage
-      localStorage.clear();
+    // onClick: () => {
+    //   // Clear local storage
+    //   localStorage.clear();
 
-      // Redirect to the sign-in page
-      window.location.href = "/authentication/sign-in";
-    },
+    //   // Redirect to the sign-in page
+    //   window.location.href = "/authentication/sign-in";
+    // },
   },
   // {
   //   type: "collapse",
