@@ -69,7 +69,7 @@ function BillingInformation() {
 
   return (
     <>
-    <DraggableDialog open={open} onClose={handleClose} id={id} />
+    {/* <DraggableDialog open={open} onClose={handleClose} id={id} /> */}
 
     <Card id="delete-account">
       <MDBox pt={3} px={2}>

@@ -18,6 +18,8 @@ import Sidenav from "examples/Sidenav";
 import Configurator from "examples/Configurator";
 import ProtectedRoute from "ProtectedRoute";
 import { useSelector } from "react-redux";
+import { useDispatch } from 'react-redux';
+import { SaveUser } from "api/userSlice";
 import SignIn from "./layouts/authentication/sign-in"  
 
 // Material Dashboard 2 React themes
@@ -32,6 +34,8 @@ import themeDarkRTL from "assets/theme-dark/theme-rtl";
 import rtlPlugin from "stylis-plugin-rtl";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
+
+import { useGetProfileQuery } from "api/apiSlice";
 
 // Material Dashboard 2 React routes
 import routes from "routes";
@@ -65,7 +69,16 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
+  const dispatchUser = useDispatch();
   const token = useSelector((state) => state.user.token);
+  const {data} = useGetProfileQuery()
+
+  useEffect(() => {
+    if(data) {
+      dispatchUser(SaveUser(data?.role?.name));
+    }     
+  }, [data]);
+  
 
   // Cache for the rtl
   useMemo(() => {

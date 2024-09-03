@@ -59,6 +59,7 @@ function Basic() {
       
       if(response?.token) {
         localStorage.setItem("token", response?.token)
+        console.log("data", response);     
         dispatch(GetUserToken(response.token));
         navigate("/dashboard")
       }
