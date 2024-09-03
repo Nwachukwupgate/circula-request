@@ -254,7 +254,7 @@ export default function DraggableDialog({ open, onClose, id }) {
                                 <TextField
                                     fullWidth
                                     label="Comment"
-                                    name="Comment"
+                                    name="comment"
                                     type="text"
                                     value={comment}
                                     onChange={handleComment}
