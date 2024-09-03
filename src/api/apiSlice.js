@@ -5,8 +5,8 @@ export const apiSlice = createApi({
     reducerPath: 'api', // Unique name for this API slice
     
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://request-circulars.onrender.com/', // Adjust the base URL as per your environment
-        // baseUrl: 'http://localhost:5000',
+        // baseUrl: 'https://request-circulars.onrender.com/', // Adjust the base URL as per your environment
+        baseUrl: 'http://localhost:5000',
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
@@ -114,10 +114,10 @@ export const apiSlice = createApi({
         }),
 
         updateRequestStatus: builder.mutation({
-            query: ({ id, status }) => ({
+            query: ({ id, status, comment }) => ({
                 url: `/requests/${id}/status`, // Endpoint URL
                 method: 'PATCH',
-                body: { status }, // The request body containing the new status
+                body: { status, comment }, // The request body containing the new status
             }),
             invalidatesTags: ['Request'], // Tag to invalidate, ensuring fresh data fetch if needed
         }),

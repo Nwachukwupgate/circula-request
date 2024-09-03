@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import MDButton from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import { useGetRequestIDQuery, useUpdateRequestStatusMutation, useGetProfileQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 
@@ -31,12 +32,17 @@ function PaperComponent(props) {
 export default function DraggableDialog({ open, onClose, id }) {
     const [activeStep, setActiveStep] = useState(0);
     const [status, setStatus] = useState('');
+    const [comment, setComment] = useState('')
     const [updateRequestStatus, { isLoading, isSuccess, isError, error }] = useUpdateRequestStatusMutation();
     const { data } = useGetRequestIDQuery(id);
     const {data: info } = useGetProfileQuery()
 
     const handleChange = (event) => {
         setStatus(event.target.value);
+    };
+
+    const handleComment = (event) => {
+        setComment(event.target.value);
     };
 
     useEffect(() => {
@@ -116,7 +122,7 @@ export default function DraggableDialog({ open, onClose, id }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try{
-            await updateRequestStatus({id, status}).unwrap();
+            await updateRequestStatus({id, status, comment}).unwrap();
         }catch(error){
             toast.error("Failed, Try again")
         }        
@@ -243,13 +249,25 @@ export default function DraggableDialog({ open, onClose, id }) {
                                         <MenuItem value="paid">Pay</MenuItem>
                                     </Select>
                                 </FormControl>
+
+                                <div className='mt-4'>
+                                <TextField
+                                    fullWidth
+                                    label="Comment"
+                                    name="Comment"
+                                    type="text"
+                                    value={comment}
+                                    onChange={handleComment}
+                                    required                               
+                                />
+                                </div>
                             </div>
 
                             <div className='flex justify-end mt-6'>
                                 <MDButton size="small" color='success' variant='contained' type="submit" onClick={handleSubmit}>{status} Request</MDButton>
                             </div>
                         </>
-                        }
+                        } 
                     </Box>
                 </Box>
             </DialogContent>
