@@ -228,7 +228,7 @@ export default function DraggableDialog({ open, onClose, id }) {
                             </p>
                         </div>
 
-                        {info?.role.name === 'cfo' || 'coo' || 'md' || 'account hod' || 'hod' &&
+                        {info?.role.name === 'CFO' || 'COO' || 'MD' || 'account HOD' || 'HOD' &&
                         <>
                             <div>
                                 <FormControl variant="standard" sx={{ m: 1, minWidth: 250 }} fullWidth>
