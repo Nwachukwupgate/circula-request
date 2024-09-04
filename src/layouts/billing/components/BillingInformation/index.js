@@ -23,7 +23,7 @@ function BillingInformation() {
   const [id, setId] = useState(null)
   const [cleared, setCleared] = useState(false);
 
-  console.log("id", id);
+  // console.log("id", id);
   
   const [filter, setFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
@@ -69,7 +69,7 @@ function BillingInformation() {
 
   return (
     <>
-    {/* <DraggableDialog open={open} onClose={handleClose} id={id} /> */}
+    <DraggableDialog open={open} onClose={handleClose} id={id} />
 
     <Card id="delete-account">
       <MDBox pt={3} px={2}>

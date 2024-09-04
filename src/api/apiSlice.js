@@ -5,7 +5,7 @@ export const apiSlice = createApi({
     reducerPath: 'api', // Unique name for this API slice
     
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://request-circulars.onrender.com/', // Adjust the base URL as per your environment
+        baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment
         // baseUrl: 'http://localhost:5000',
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
