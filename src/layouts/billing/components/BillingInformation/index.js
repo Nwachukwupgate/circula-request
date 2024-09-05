@@ -16,14 +16,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 
-import { useGetRequestQuery } from "api/apiSlice";
+import { useGetRequestQuery, useGetProfileQuery } from "api/apiSlice";
 
 function BillingInformation() {
   const [open, setOpen] = useState(false);
   const [id, setId] = useState(null)
   const [cleared, setCleared] = useState(false);
-
-  // console.log("id", id);
   
   const [filter, setFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
@@ -69,7 +67,7 @@ function BillingInformation() {
 
   return (
     <>
-    <DraggableDialog open={open} onClose={handleClose} id={id} />
+    {open && <DraggableDialog open={open} onClose={handleClose} id={id} />}
 
     <Card id="delete-account">
       <MDBox pt={3} px={2}>

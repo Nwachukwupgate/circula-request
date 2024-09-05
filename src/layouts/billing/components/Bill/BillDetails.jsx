@@ -17,6 +17,7 @@ import MDButton from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { useGetRequestIDQuery, useUpdateRequestStatusMutation, useGetProfileQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
 
 
 // Draggable Paper component
@@ -30,12 +31,12 @@ function PaperComponent(props) {
 
 // Main DraggableDialog component
 export default function DraggableDialog({ open, onClose, id }) {
+    const {data: info } = useGetProfileQuery()
     const [activeStep, setActiveStep] = useState(0);
     const [status, setStatus] = useState('');
     const [comment, setComment] = useState('')
     const [updateRequestStatus, { isLoading, isSuccess, isError, error }] = useUpdateRequestStatusMutation();
-    const { data } = useGetRequestIDQuery(id);
-    const {data: info } = useGetProfileQuery()
+    const { data } = useGetRequestIDQuery(id);    
 
     const handleChange = (event) => {
         setStatus(event.target.value);
@@ -145,7 +146,7 @@ export default function DraggableDialog({ open, onClose, id }) {
             </DialogTitle>
             <DialogContent>
                 <Box sx={{ width: '100%' }}>
-                    <Stepper
+                    {/* <Stepper
                         activeStep={activeStep}
                         alternativeLabel
                         sx={{
@@ -164,7 +165,7 @@ export default function DraggableDialog({ open, onClose, id }) {
                         <Typography variant="h6" gutterBottom>
                             {getStepContent(activeStep)}
                         </Typography>
-                    </Box>
+                    </Box> */}
                     <Box>
                         <div className='flex justify-between px-6'>
                             <p>Name:</p>
@@ -228,7 +229,7 @@ export default function DraggableDialog({ open, onClose, id }) {
                             </p>
                         </div>
 
-                        {info?.role.name === 'CFO' || 'COO' || 'MD' || 'account HOD' || 'HOD' &&
+                        {info?.role?.name === 'CFO' || 'COO' || 'MD' || 'account HOD' || 'HOD' ?
                         <>
                             <div>
                                 <FormControl variant="standard" sx={{ m: 1, minWidth: 250 }} fullWidth>
@@ -267,6 +268,8 @@ export default function DraggableDialog({ open, onClose, id }) {
                                 <MDButton size="small" color='success' variant='contained' type="submit" onClick={handleSubmit}>{status} Request</MDButton>
                             </div>
                         </>
+                        :
+                        null
                         } 
                     </Box>
                 </Box>
