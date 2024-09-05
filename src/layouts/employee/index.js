@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -16,8 +16,8 @@ import Footer from "examples/Footer"
 import EmployeeTable from "./components/EmployeeTable";
 
 import Cards from "./components/cards";
-import { useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery } from "api/apiSlice";
-
+import { useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useGetProfileQuery } from "api/apiSlice";
+import { useNavigate } from "react-router-dom";
 
 import DataTable from "examples/Tables/DataTable";
 import EmployeesTable from "./components/data/EmployeesTable"
@@ -30,10 +30,22 @@ const Employee = () => {
     const currentPage = 1; // State for current page
     const rowsPerPage = 10; // Number of employees to show per page
     const offset = (currentPage - 1) * rowsPerPage;
+    const navigate = useNavigate()
 
     const { data: department, isLoading } = useGetDepartmentQuery();
     const { data } = useGetRoleQuery();
-    const { data:employees } = useGetEmployeeQuery({ limit: rowsPerPage, offset })
+    const { data:employees } = useGetEmployeeQuery({ limit: rowsPerPage, offset });
+
+    const {data: profile} = useGetProfileQuery()
+    console.log("users", profile)
+
+    useEffect(() => {
+        if(profile){
+            if(profile?.department?.name !== "ICT"){
+                navigate('/dashboard');
+            }
+        }
+    }, [profile, navigate]);
 
     const [open, setOpen] = useState(false);
     const [openRoles, setOpenRoles] = useState(false);

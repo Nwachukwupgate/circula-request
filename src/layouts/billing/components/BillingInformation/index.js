@@ -133,8 +133,9 @@ function BillingInformation() {
                 requestDepartment= {request?.requestDepartment?.name}
                 requestRole= {request?.role?.name}
                 amount={request?.amount}
-                status={request?.status}
-
+                status={request?.finalStatus}
+                accountStatus={request?.accountStatus}
+                comment={request?.comment}
                 onClick={() => handleClickOpen(request?.id)}
                 key={request?.id}
               />

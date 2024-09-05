@@ -147,11 +147,11 @@ export default function DraggableDialog({ open, onClose, id }) {
             </DialogTitle>
             <DialogContent>
                 <Box sx={{ width: '100%' }}>
-                    {/* <Stepper
+                    <Stepper
                         activeStep={activeStep}
                         alternativeLabel
                         sx={{
-                            bgcolor: 'white', // Stepper background color
+                            bgcolor: 'green', // Stepper background color
                         }}
                     >
                         {steps.map((label, index) => (
@@ -166,7 +166,7 @@ export default function DraggableDialog({ open, onClose, id }) {
                         <Typography variant="h6" gutterBottom>
                             {getStepContent(activeStep)}
                         </Typography>
-                    </Box> */}
+                    </Box>
                     <Box>
                         <div className='flex justify-between px-6'>
                             <p>Name:</p>
@@ -266,7 +266,7 @@ export default function DraggableDialog({ open, onClose, id }) {
                             </div>
 
                             <div className='flex justify-end mt-6'>
-                                <MDButton size="small" color='success' variant='contained' type="submit" onClick={handleSubmit}>{status} Request</MDButton>
+                                <MDButton size="small" color='success' variant='contained' type="submit" onClick={handleSubmit}>{isLoading ?  `${status} Request` : 'Loading...'} </MDButton>
                             </div>
                         </>
                         :

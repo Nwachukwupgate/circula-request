@@ -14,7 +14,7 @@ import MDButton from "components/MDButton";
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "context";
 
-function Bill({ name, description, user, amount, status, noGutter, userLastname, requestDepartment, requestRole, onClick }) {
+function Bill({ name, description, user, amount, status, noGutter, userLastname, requestDepartment, requestRole, accountStatus, comment, onClick }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -102,6 +102,24 @@ function Bill({ name, description, user, amount, status, noGutter, userLastname,
             Status:&nbsp;&nbsp;&nbsp;
             <MDTypography variant="caption" fontWeight="medium">
               {status}
+            </MDTypography>
+          </MDTypography>
+          </MDBox>
+
+          <MDBox mb={2} lineHeight={0}>
+          <MDTypography variant="caption" color="text">
+            Account Status:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium">
+              {accountStatus}
+            </MDTypography>
+          </MDTypography>
+          </MDBox>
+
+          <MDBox mb={2} lineHeight={0}>
+          <MDTypography variant="caption" color="text">
+            Comment:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium">
+              {comment}
             </MDTypography>
           </MDTypography>
           </MDBox>
