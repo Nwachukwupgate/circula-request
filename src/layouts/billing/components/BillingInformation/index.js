@@ -33,6 +33,9 @@ function BillingInformation() {
     endDate: filter === 'dateRange' ? endDate : undefined,
   });
 
+  console.log("data", data);
+  
+
   const handleClickOpen = (id) => {
     setId(id)
     setOpen(true);
@@ -125,9 +128,13 @@ function BillingInformation() {
               <Bill
                 name={request?.itemName}
                 description={request?.itemDescription}
-                user={request?.userId}
+                user={request?.user?.firstName}
+                userLastname= {request?.user?.surname}
+                requestDepartment= {request?.requestDepartment?.name}
+                requestRole= {request?.role?.name}
                 amount={request?.amount}
                 status={request?.status}
+
                 onClick={() => handleClickOpen(request?.id)}
                 key={request?.id}
               />

@@ -124,6 +124,7 @@ export default function DraggableDialog({ open, onClose, id }) {
         e.preventDefault()
         try{
             await updateRequestStatus({id, status, comment}).unwrap();
+            toast.success("Successful!")
         }catch(error){
             toast.error("Failed, Try again")
         }        

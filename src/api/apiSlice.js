@@ -115,7 +115,7 @@ export const apiSlice = createApi({
 
         updateRequestStatus: builder.mutation({
             query: ({ id, status, comment }) => ({
-                url: `/requests/${id}/status`, // Endpoint URL
+                url: `api/requests/${id}/status`, // Endpoint URL
                 method: 'PATCH',
                 body: { status, comment }, // The request body containing the new status
             }),

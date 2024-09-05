@@ -14,7 +14,7 @@ import MDButton from "components/MDButton";
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "context";
 
-function Bill({ name, description, user, amount, status, noGutter, onClick }) {
+function Bill({ name, description, user, amount, status, noGutter, userLastname, requestDepartment, requestRole, onClick }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -55,7 +55,7 @@ function Bill({ name, description, user, amount, status, noGutter, onClick }) {
               </MDButton>
             </MDBox>
           </MDBox>
-          <MDBox mb={1} lineHeight={0}>
+          <MDBox mb={2} lineHeight={0}>
             <MDTypography variant="caption" color="text">
               Item Description:&nbsp;&nbsp;&nbsp;
               <MDTypography variant="caption" fontWeight="medium" textTransform="capitalize">
@@ -63,26 +63,48 @@ function Bill({ name, description, user, amount, status, noGutter, onClick }) {
               </MDTypography>
             </MDTypography>
           </MDBox>
-          <MDBox mb={1} lineHeight={0}>
+          <MDBox mb={2} lineHeight={0}>
             <MDTypography variant="caption" color="text">
               User:&nbsp;&nbsp;&nbsp;
               <MDTypography variant="caption" fontWeight="medium">
-                {user}
+                {user} {userLastname}
               </MDTypography>
             </MDTypography>
           </MDBox>
+          <MDBox mb={2} lineHeight={0}>
+            <MDTypography variant="caption" color="text">
+            Request Department:&nbsp;&nbsp;&nbsp;
+              <MDTypography variant="caption" fontWeight="medium">
+                {requestDepartment}
+              </MDTypography>
+            </MDTypography>
+          </MDBox>
+          <MDBox mb={2} lineHeight={0}>
+            <MDTypography variant="caption" color="text">
+              Request Role:&nbsp;&nbsp;&nbsp;
+              <MDTypography variant="caption" fontWeight="medium">
+                {requestRole}
+              </MDTypography>
+            </MDTypography>
+          </MDBox>
+
+          <MDBox mb={2} lineHeight={0}>
           <MDTypography variant="caption" color="text">
             Amount:&nbsp;&nbsp;&nbsp;
             <MDTypography variant="caption" fontWeight="medium">
               {amount}
             </MDTypography>
           </MDTypography>
+          </MDBox>
+
+          <MDBox mb={2} lineHeight={0}>
           <MDTypography variant="caption" color="text">
             Status:&nbsp;&nbsp;&nbsp;
             <MDTypography variant="caption" fontWeight="medium">
               {status}
             </MDTypography>
           </MDTypography>
+          </MDBox>
         </MDBox>
       </MDBox>
     </>
