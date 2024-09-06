@@ -266,7 +266,16 @@ export default function DraggableDialog({ open, onClose, id }) {
                             </div>
 
                             <div className='flex justify-end mt-6'>
-                                <MDButton size="small" color='success' variant='contained' type="submit" onClick={handleSubmit}>{isLoading ?  `${status} Request` : 'Loading...'} </MDButton>
+                                <MDButton
+                                size="small"
+                                color="success"
+                                variant="contained"
+                                type="submit"
+                                onClick={handleSubmit}
+                                disabled={isLoading} // Disable the button when loading
+                                >
+                                    {isLoading ? 'Loading...' : `${status || 'Submit'} Request`} 
+                                </MDButton>
                             </div>
                         </>
                         :
