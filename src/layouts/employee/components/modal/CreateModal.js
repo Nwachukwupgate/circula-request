@@ -44,7 +44,6 @@ const CreateModal = ({ handleClose, modalType, departmentData, roleData }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form Submitted', formValues);
         // Add logic to handle form submission, e.g., API call
         // try{
         //   const info = await createEmployee(formValues)
@@ -56,23 +55,20 @@ const CreateModal = ({ handleClose, modalType, departmentData, roleData }) => {
         createEmployee(formValues)
         .then((info) => {
             console.log(info);       
-            toast.success(employeeData.message);           
+            toast.success(employeeData?.message);           
         })
         .catch((err) => {
           console.log(err);       
-          toast.error(err.message ?? err.data.message);
+          toast.error(err?.message ?? err?.data?.message);
         });
     };
 
     useEffect(()=> {
-      if(error) {
-        console.log("err in useefect", error.data.message); 
-        console.log("employeeData in employeeData", employeeData);     
-        toast.error(error.message ?? error.data.message);
+      if(error) {    
+        toast.error(error.message ?? error?.data?.message);
       }
       if(isSuccess){
-        console.log("employeeData in employeeData", employeeData.message);  
-        toast.success(employeeData.message);  
+        toast.success(employeeData?.message);  
         handleClose();    
       }
     },[employeeData, error, isSuccess, handleClose])

@@ -22,7 +22,7 @@ import MDAvatar from "components/MDAvatar";
 import breakpoints from "assets/theme/base/breakpoints";
 
 // Images
-import burceMars from "assets/images/bruce-mars.jpg";
+import burceMars from "assets/images/bruce.jpeg";
 import backgroundImage from "assets/images/bg-profile.jpeg";
 
 function Header({ children, data }) {
@@ -108,7 +108,7 @@ function Header({ children, data }) {
                   label="Message"
                   icon={
                     <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      email
+                      Request
                     </Icon>
                   }
                 />
