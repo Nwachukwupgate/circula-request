@@ -36,7 +36,7 @@ import { toast } from "react-toastify";
 
 function Basic() {
 
-  const [ login, {isLoading, isSuccess, error, data } ] = useLoginMutation()
+  const [ login, {isLoading } ] = useLoginMutation()
   const [rememberMe, setRememberMe] = useState(false);
 
   const dispatch = useDispatch()
@@ -137,8 +137,23 @@ function Basic() {
                 </MDBox>
                
               </Form>
-            )}
+            )}         
           </Formik>
+          <MDBox mt={3} mb={1} textAlign="center">
+              <MDTypography variant="button" color="text">
+                Lost your Password?{" "}
+                <MDTypography
+                  component={Link}
+                  to="/authentication/reset-password"
+                  variant="button"
+                  color="info"
+                  fontWeight="medium"
+                  textGradient
+                >
+                  Change Password
+                </MDTypography>
+              </MDTypography>
+            </MDBox>
         </MDBox>
       </Card>
     </BasicLayout>

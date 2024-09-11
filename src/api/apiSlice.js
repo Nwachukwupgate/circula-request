@@ -32,6 +32,24 @@ export const apiSlice = createApi({
             invalidatesTags: ['Login'], // Tag to invalidate, ensuring fresh data fetch if needed
         }),
 
+        reqPasswordReset: builder.mutation({
+            query: (credentials) => ({
+                url: 'api/auth/reqPasswordReset', // API endpoint for login
+                method: 'POST', // HTTP method
+                body: credentials, // Payload for the request
+            }),
+            invalidatesTags: ['Login'], // Tag to invalidate, ensuring fresh data fetch if needed
+        }),
+
+        resetPassword: builder.mutation({
+            query: (credentials) => ({
+                url: 'api/auth/resetPassword', // API endpoint for login
+                method: 'POST', // HTTP method
+                body: credentials, // Payload for the request
+            }),
+            invalidatesTags: ['Login'], // Tag to invalidate, ensuring fresh data fetch if needed
+        }),
+
         getData: builder.query({
             query: (token) => `api/data/stats`,
             // transformResponse: (response) => response.data,
@@ -125,4 +143,4 @@ export const apiSlice = createApi({
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation } = apiSlice;
+export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation } = apiSlice;

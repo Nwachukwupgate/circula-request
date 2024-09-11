@@ -17,7 +17,6 @@ import MDButton from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { useGetRequestIDQuery, useUpdateRequestStatusMutation, useGetProfileQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
 
 
 // Draggable Paper component
@@ -35,7 +34,7 @@ export default function DraggableDialog({ open, onClose, id }) {
     const [activeStep, setActiveStep] = useState(0);
     const [status, setStatus] = useState('');
     const [comment, setComment] = useState('')
-    const [updateRequestStatus, { isLoading, isSuccess, isError, error }] = useUpdateRequestStatusMutation();
+    const [updateRequestStatus, { isLoading }] = useUpdateRequestStatusMutation();
     const { data } = useGetRequestIDQuery(id);    
 
     const handleChange = (event) => {
@@ -75,46 +74,46 @@ export default function DraggableDialog({ open, onClose, id }) {
         'Completed',
     ];
 
-    const getStepStatus = (stepIndex) => {
-        switch (stepIndex) {
-            case 0:
-                return data?.hodApprovalStatus;
-            case 1:
-                return data?.cfoApprovalStatus;
-            case 2:
-                return data?.cooApprovalStatus;
-            case 3:
-                return data?.mdApprovalStatus;
-            case 4:
-                return data?.finalStatus;
-            default:
-                return 'pending';
-        }
-    };
+    // const getStepStatus = (stepIndex) => {
+    //     switch (stepIndex) {
+    //         case 0:
+    //             return data?.hodApprovalStatus;
+    //         case 1:
+    //             return data?.cfoApprovalStatus;
+    //         case 2:
+    //             return data?.cooApprovalStatus;
+    //         case 3:
+    //             return data?.mdApprovalStatus;
+    //         case 4:
+    //             return data?.finalStatus;
+    //         default:
+    //             return 'pending';
+    //     }
+    // };
 
-    const getStepStyle = (stepIndex) => {
-        const status = getStepStatus(stepIndex);
-        if (status === 'approved') {
-            return { color: 'green' }; // Approved steps color
-        } else if (stepIndex === activeStep) {
-            return { color: 'black' }; // Current step color
+    const getStepStyle = (stepStatus) => {
+        console.log('Final Status:', stepStatus);
+        if (stepStatus === 'approved') {
+          return 'green'; // Approved steps color
+        } else if (stepStatus === 'rejected') {
+          return 'red'; // Rejected steps color
         } else {
-            return { color: 'gray' }; // Inactive steps color
+          return 'gray'; // Inactive steps color
         }
     };
 
     const getStepContent = (step) => {
         switch (step) {
             case 0:
-                return 'Head of Department approval process.';
+                return 'Head of Department Approval Process.';
             case 1:
-                return 'Chief Financial Officer approval process.';
+                return 'Chief Financial Officer Approval Process.';
             case 2:
-                return 'COO approval process.';
+                return 'COO Approval Process.';
             case 3:
-                return 'Managing Director approval process.';
+                return 'Managing Director Approval Process.';
             case 4:
-                return 'Authorization process is completed.';
+                return 'Authorization Process is Completed.';
             default:
                 return 'Unknown step';
         }
@@ -167,57 +166,57 @@ export default function DraggableDialog({ open, onClose, id }) {
                             {getStepContent(activeStep)}
                         </Typography>
                     </Box>
-                    <Box>
-                        <div className='flex justify-between px-6'>
-                            <p>Name:</p>
-                            <p style={{ color: getStepStyle(data?.finalStatus) }}>{data?.user?.firstName} {data?.user?.surname}</p>
+                    <Box className="space-y-1.5">
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Name:</p>
+                            <p>{data?.user?.firstName} {data?.user?.surname}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>Department:</p>
-                            <p className='style={{ color: getStatusColor(data?.finalStatus) }}'>{data?.requestDepartment?.name}/{data?.role?.name}</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Department:</p>
+                            <p>{data?.requestDepartment?.name}/{data?.role?.name}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>Item:</p>
-                            <p className='style={{ color: getStatusColor(data?.finalStatus) }}'>{data?.itemName}</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Item:</p>
+                            <p>{data?.itemName}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>Description:</p>
-                            <p className='style={{ color: getStatusColor(data?.finalStatus) }}'>{data?.itemDescription}</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Description:</p>
+                            <p>{data?.itemDescription}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>Amount:</p>
-                            <p className='style={{ color: getStatusColor(data?.finalStatus) }}'>{data?.amount}</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Amount:</p>
+                            <p>{data?.amount}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>Date Needed:</p>
-                            <p className='style={{ color: getStatusColor(data?.finalStatus) }}'>{data?.dateNeeded}</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Date Needed:</p>
+                            <p>{data?.dateNeeded}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>HOD Approval:</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>HOD Approval:</p>
                             <p style={{ color: getStepStyle(data?.finalStatus) }}>{data?.hodApprovalStatus}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>CFO Approval:</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>CFO Approval:</p>
                             <p style={{ color: getStepStyle(data?.finalStatus) }}>{data?.cfoApprovalStatus}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>COO Approval:</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>COO Approval:</p>
                             <p style={{ color: getStepStyle(data?.finalStatus) }}>{data?.cooApprovalStatus}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>MD Approval:</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>MD Approval:</p>
                             <p style={{ color: getStepStyle(data?.finalStatus) }}>{data?.mdApprovalStatus}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>Account Status:</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Account Status:</p>
                             <p  style={{ color: getStepStyle(data?.finalStatus) }}>{data?.accountStatus}</p>
                         </div>
-                        <div className='flex justify-between px-6'>
-                            <p>Final Status:</p>
+                        <div className='flex justify-between px-6 border-2 p-1'>
+                            <p className='font-bold'>Final Status:</p>
                             <p style={{ color: getStepStyle(data?.finalStatus) }}>{data?.finalStatus}</p>
                         </div>
-                        <div>
-                            <p>Image:</p> 
+                        <div className='border-2 p-1 px-6'>
+                            <p className='font-bold'>Image:</p> 
                             <p
                                 onClick={() => {
                                     if (data?.imageUrl) {
@@ -225,16 +224,17 @@ export default function DraggableDialog({ open, onClose, id }) {
                                     }
                                 }}
                                 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }} // Optional: Style to indicate it's clickable
+                                className='break-all'
                             >
                                 {data?.imageUrl}
                             </p>
                         </div>
 
-                        {info?.role?.name === 'CFO' || 'COO' || 'MD' || 'account HOD' || 'HOD' ?
+                        {['CFO', 'COO', 'MD', 'Account HOD', 'HOD'].includes(info?.role?.name) ?
                         <>
                             <div>
                                 <FormControl variant="standard" sx={{ m: 1, minWidth: 250 }} fullWidth>
-                                    <InputLabel id="demo-simple-select-standard-label">Status</InputLabel>
+                                    <InputLabel id="demo-simple-select-standard-label" className='font-bold'>Status</InputLabel>
                                     <Select
                                     labelId="demo-simple-select-standard-label"
                                     id="demo-simple-select-standard"
@@ -248,7 +248,9 @@ export default function DraggableDialog({ open, onClose, id }) {
                                         </MenuItem>
                                         <MenuItem value="approved">Approve</MenuItem>
                                         <MenuItem value="rejected">Reject</MenuItem>
-                                        <MenuItem value="paid">Pay</MenuItem>
+                                        {info?.role?.name === "Account HOD" &&
+                                            <MenuItem value="paid">Pay</MenuItem>
+                                        }
                                     </Select>
                                 </FormControl>
 
@@ -265,7 +267,7 @@ export default function DraggableDialog({ open, onClose, id }) {
                                 </div>
                             </div>
 
-                            <div className='flex justify-end mt-6'>
+                            <div className='flex justify-end mt-12'>
                                 <MDButton
                                 size="small"
                                 color="success"

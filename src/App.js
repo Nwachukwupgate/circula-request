@@ -21,6 +21,8 @@ import { useSelector } from "react-redux";
 import { useDispatch } from 'react-redux';
 import { SaveUser } from "api/userSlice";
 import SignIn from "./layouts/authentication/sign-in"  
+import ResetPassword from "./layouts/authentication/reset-password"
+import ChangePassword from "./layouts/authentication/change-password"
 
 // Material Dashboard 2 React themes
 import theme from "assets/theme";
@@ -205,7 +207,9 @@ export default function App() {
         )}
         {layout === "vr" && <Configurator />}
         <Routes>
-          <Route path="/sauthentication/sign-in" element={<SignIn />} />
+          <Route path="/authentication/sign-in" element={<SignIn />} />
+          <Route path="/authentication/reset-password" element={<ResetPassword />} />
+          <Route path="/change-password" element={<ChangePassword />} />
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>
@@ -232,6 +236,9 @@ export default function App() {
       {layout === "vr" && <Configurator />}
       <Routes>
         <Route path="/authentication/sign-in" element={<SignIn />} />
+        <Route path="/authentication/reset-password" element={<ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>
