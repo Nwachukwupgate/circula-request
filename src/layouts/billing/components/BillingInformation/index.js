@@ -80,7 +80,7 @@ function BillingInformation() {
       </MDBox>
       <MDBox pt={1} pb={2} px={2}>
         <div className="cursor-pointer">
-          <div className="flex gap-6"> 
+          <div className="flex flex-col lg:flex-row gap-6"> 
           <MDButton
             size="small"
             color="success"

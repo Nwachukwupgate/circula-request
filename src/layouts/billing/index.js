@@ -16,6 +16,7 @@ import DefaultInfoCard from "examples/Cards/InfoCards/DefaultInfoCard";
 // Billing page components
 import PaymentMethod from "layouts/billing/components/PaymentMethod";
 import Invoices from "layouts/billing/components/Invoices";
+import { FaPen } from "react-icons/fa";
 import BillingInformation from "layouts/billing/components/BillingInformation";
 import Transactions from "layouts/billing/components/Transactions";
 
@@ -57,6 +58,14 @@ function Billing() {
       </MDBox>
         </div>
       <Footer />
+      <div className="fixed bottom-9 left-4">
+        <button
+          className="bg-gray-800 p-3 rounded-full shadow-lg hover:bg-gray-700"
+          onClick={handleClickOpen}
+        >
+          <FaPen className="text-white" size={20} />
+        </button>
+      </div>
     </DashboardLayout>
     </>
   );

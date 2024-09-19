@@ -21,14 +21,15 @@ import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 // Dashboard components
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
-
+import { FaPen } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { useGetDataQuery } from "api/apiSlice";
 
 
 function Dashboard() {
   // const { sales, tasks } = reportsLineChartData;
   const { data, isLoading, isSuccess, error } = useGetDataQuery()
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (error) {
@@ -36,6 +37,9 @@ function Dashboard() {
     }
   }, [error]);
 
+  const handlePenClick = () => {
+    navigate("/request"); 
+  };
 
   return (
     <DashboardLayout>
@@ -164,6 +168,14 @@ function Dashboard() {
         </MDBox> */}
       </MDBox>
       <Footer />
+      <div className="fixed bottom-9 left-4">
+        <button
+          className="bg-gray-800 p-3 rounded-full shadow-lg hover:bg-gray-700"
+          onClick={handlePenClick}
+        >
+          <FaPen className="text-white" size={20} />
+        </button>
+      </div>
     </DashboardLayout>
   );
 }

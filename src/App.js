@@ -129,7 +129,6 @@ export default function App() {
       }
 
       if (route.route) {
-        // Wrap protected routes with ProtectedRoute component
         if (route.protected) {
           return (
             <Route
