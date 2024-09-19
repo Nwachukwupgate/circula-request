@@ -40,22 +40,27 @@ function Billing() {
     <DashboardLayout>
       <DashboardNavbar absolute isMini />
         <div className="pb-6">
-        <MDBox mt={8} >
-        <MDBox mb={3}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={7}>
-              <BillingInformation />
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <Transactions />
-            </Grid>
-          </Grid>
-        </MDBox>
+          <MDBox mt={8} >
+            <div className="hidden lg:flex lg:justify-end my-2">
+              <MDButton variant="contained" color="info" onClick={handleClickOpen}>
+                Click to Make Request
+              </MDButton>
+            </div>
+            <MDBox mb={3}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={7}>
+                  <BillingInformation />
+                </Grid>
+                <Grid item xs={12} md={5}>
+                  <Transactions />
+                </Grid>
+              </Grid>
+            </MDBox>
 
-        <MDButton variant="contained" color="info" onClick={handleClickOpen}>
-          Click to Make Request
-        </MDButton>
-      </MDBox>
+            <MDButton variant="contained" color="info" onClick={handleClickOpen}>
+              Click to Make Request
+            </MDButton>
+          </MDBox>
         </div>
       <Footer />
       <div className="fixed bottom-9 left-4">
