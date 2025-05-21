@@ -7,6 +7,7 @@ import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import Employee from "layouts/employee"
+import Logout from "components/Logout";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -77,10 +78,10 @@ const routes = [
   {
     type: "collapse",
     name: "Log Out",
-    key: "sign-in",
+    key: "logout",
     icon: <Icon fontSize="small">log Out</Icon>,
-    route: "/authentication/sign-in",
-    component: <SignIn />,
+    route: "/logout",
+    component: <Logout />,
     protected: false,
     // onClick: () => {
     //   // Clear local storage
