@@ -23,7 +23,7 @@ function CircularDetails() {
   const { data: circular, isLoading } = useGetCircularIDQuery(id);
   const [respondToCircular, { isLoading: isSubmitting }] = useRespondToCircularMutation();
   const { data: responseData } = useGetResponseIDQuery(id, {
-    pollingInterval: 10000,
+    pollingInterval: 8000,
     refetchOnFocus: true,
     refetchOnReconnect: true,
  });
