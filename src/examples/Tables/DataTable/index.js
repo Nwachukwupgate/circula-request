@@ -1,5 +1,4 @@
-
-
+import Skeleton from '@mui/material/Skeleton';
 import { useMemo, useEffect, useState } from "react";
 
 // prop-types is a library for typechecking of props
@@ -34,6 +33,7 @@ function DataTable({
   pagination,
   isSorted,
   noEndBorder,
+  loading = false,
 }) {
   const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 10;
   const entries = entriesPerPage.entries
@@ -189,23 +189,33 @@ function DataTable({
           ))}
         </MDBox>
         <TableBody {...getTableBodyProps()}>
-          {page?.map((row, key) => {
-            prepareRow(row);
-            return (
-              <TableRow key={key} {...row?.getRowProps()}>
-                {row?.cells?.map((cell, idx) => (
-                  <DataTableBodyCell
-                    key={idx}
-                    noBorder={noEndBorder && rows?.length - 1 === key}
-                    align={cell.column.align ? cell?.column.align : "left"}
-                    {...cell?.getCellProps()}
-                  >
-                    {cell?.render("Cell")}
-                  </DataTableBodyCell>
-                ))}
-              </TableRow>
-            );
-          })}
+          {loading
+            ? Array.from({ length: pageSize }).map((_, rowIdx) => (
+                <TableRow key={rowIdx}>
+                  {columns.map((col, colIdx) => (
+                    <DataTableBodyCell key={colIdx} align={col.align || "left"}>
+                      <Skeleton variant="text" width="100%" />
+                    </DataTableBodyCell>
+                  ))}
+                </TableRow>
+              ))
+            : page?.map((row, key) => {
+                prepareRow(row);
+                return (
+                  <TableRow key={key} {...row?.getRowProps()}>
+                    {row?.cells?.map((cell, idx) => (
+                      <DataTableBodyCell
+                        key={idx}
+                        noBorder={noEndBorder && rows?.length - 1 === key}
+                        align={cell.column.align ? cell?.column.align : "left"}
+                        {...cell?.getCellProps()}
+                      >
+                        {cell?.render("Cell")}
+                      </DataTableBodyCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
         </TableBody>
       </Table>
 
@@ -293,6 +303,7 @@ DataTable.propTypes = {
   }),
   isSorted: PropTypes.bool,
   noEndBorder: PropTypes.bool,
+  loading: PropTypes.bool,
 };
 
 export default DataTable;

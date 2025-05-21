@@ -23,6 +23,7 @@ import { SaveUser } from "api/userSlice";
 import SignIn from "./layouts/authentication/sign-in"  
 import ResetPassword from "./layouts/authentication/reset-password"
 import ChangePassword from "./layouts/authentication/change-password"
+import CircularDetails from './layouts/circular/pages/CircularDetails'
 
 // Material Dashboard 2 React themes
 import theme from "assets/theme";
@@ -195,7 +196,7 @@ export default function App() {
             <Sidenav
               color={sidenavColor}
               brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-              brandName="GMH Request & Circular"
+              brandName=""
               routes={routes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
@@ -211,6 +212,7 @@ export default function App() {
           <Route path="/change-password" element={<ChangePassword />} />
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
+          <Route path="/circulars/:id" element={<CircularDetails />} />
         </Routes>
       </ThemeProvider>
     </CacheProvider>
@@ -223,7 +225,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="GMH Request & Circular"
+            brandName=""
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
@@ -237,7 +239,7 @@ export default function App() {
         <Route path="/authentication/sign-in" element={<SignIn />} />
         <Route path="/authentication/reset-password" element={<ResetPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
-
+        <Route path="/circulars/:id" element={<CircularDetails />} />
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>

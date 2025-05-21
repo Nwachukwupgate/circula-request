@@ -44,8 +44,10 @@ function DefaultProjectCard({ image, label, title, description, action, authors 
         display: "flex",
         flexDirection: "column",
         backgroundColor: "transparent",
-        boxShadow: "none",
+        boxShadow: ({ boxShadows: { xl } }) => xl,
         overflow: "visible",
+        padding: 1,
+        borderRadius: "xl",
       }}
     >
       <MDBox position="relative" width="100.25%" shadow="xl" borderRadius="xl">
@@ -55,10 +57,12 @@ function DefaultProjectCard({ image, label, title, description, action, authors 
           title={title}
           sx={{
             maxWidth: "100%",
+            width: "100%",
             margin: 0,
             boxShadow: ({ boxShadows: { md } }) => md,
             objectFit: "cover",
             objectPosition: "center",
+            height: "150px",
           }}
         />
       </MDBox>

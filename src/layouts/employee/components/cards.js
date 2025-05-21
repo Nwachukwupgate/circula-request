@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -13,37 +13,59 @@ import Button from '@mui/material/Button';
 import Invoice from "layouts/billing/components/Invoice";
 import CardText from "./CardText";
 import React from "react";
+import ViewDetails from "./modal/ViewDetails";
 
 function Cards({data, name, type, handleDept}) {
-  return (
-    <Card sx={{ height: "100%" }}>
-      <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
-        <MDTypography variant="h6" fontWeight="medium">
-          {name}
-        </MDTypography>
-        <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
-            <MDBox sx={{ mr: '1rem' }}>
-                <MDButton variant="contained" color="info" size="small" mr={4}>
-                    view all
-                </MDButton>
-            </MDBox>
+  const [open, setOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState("dept");
 
-            <MDButton onClick={handleDept}>
-                Create
-            </MDButton>
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+
+  return (
+    <>
+      <Card sx={{ height: "100%" }}>
+        <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
+          <MDTypography variant="h6" fontWeight="medium">
+            {name}
+          </MDTypography>
+          <MDBox pt={2} px={2} display="flex" justifyContent="space-between" alignItems="center">
+              <MDBox sx={{ mr: '1rem' }}>
+                  <MDButton variant="contained" color="info" size="small" mr={4} onClick={handleClickOpen}>
+                      view all
+                  </MDButton>
+              </MDBox>
+
+              <MDButton onClick={handleDept}>
+                  Create
+              </MDButton>
+          </MDBox>
         </MDBox>
-      </MDBox>
-      <MDBox p={2}>
-        <MDBox component="ul" display="flex" flexDirection="column" pt={4} p={0} m={0}>
-            {data && data.map(data => (
-                <React.Fragment key={data?.id}>
-                    <CardText date={data?.name} />
-                </React.Fragment>
-            ))}
-          {/* <Invoice date="March, 01, 2019" id="#AR-803481" price="$300" noGutter /> */}
+        <MDBox p={2}>
+          <MDBox component="ul" display="flex" flexDirection="column" pt={4} p={0} m={0}>
+              {data && data.slice(0, 6).map(data => (
+                  <React.Fragment key={data?.id}>
+                      <CardText date={data?.name} />
+                  </React.Fragment>
+              ))}
+            {/* <Invoice date="March, 01, 2019" id="#AR-803481" price="$300" noGutter /> */}
+          </MDBox>
         </MDBox>
-      </MDBox>
-    </Card>
+      </Card>
+
+      <ViewDetails 
+        selectedValue={selectedValue}
+        open={open}
+        onClose={handleClose}
+        data={data}
+      />
+    </>
   );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
@@ -19,10 +19,10 @@ import { useCreateEmployeeMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 
 
-const CreateModal = ({ handleClose, modalType, departmentData, roleData }) => {
+const CreateModal = ({ handleClose }) => {
   const {data} = useGetDepartmentQuery()
   const {data:roles} = useGetRoleQuery()
-  const [createEmployee, {data: employeeData, error, isSuccess}] = useCreateEmployeeMutation()
+  const [createEmployee, {data: employeeData, error, isSuccess, isLoading}] = useCreateEmployeeMutation()
 
     const [formValues, setFormValues] = useState({
         firstName: '',
@@ -55,7 +55,8 @@ const CreateModal = ({ handleClose, modalType, departmentData, roleData }) => {
         createEmployee(formValues)
         .then((info) => {
             console.log(info);       
-            toast.success(employeeData?.message);           
+            toast.success(employeeData?.message);  
+            handleClose();        
         })
         .catch((err) => {
           console.log(err);       
@@ -195,7 +196,13 @@ const CreateModal = ({ handleClose, modalType, departmentData, roleData }) => {
             </DialogContent>
             <DialogActions>
               <MDButton  size="small" color='secondary' variant='outlined' onClick={handleClose}>Cancel</MDButton>
-              <MDButton size="small" color='info' variant='contained' type="submit" onClick={handleSubmit}>Submit</MDButton>
+              <MDButton size="small" color='info' variant='contained' type="submit" onClick={handleSubmit}>
+              {isLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                'Submit'
+              )}
+              </MDButton>
             </DialogActions>
           </Dialog>
         </React.Fragment>

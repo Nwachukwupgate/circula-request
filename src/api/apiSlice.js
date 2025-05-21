@@ -5,8 +5,9 @@ export const apiSlice = createApi({
     reducerPath: 'api', // Unique name for this API slice
     
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment
+        // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment
         // baseUrl: 'http://localhost:5000',
+        baseUrl: 'https://demo.xylon.pro/', // Replace with your actual base URL
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
@@ -19,7 +20,7 @@ export const apiSlice = createApi({
         },
     }),
 
-    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request'], // Tags used for cache invalidation and refetching data
+    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular'], // Tags used for cache invalidation and refetching data
     
     endpoints: (builder) => ({
         // Mutation for user login
@@ -75,7 +76,7 @@ export const apiSlice = createApi({
         }),
 
         getEmployee: builder.query({
-            query: () => `api/users`,
+            query: ({ limit, offset }) => `api/users?limit=${limit}&offset=${offset}`,
             // transformResponse: (response) => response.data,
             providesTags: ['Employees']
         }),
@@ -139,8 +140,50 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ['Request'], // Tag to invalidate, ensuring fresh data fetch if needed
         }),
+
+        createCircular: builder.mutation({
+            query: (credentials) => ({
+                url: '/api/circulars', // API endpoint for login
+                method: 'POST', // HTTP method
+                body: credentials, // Payload for the request
+            }),
+            invalidatesTags: ['Circular'], // Tag to invalidate, ensuring fresh data fetch if needed
+        }),
+
+        getUserDepartment: builder.query({
+            query: (id) => `api/departments/${id}`,
+            // transformResponse: (response) => response.data,
+            providesTags: ['Department']
+        }),
+
+        getMyCircular: builder.query({
+            query: () => '/api/circulars/my-circulars',
+            // transformResponse: (response) => response.data,
+            providesTags: ['Circular']
+        }),
+
+        getCircularID: builder.query({
+            query: (id) => `api/circulars/${id}`,
+            // transformResponse: (response) => response.data,
+            providesTags: ['Circular']
+        }),
+
+        respondToCircular: builder.mutation({
+            query: (credentials) => ({
+                url: '/api/circulars/circular-response', // API endpoint for login
+                method: 'POST', // HTTP method
+                body: credentials, // Payload for the request
+            }),
+            invalidatesTags: ['Circular'], // Tag to invalidate, ensuring fresh data fetch if needed
+        }),
+
+        getResponseID: builder.query({
+            query: (id) => `api/circulars/response/${id}`,
+            // transformResponse: (response) => response.data,
+            providesTags: ['Circular']
+        }),
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation } = apiSlice;
+export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery } = apiSlice;

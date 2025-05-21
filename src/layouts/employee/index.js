@@ -13,8 +13,6 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout"
 import DashboardNavbar from "examples/Navbars/DashboardNavbar"
 import Footer from "examples/Footer"
 
-import EmployeeTable from "./components/EmployeeTable";
-
 import Cards from "./components/cards";
 import { useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useGetProfileQuery } from "api/apiSlice";
 import { useNavigate } from "react-router-dom";
@@ -25,19 +23,19 @@ import CreateModal from "./components/modal/CreateModal";
 import NewCards from "./components/newcard";
 import CreateDepartment from "./components/modal/CreateUser/CreateDepartment";
 import CreateRole from "./components/modal/CreateUser/CreateRole";
+import TablePagination from "./components/TablePagination";
 
 const Employee = () => {
-    const currentPage = 1; // State for current page
     const rowsPerPage = 10; // Number of employees to show per page
-    const offset = (currentPage - 1) * rowsPerPage;
+    const [page, setPage] = useState(0);
+    const offset = page * rowsPerPage;
     const navigate = useNavigate()
 
-    const { data: department, isLoading } = useGetDepartmentQuery();
+    const { data: department } = useGetDepartmentQuery();
     const { data } = useGetRoleQuery();
-    const { data:employees } = useGetEmployeeQuery({ limit: rowsPerPage, offset });
+    const { data:employees, isLoading: employeeLoading } = useGetEmployeeQuery({ limit: rowsPerPage, offset });
 
     const {data: profile} = useGetProfileQuery()
-    console.log("users", profile)
 
     useEffect(() => {
         if(profile){
@@ -51,8 +49,6 @@ const Employee = () => {
     const [openRoles, setOpenRoles] = useState(false);
     const [openDepts, setOpenDepts] = useState(false);
     const [modalType, setModalType] = useState(null);
-    console.log("openRoles", openRoles);
-    console.log("openDepts", openDepts);
 
     const handleOpen = () => {
         setOpen(true);
@@ -108,11 +104,11 @@ const Employee = () => {
                                         Employees Table
                                     </MDTypography>
                                     <MDBox  display="flex" justifyContent="space-between" alignItems="center">
-                                        <MDBox sx={{ mr: '1rem' }}>
+                                        {/* <MDBox sx={{ mr: '1rem' }}>
                                             <MDButton variant="contained" color="info" size="small" mr={4} sx={{ zIndex: 1300}}>
                                                 view all
                                             </MDButton>
-                                        </MDBox>
+                                        </MDBox> */}
 
                                         <MDButton variant="outlined" size="small" sx={{ zIndex: 1300}} onClick={handleOpen}>
                                             Create
@@ -120,18 +116,27 @@ const Employee = () => {
                                     </MDBox>
                                 </MDBox>
                                 </MDBox>
-                                <MDBox pt={3}>
-                                    {
-                                        (columns && rows) &&  
+                                <MDBox pt={3} pb={2}>
+                                    {(columns && rows) && (
+                                        <>
                                         <DataTable
-                                        table={{ columns, rows }}
-                                        isSorted={false}
-                                        entriesPerPage={false}
-                                        showTotalEntries={false}
-                                        noEndBorder
+                                            table={{ columns, rows }}
+                                            isSorted={true}
+                                            entriesPerPage={false}
+                                            showTotalEntries={true}
+                                            loading={employeeLoading}
+                                            noEndBorder
                                         />
-                                    }
-                            </MDBox>
+
+                                        <TablePagination
+                                            page={page}
+                                            rowsPerPage={rowsPerPage}
+                                            count={employees?.count || 0}
+                                            onPageChange={setPage}
+                                        />
+                                        </>
+                                    )}
+                                </MDBox>
                         </Card>
                     </Grid>
                 </MDBox>
