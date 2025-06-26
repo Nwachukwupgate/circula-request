@@ -58,7 +58,7 @@ function Footer({ light }) {
             })}
           >
             <MDBox component="li" pr={2} lineHeight={1}>
-              <Link href="https://www.creative-tim.com/" target="_blank">
+              <Link href="https://www.internalops.pro/" target="_blank">
                 <MDTypography
                   variant="button"
                   fontWeight="regular"
