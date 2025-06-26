@@ -23,8 +23,8 @@ function CoverLayout({ coverHeight, image, children }) {
       <DefaultNavbar
         action={{
           type: "external",
-          route: "https://gmhluxury.com/",
-          label: "GMH",
+          route: "https://www.internalops.pro/",
+          label: "Internalops Pro",
         }}
         transparent
         light

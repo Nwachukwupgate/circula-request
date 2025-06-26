@@ -39,7 +39,7 @@ function Footer({ company, links }) {
       >
         &copy; {new Date().getFullYear()},
         
-        GMH &#40;Request & Circulars&#41;.
+        Internalops Pro &#40;Request & Circulars&#41;.
       </MDBox>
       <MDBox
         component="ul"

@@ -22,8 +22,8 @@ function BasicLayout({ image, children }) {
       <DefaultNavbar
         action={{
           type: "external",
-          route: "https://gmhluxury.com/S",
-          label: "GMH",
+          route: "https://www.internalops.pro/",
+          label: "Internalops pro",
           color: "dark",
         }}
       />

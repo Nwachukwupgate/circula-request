@@ -64,7 +64,7 @@ function Footer({ light }) {
                   fontWeight="regular"
                   color={light ? "white" : "dark"}
                 >
-                  GMH Luxury
+                  Internalops Pro
                 </MDTypography>
               </Link>
             </MDBox>

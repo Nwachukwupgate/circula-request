@@ -54,8 +54,8 @@ import { ToastContainer } from 'react-toastify';
 // import brandWhite from "assets/images/logo-ct.png";
 // import brandDark from "assets/images/logo-ct-dark.png";
 
-const brandDark = "https://gmhluxury.com/wp-content/uploads/2024/02/Logo-stroke-gold-1-2048x974.png"
-const brandWhite = "https://gmhluxury.com/wp-content/uploads/2024/02/Logo-stroke-gold-1-2048x974.png"
+const brandDark = "https://www.internalops.pro/_next/image?url=%2Fimages%2Flogo%2Flogo-transparent.jpg&w=256&q=75"
+const brandWhite = "https://www.internalops.pro/_next/image?url=%2Fimages%2Flogo%2Flogo-transparent.jpg&w=256&q=75"
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
