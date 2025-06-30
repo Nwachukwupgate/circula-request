@@ -135,6 +135,12 @@ function BillingInformation() {
                 amount={request?.amount}
                 status={request?.finalStatus}
                 accountStatus={request?.accountStatus}
+                cfoApprovalStatus={request?.cfoApprovalStatus}
+                hodApprovalStatus={request?.hodApprovalStatus}
+                cooApprovalStatus={request?.cooApprovalStatus}
+                mdApprovalStatus={request?.mdApprovalStatus}
+                dateNeeded={request?.dateNeeded}
+                createdAt={request?.createdAt}
                 comment={request?.comment}
                 onClick={() => handleClickOpen(request?.id)}
                 key={request?.id}
