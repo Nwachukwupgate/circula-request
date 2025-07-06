@@ -31,10 +31,7 @@ function BillingInformation() {
     filter: filter === 'all' ? undefined : filter,
     startDate: filter === 'dateRange' ? startDate : undefined,
     endDate: filter === 'dateRange' ? endDate : undefined,
-  });
-
-  console.log("data", data);
-  
+  });  
 
   const handleClickOpen = (id) => {
     setId(id)
@@ -126,24 +123,51 @@ function BillingInformation() {
           <MDBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
             {data && data.map(request => (
               <Bill
+                // Basic information
                 name={request?.itemName}
-                description={request?.itemDescription}
+                description={request?.description}
                 user={request?.user?.firstName}
-                userLastname= {request?.user?.surname}
-                requestDepartment= {request?.requestDepartment?.name}
-                requestRole= {request?.role?.name}
+                userLastname={request?.user?.surname}
+                requestDepartment={request?.requestDepartment?.name}
+                requestRole={request?.role?.name}
                 amount={request?.amount}
                 status={request?.finalStatus}
+                
+                // Approval statuses
                 accountStatus={request?.accountStatus}
                 cfoApprovalStatus={request?.cfoApprovalStatus}
                 hodApprovalStatus={request?.hodApprovalStatus}
                 cooApprovalStatus={request?.cooApprovalStatus}
                 mdApprovalStatus={request?.mdApprovalStatus}
+                
+                // Dates
                 dateNeeded={request?.dateNeeded}
                 createdAt={request?.createdAt}
+                expectedDeliveryDate={request?.expectedDeliveryDate}
+                startDate={request?.startDate}
+                endDate={request?.endDate}
+                
+                // Additional fields
+                requestType={request?.requestType}
+                quantity={request?.quantity}
+                preferredVendor={request?.preferredVendor}
+                justification={request?.justification}
+                paymentMethod={request?.paymentMethod}
+                urgencyLevel={request?.urgencyLevel}
+                location={request?.location}
+                leaveType={request?.leaveType}
+                employeeName={request?.employeeName}
+                supervisorName={request?.supervisorName}
+                deviceName={request?.deviceName}
+                issueTitle={request?.issueTitle}
+                reason={request?.reason}
+                
+                // Actions
                 comment={request?.comment}
                 onClick={() => handleClickOpen(request?.id)}
                 key={request?.id}
+                // Add approvers prop
+                approvers={request?.approvers}
               />
             ))}          
           </MDBox>

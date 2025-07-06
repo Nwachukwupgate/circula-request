@@ -5,9 +5,9 @@ export const apiSlice = createApi({
     reducerPath: 'api', // Unique name for this API slice
     
     baseQuery: fetchBaseQuery({
-        // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment
-        // baseUrl: 'http://localhost:5000',
-        baseUrl: 'https://demo.xylon.pro/', // Replace with your actual base URL
+        // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment old
+        baseUrl: 'http://localhost:5000',
+        // baseUrl: 'https://demo.xylon.pro/', // Replace with your actual base URL use
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
@@ -182,8 +182,14 @@ export const apiSlice = createApi({
             // transformResponse: (response) => response.data,
             providesTags: ['Circular']
         }),
+
+        getEveryEmployee: builder.query({
+            query: () => '/api/users/employees',
+            // transformResponse: (response) => response.data,
+            providesTags: ['Employees']
+        }),
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery } = apiSlice;
+export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery } = apiSlice;
