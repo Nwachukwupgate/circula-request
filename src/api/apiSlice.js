@@ -20,7 +20,7 @@ export const apiSlice = createApi({
         },
     }),
 
-    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular'], // Tags used for cache invalidation and refetching data
+    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular', 'Kpi'],
     
     endpoints: (builder) => ({
         // Mutation for user login
@@ -188,8 +188,78 @@ export const apiSlice = createApi({
             // transformResponse: (response) => response.data,
             providesTags: ['Employees']
         }),
+
+        createKpi: builder.mutation({
+            query: (credentials) => ({
+                url: '/api/kpi', 
+                method: 'POST',
+                body: credentials, 
+            }),
+            invalidatesTags: ['Kpi'], 
+        }),
+
+        getKpiTemplates: builder.query({
+            query: ({ search = '', departmentId = '', metricType = '', page = 1, limit = 10 }) => ({
+                url: `/api/kpi/filterby`,
+                params: { search, departmentId, metricType, page, limit },
+            }),
+            providesTags: ['Kpi'],
+        }),
+
+        updateTemplate: builder.mutation({
+            query: ({ id, ...updates }) => ({
+                url: `/api/kpi/${id}`,
+                method: 'PUT',
+                body: updates,
+            }),
+            invalidatesTags: ['Kpi'],
+        }),
+
+        deleteTemplate: builder.mutation({
+            query: (id) => ({
+                url: `/api/kpi/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Kpi'],
+        }),
+
+        getAccessibleUsers: builder.query({
+            query: () => '/api/users/accessible-users',
+            // transformResponse: (response) => response.data,
+            providesTags: ['Employees']
+        }),
+
+        getAllKpiTemplates: builder.query({
+            query: () => '/api/kpi',
+            // transformResponse: (response) => response.data,
+            providesTags: ['Kpi']
+        }),
+
+        assignKpi: builder.mutation({
+            query: ({...updates }) => ({
+                url: `/api/kpi/assign`,
+                method: 'POST',
+                body: updates,
+            }),
+            invalidatesTags: ['Kpi'],
+        }),
+
+        getKpiID: builder.query({
+            query: (id) => `api/kpi/${id}`,
+            // transformResponse: (response) => response.data,
+            providesTags: ['Circular']
+        }),
+
+        getKpiDashboard: builder.query({
+            query: ({ search = '', page = 1, limit = 10 }) => ({
+                url: `/api/kpi/dashboard`,
+                params: { search, page, limit },
+            }),
+            // transformResponse: (response) => response.data,
+            providesTags: ['Kpi']
+        }),
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery } = apiSlice;
+export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery, useCreateKpiMutation, useGetKpiTemplatesQuery, useUpdateTemplateMutation, useDeleteTemplateMutation, useGetAccessibleUsersQuery, useGetAllKpiTemplatesQuery, useAssignKpiMutation, useGetKpiIDQuery, useGetKpiDashboardQuery } = apiSlice;

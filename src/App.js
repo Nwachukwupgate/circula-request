@@ -24,6 +24,16 @@ import SignIn from "./layouts/authentication/sign-in"
 import ResetPassword from "./layouts/authentication/reset-password"
 import ChangePassword from "./layouts/authentication/change-password"
 import CircularDetails from './layouts/circular/pages/CircularDetails'
+import SubmitKPIForm from "layouts/kpi/pages/SubmitKpiform";
+import PerformanceFeedbackPage from "layouts/kpi/pages/KpiFeedback";
+import PerformanceDashboard from "layouts/kpi/pages/TeamDashboard";
+import KPIAssignmentForm from "layouts/kpi/pages/AssignmentForm";
+import GrowthLibrary from "layouts/kpi/pages/GrowthLibrary";
+import KPIDetailsView from "layouts/kpi/pages/KpiDetails";
+import ViewKpis from "layouts/kpi/pages/ViewKpis";
+import KPIDetailPage from "layouts/kpi/pages/lineManager/KpiDetail";
+import CreateKpis from "layouts/kpi/pages/lineManager/CreateKpi";
+
 
 // Material Dashboard 2 React themes
 import theme from "assets/theme";
@@ -240,6 +250,16 @@ export default function App() {
         <Route path="/authentication/reset-password" element={<ResetPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/circulars/:id" element={<CircularDetails />} />
+        <Route path="/kpi/submitkpi" element={<SubmitKPIForm />} />
+        <Route path="/kpi/feedback" element={<PerformanceFeedbackPage />} />
+        {/* <Route path="/teamkpi/team" element={<PerformanceDashboard />} /> */}
+        <Route path="/team/assignment" element={<KPIAssignmentForm />} />
+        <Route path="/resources" element={<GrowthLibrary />} />
+        <Route path="/kpi/details" element={<KPIDetailsView />} />
+        <Route path="/kpi/view" element={<KPIDetailsView />} />
+        <Route path="/team/viewTeam" element={<ViewKpis />} />
+        <Route path="/team/viewDetails/:id" element={<KPIDetailPage />} />
+        <Route path="/team/createkpi" element={<CreateKpis />} />
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>

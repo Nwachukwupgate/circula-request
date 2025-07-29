@@ -15,9 +15,10 @@
   "dependencies": {
     "@emotion/cache": "11.10.8",
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "5.11.16",
-    "@mui/material": "^5.17.1",
+    "@mui/material": "^5.18.0",
+    "@mui/system": "^7.2.0",
     "@mui/x-date-pickers": "^7.14.0",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.5",
@@ -30,6 +31,8 @@
     "lucide-react": "^0.510.0",
     "luxon": "^3.6.1",
     "multer": "^1.4.5-lts.1",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
     "prop-types": "15.8.1",
     "react": "18.2.0",
     "react-chartjs-2": "5.2.0",
@@ -52,7 +55,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start"
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
+    "postinstall": "patch-package"
   },
   "eslintConfig": {
     "extends": [

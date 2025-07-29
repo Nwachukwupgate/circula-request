@@ -1,13 +1,12 @@
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
 import Billing from "layouts/billing";
-import RTL from "layouts/rtl";
 import Circular from "layouts/circular";
 import Profile from "layouts/profile";
-import SignIn from "layouts/authentication/sign-in";
-import SignUp from "layouts/authentication/sign-up";
 import Employee from "layouts/employee"
 import Logout from "components/Logout";
+import PerformanceHubPage from "layouts/kpi";
+import PerformanceDashboard from "layouts/kpi/pages/TeamDashboard";
+import GrowthLibrary from "layouts/kpi/pages/GrowthLibrary";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -53,7 +52,7 @@ const routes = [
     type: "collapse",
     name: "Circular",
     key: "circular",
-    icon: <Icon fontSize="small">Circular</Icon>,
+    icon: <Icon fontSize="small">description</Icon>,
     route: "/notifications",
     component: <Circular />,
   },
@@ -77,9 +76,36 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "KPI",
+    key: "kpi",
+    icon: <Icon fontSize="small">assessment</Icon>,
+    route: "/kpi",
+    component: <PerformanceHubPage />,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Team KPI",
+    key: "team",
+    icon: <Icon fontSize="small">workspaces</Icon>,
+    route: "/team",
+    component: <PerformanceDashboard />,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "My Resources",
+    key: "resources",
+    icon: <Icon fontSize="small">bookmark</Icon>,
+    route: "/resources",
+    component: <GrowthLibrary />,
+    protected: true,
+  },
+  {
+    type: "collapse",
     name: "Log Out",
     key: "logout",
-    icon: <Icon fontSize="small">log Out</Icon>,
+    icon: <Icon fontSize="small">logout</Icon>,
     route: "/logout",
     component: <Logout />,
     protected: false,
@@ -90,7 +116,7 @@ const routes = [
     //   // Redirect to the sign-in page
     //   window.location.href = "/authentication/sign-in";
     // },
-  },
+  }, 
   // {
   //   type: "collapse",
   //   name: "Sign Up",
