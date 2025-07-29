@@ -58,14 +58,14 @@ function Overview() {
                 title="profile information"
                 description={
                   data?.role?.name === 'md'
-                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Managing Director of God Made Homes. As the MD, I oversee all operations within the company, ensuring strategic alignment and efficient management of resources to meet our long-term goals.`
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Managing Director of Internalops Pro. As the MD, I oversee all operations within the company, ensuring strategic alignment and efficient management of resources to meet our long-term goals.`
                     : data?.role?.name === 'coo'
-                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Chief Operating Officer at God Made Homes. I focus on optimizing our day-to-day operations and ensuring that all our departments are running efficiently to support the company's objectives.`
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Chief Operating Officer at Internalops Pro. I focus on optimizing our day-to-day operations and ensuring that all our departments are running efficiently to support the company's objectives.`
                     : data?.role?.name === 'cto'
-                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Chief Technology Officer at God Made Homes. I am responsible for the company's technological direction, ensuring we leverage cutting-edge technology to enhance our services and operations.`
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, the Chief Technology Officer at Internalops Pro. I am responsible for the company's technological direction, ensuring we leverage cutting-edge technology to enhance our services and operations.`
                     : data?.role?.name === 'ict'
-                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, part of the ICT team at God Made Homes. My role involves managing and supporting the company's IT infrastructure, ensuring seamless communication and secure data management across the organization.`
-                    : `Hi, I’m ${data?.surname} ${data?.firstName}, a dedicated staff member at God Made Homes, working to contribute to the success and smooth operation of our company every day.`
+                    ? `Hi, I’m ${data?.surname} ${data?.firstName}, part of the ICT team at Internalops Pro. My role involves managing and supporting the company's IT infrastructure, ensuring seamless communication and secure data management across the organization.`
+                    : `Hi, I’m ${data?.surname} ${data?.firstName}, a dedicated staff member at Internalops Pro, working to contribute to the success and smooth operation of our company every day.`
                 }
                 info={{
                   fullName: `${data?.surname} ${data?.firstName}`,
