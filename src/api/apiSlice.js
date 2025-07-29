@@ -6,8 +6,8 @@ export const apiSlice = createApi({
     
     baseQuery: fetchBaseQuery({
         // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment old
-        baseUrl: 'http://localhost:5000',
-        // baseUrl: 'https://demo.xylon.pro/', // Replace with your actual base URL use
+        // baseUrl: 'http://localhost:5000',
+         baseUrl: 'https://api.internalops.pro/', // Replace with your actual base URL use
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
