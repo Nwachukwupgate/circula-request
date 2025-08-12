@@ -33,6 +33,8 @@ import KPIDetailsView from "layouts/kpi/pages/KpiDetails";
 import ViewKpis from "layouts/kpi/pages/ViewKpis";
 import KPIDetailPage from "layouts/kpi/pages/lineManager/KpiDetail";
 import CreateKpis from "layouts/kpi/pages/lineManager/CreateKpi";
+import ManagerKPIDetailsView from "layouts/kpi/pages/lineManager/ViewDetail";
+import PerformanceFeedback from "layouts/kpi/pages/lineManager/PerformanceFeedback";
 
 
 // Material Dashboard 2 React themes
@@ -257,9 +259,11 @@ export default function App() {
         <Route path="/resources" element={<GrowthLibrary />} />
         <Route path="/kpi/details" element={<KPIDetailsView />} />
         <Route path="/kpi/view" element={<KPIDetailsView />} />
-        <Route path="/team/viewTeam" element={<ViewKpis />} />
+        <Route path="/team/viewTeam/:id" element={<ViewKpis />} />
         <Route path="/team/viewDetails/:id" element={<KPIDetailPage />} />
         <Route path="/team/createkpi" element={<CreateKpis />} />
+        <Route path="/team/viewTeam/:kpiId/details/:userId" element={<ManagerKPIDetailsView />} />
+        <Route path="/team/viewTeam/:kpiId/feedback/:userId" element={<PerformanceFeedback />} />
           {getRoutes(routes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>

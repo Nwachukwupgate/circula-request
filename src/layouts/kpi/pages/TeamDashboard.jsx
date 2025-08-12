@@ -22,58 +22,12 @@ const PerformanceDashboard = () => {
   });
 
   const { data: kpiDashboardData, isLoading: kpiDashboardLoading } = useGetKpiDashboardQuery({
-    search: "",
+    search: employeeSearch,
     page: 1,
     limit: 20,
   });
 
-  const teamData = [
-    {
-      name: 'Sophia Carter',
-      department: 'Marketing',
-      performance: 'Exceeds Expectations',
-      kpis: 80,
-      lastReview: '2023-11-15',
-      color: 'success',
-      avatar: 'SC'
-    },
-    {
-      name: 'Ethan Bennett',
-      department: 'Sales',
-      performance: 'Meets Expectations',
-      kpis: 60,
-      lastReview: '2023-10-20',
-      color: 'info',
-      avatar: 'EB'
-    },
-    {
-      name: 'Olivia Hayes',
-      department: 'Product',
-      performance: 'Needs Improvement',
-      kpis: 40,
-      lastReview: '2023-09-25',
-      color: 'warning',
-      avatar: 'OH'
-    },
-    {
-      name: 'Liam Foster',
-      department: 'Engineering',
-      performance: 'Exceeds Expectations',
-      kpis: 90,
-      lastReview: '2023-12-01',
-      color: 'success',
-      avatar: 'LF'
-    },
-    {
-      name: 'Ava Morgan',
-      department: 'Design',
-      performance: 'Meets Expectations',
-      kpis: 70,
-      lastReview: '2023-11-05',
-      color: 'info',
-      avatar: 'AM'
-    }
-  ];
+  const teamData = kpiDashboardData?.team || [];
 
   const allKPITemplates = Array.from({ length: 100 }, (_, i) => ({
     id: i + 1,
@@ -81,9 +35,6 @@ const PerformanceDashboard = () => {
     description: `Description for KPI Template ${i + 1}`,
   }));
 
-  
-
-  // Filtered and Paginated KPI Data
   const filteredKPIs = allKPITemplates.filter(kpi =>
     kpi.title.toLowerCase().includes(kpiSearch.toLowerCase())
   );
@@ -126,25 +77,11 @@ const PerformanceDashboard = () => {
     return 'bg-yellow-500';
   };
 
-  const kpiData = [
-    { month: 'Jan', value: 65 },
-    { month: 'Feb', value: 72 },
-    { month: 'Mar', value: 68 },
-    { month: 'Apr', value: 58 },
-    { month: 'May', value: 78 },
-    { month: 'Jun', value: 75 }
-  ];
+  const kpiData = kpiDashboardData?.dashboard?.completionSeries || [];
+  const performanceData = kpiDashboardData?.dashboard?.performanceSeries || [];
+  const performanceTrend = kpiDashboardData?.dashboard?.performanceTrend;
+  const completionTrend = kpiDashboardData?.dashboard?.completionTrend;
 
-  const performanceData = [
-    { month: 'Jan', value: 3.2 },
-    { month: 'Feb', value: 4.1 },
-    { month: 'Mar', value: 3.8 },
-    { month: 'Apr', value: 3.5 },
-    { month: 'May', value: 3.9 },
-    { month: 'Jun', value: 3.8 }
-  ];
-
-  
 
   return (
     <DashboardLayout>
@@ -174,11 +111,21 @@ const PerformanceDashboard = () => {
                 <h3 className="text-lg font-semibold text-gray-900">KPI Completion Rate</h3>
               </div>
               <div className="flex items-end gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">75%</span>
-                <div className="flex items-center gap-1 text-green-600 mb-2">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">+5%</span>
-                </div>
+                <span className="text-4xl font-bold text-gray-900">{kpiDashboardData?.dashboard?.completionRate}%</span>
+                {completionTrend !== null ? (
+                  <div className={`flex items-center gap-1 ${completionTrend > 0 ? 'text-green-600' : completionTrend < 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                    {completionTrend > 0 && <TrendingUp className="h-4 w-4" />}
+                    {completionTrend < 0 && <TrendingDown className="h-4 w-4" />}
+                    {completionTrend === 0 && <span className="text-xs">No change</span>}
+                    {completionTrend !== 0 && (
+                      <span className="text-sm font-medium">
+                        {completionTrend === Infinity ? '+∞%' : `${completionTrend > 0 ? '+' : ''}${completionTrend?.toFixed(1)}%`}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-500">No data to compare</span>
+                )}
               </div>
               <p className="text-gray-600 text-sm mb-4">Last 6 Months</p>
               <div className="h-20 flex items-end gap-1">
@@ -203,11 +150,21 @@ const PerformanceDashboard = () => {
                 <h3 className="text-lg font-semibold text-gray-900">Average Performance</h3>
               </div>
               <div className="flex items-end gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">3.8</span>
-                <div className="flex items-center gap-1 text-red-600 mb-2">
-                  <TrendingDown className="h-4 w-4" />
-                  <span className="text-sm font-medium">-2%</span>
-                </div>
+                <span className="text-4xl font-bold text-gray-900">{kpiDashboardData?.dashboard?.averagePerformance}</span>
+                {performanceTrend !== null ? (
+                    <div className={`flex items-center gap-1 ${performanceTrend > 0 ? 'text-green-600' : performanceTrend < 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                      {performanceTrend > 0 && <TrendingUp className="h-4 w-4" />}
+                      {performanceTrend < 0 && <TrendingDown className="h-4 w-4" />}
+                      {performanceTrend === 0 && <span className="text-xs">No change</span>}
+                      {performanceTrend !== 0 && (
+                        <span className="text-sm font-medium">
+                          {performanceTrend === Infinity ? '+∞%' : `${performanceTrend > 0 ? '+' : ''}${performanceTrend?.toFixed(1)}%`}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-500">No data to compare</span>
+                )}
               </div>
               <p className="text-gray-600 text-sm mb-4">Last 6 Months</p>
               <div className="h-20 flex items-end gap-1">
@@ -234,19 +191,19 @@ const PerformanceDashboard = () => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Total Members</span>
-                  <span className="text-xl font-bold text-gray-900">5</span>
+                  <span className="text-xl font-bold text-gray-900">{kpiDashboardData?.dashboard?.totalMembers}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Exceeds Expectations</span>
-                  <span className="text-xl font-bold text-green-600">2</span>
+                  <span className="text-xl font-bold text-green-600">{kpiDashboardData?.dashboard?.exceedsCount}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Meets Expectations</span>
-                  <span className="text-xl font-bold text-blue-600">2</span>
+                  <span className="text-xl font-bold text-blue-600">{kpiDashboardData?.dashboard?.meetsCount}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Needs Improvement</span>
-                  <span className="text-xl font-bold text-yellow-600">1</span>
+                  <span className="text-xl font-bold text-yellow-600">{kpiDashboardData?.dashboard?.needsCount}</span>
                 </div>
               </div>
             </div>
@@ -323,7 +280,7 @@ const PerformanceDashboard = () => {
                           </div>
                         </div>
 
-                        <Link to={"/team/viewTeam"}>
+                        <Link to={`/team/viewTeam/${member.id}`}>
                           <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
                             View KPIs
                           </button>

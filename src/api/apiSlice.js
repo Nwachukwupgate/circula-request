@@ -6,8 +6,8 @@ export const apiSlice = createApi({
     
     baseQuery: fetchBaseQuery({
         // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment old
-        // baseUrl: 'http://localhost:5000',
-         baseUrl: 'https://api.internalops.pro/', // Replace with your actual base URL use
+        baseUrl: 'http://localhost:5000',
+        //  baseUrl: 'https://api.internalops.pro/', // Replace with your actual base URL use
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
@@ -20,7 +20,7 @@ export const apiSlice = createApi({
         },
     }),
 
-    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular', 'Kpi'],
+    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular', 'Kpi', 'AIInsights', 'Recommendations', 'DailyReminder', 'ResourceUsage'],
     
     endpoints: (builder) => ({
         // Mutation for user login
@@ -252,14 +252,139 @@ export const apiSlice = createApi({
 
         getKpiDashboard: builder.query({
             query: ({ search = '', page = 1, limit = 10 }) => ({
-                url: `/api/kpi/dashboard`,
+                url: `/api/kpi/dashboard/details`,
                 params: { search, page, limit },
             }),
             // transformResponse: (response) => response.data,
             providesTags: ['Kpi']
         }),
+
+        getUserKpis: builder.query({
+            query: (id) => `api/kpi/kpis/${id}`,
+            // transformResponse: (response) => response.data,
+            providesTags: ['Circular']
+        }),
+
+        getKpiDetails: builder.query({
+            query: ({ userId, kpiAssignmentId }) => `api/kpi/${userId}/${kpiAssignmentId}/kpis`
+        }),
+
+        // Get AI insights for multiple KPIs
+        getAIInsights: builder.query({
+            query: ({userId, kpiAssignmentId}) => ({
+                url: `api/feedback/kpi/${userId}/insights/${kpiAssignmentId}`,
+            }),
+            providesTags: ['AIInsights'],
+        }),
+
+        // Get AI recommendations
+        getRecommendations: builder.query({
+        query: ({ limit = 8 } = {}) => `api/feedback/recommendations?limit=${limit}`,
+        providesTags: ['Recommendations'],
+        transformResponse: (response) => response,
+        }),
+
+        // Get daily reminder
+        getDailyReminder: builder.query({
+        query: () => 'api/feedback/daily-reminder',
+        providesTags: ['DailyReminder'],
+        transformResponse: (response) => response,
+        }),
+
+        // Track resource usage (mutation)
+        trackResourceUsage: builder.mutation({
+        query: ({ resourceId, rating = null }) => ({
+            url: `/ai/resource/${resourceId}/track`,
+            method: 'POST',
+            body: { rating },
+        }),
+        invalidatesTags: ['ResourceUsage', 'Recommendations'],
+        }),
+
+        // Additional endpoints you might need:
+
+        // Get individual KPI insights
+        getKPIInsights: builder.query({
+        query: (kpiId) => `/ai/kpi/${kpiId}/insights`,
+        providesTags: (result, error, kpiId) => [{ type: 'AIInsights', id: kpiId }],
+        }),
+
+        // Submit KPI report
+        submitKPIReport: builder.mutation({
+        query: ({ kpiId, reportData }) => ({
+            url: `/kpi/${kpiId}/report`,
+            method: 'POST',
+            body: reportData,
+        }),
+        invalidatesTags: ['KPI', 'AIInsights'],
+        }),
+
+        // Update KPI progress
+        updateKPIProgress: builder.mutation({
+        query: ({ kpiId, progress, notes }) => ({
+            url: `/kpi/${kpiId}/progress`,
+            method: 'PUT',
+            body: { progress, notes },
+        }),
+        invalidatesTags: ['KPI', 'AIInsights'],
+        }),
+
+        // Get performance analytics
+        getPerformanceAnalytics: builder.query({
+        query: ({ startDate, endDate, kpiIds } = {}) => {
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            if (kpiIds?.length) params.append('kpiIds', kpiIds.join(','));
+            
+            return `/analytics/performance?${params.toString()}`;
+        },
+        providesTags: ['KPI'],
+        }),
+
+        // Rate a learning resource
+        rateResource: builder.mutation({
+        query: ({ resourceId, rating, feedback }) => ({
+            url: `/ai/resource/${resourceId}/rate`,
+            method: 'POST',
+            body: { rating, feedback },
+        }),
+        invalidatesTags: ['Recommendations', 'ResourceUsage'],
+        }),
+
+        // Get user's learning progress
+        getLearningProgress: builder.query({
+        query: () => '/ai/learning/progress',
+        providesTags: ['ResourceUsage'],
+        }),
+
+        // Request new AI recommendations
+        requestNewRecommendations: builder.mutation({
+        query: ({ skills, interests, currentKPIs } = {}) => ({
+            url: '/ai/recommendations/generate',
+            method: 'POST',
+            body: { skills, interests, currentKPIs },
+        }),
+        invalidatesTags: ['Recommendations'],
+        }),
+
+        // Get manager feedback
+        getManagerFeedback: builder.query({
+        query: ({ limit = 10 } = {}) => `/feedback/manager?limit=${limit}`,
+        providesTags: ['Feedback'],
+        }),
+
+        // Submit feedback request
+        submitFeedbackRequest: builder.mutation({
+        query: ({ managerId, message, kpiId }) => ({
+            url: '/feedback/request',
+            method: 'POST',
+            body: { managerId, message, kpiId },
+        }),
+        invalidatesTags: ['Feedback'],
+        }),
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery, useCreateKpiMutation, useGetKpiTemplatesQuery, useUpdateTemplateMutation, useDeleteTemplateMutation, useGetAccessibleUsersQuery, useGetAllKpiTemplatesQuery, useAssignKpiMutation, useGetKpiIDQuery, useGetKpiDashboardQuery } = apiSlice;
+export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery, useCreateKpiMutation, useGetKpiTemplatesQuery, useUpdateTemplateMutation, useDeleteTemplateMutation, useGetAccessibleUsersQuery, useGetAllKpiTemplatesQuery, useAssignKpiMutation, useGetKpiIDQuery, useGetKpiDashboardQuery, useGetUserKpisQuery, useGetKpiDetailsQuery, useGetAIInsightsQuery, useGetRecommendationsQuery, useGetDailyReminderQuery, useTrackResourceUsageMutation, useGetKPIInsightsQuery, useSubmitKPIReportMutation, useUpdateKPIProgressMutation, useGetPerformanceAnalyticsQuery, useRateResourceMutation, useGetLearningProgressQuery, useRequestNewRecommendationsMutation, useGetManagerFeedbackQuery, useSubmitFeedbackRequestMutation } = apiSlice;
