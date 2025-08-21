@@ -253,11 +253,11 @@ export default function App() {
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/circulars/:id" element={<CircularDetails />} />
         <Route path="/kpi/submitkpi" element={<SubmitKPIForm />} />
-        <Route path="/kpi/feedback" element={<PerformanceFeedbackPage />} />
+        <Route path="/kpi/feedback/:kpiId" element={<PerformanceFeedbackPage />} />
         {/* <Route path="/teamkpi/team" element={<PerformanceDashboard />} /> */}
         <Route path="/team/assignment" element={<KPIAssignmentForm />} />
         <Route path="/resources" element={<GrowthLibrary />} />
-        <Route path="/kpi/details" element={<KPIDetailsView />} />
+        <Route path="/kpi/details/:id" element={<KPIDetailsView />} />
         <Route path="/kpi/view" element={<KPIDetailsView />} />
         <Route path="/team/viewTeam/:id" element={<ViewKpis />} />
         <Route path="/team/viewDetails/:id" element={<KPIDetailPage />} />

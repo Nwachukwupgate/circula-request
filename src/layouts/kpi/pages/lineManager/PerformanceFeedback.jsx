@@ -251,7 +251,7 @@ const PerformanceFeedback = () => {
               {/* Employee Profile Card */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+                  {/* <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 rounded-full overflow-hidden">
                       <img 
                         src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" 
@@ -264,8 +264,8 @@ const PerformanceFeedback = () => {
                       <p className="text-gray-600 text-base p-1 bg-[#F4F4F4] rounded-xl">Software Engineer</p>
                       <p className="text-sm text-gray-500">Joined 2 years ago</p>
                     </div>
-                  </div>
-                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-4 rounded-xl flex items-center space-x-3 min-w-[290px]">
+                  </div> */}
+                  {/* <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-4 rounded-xl flex items-center space-x-3 min-w-[290px]">
                     <Award className="w-12 h-12" />
                     <div className="text-sm">
                       <div className="font-bold text-center text-lg">Top Performer</div>
@@ -273,7 +273,7 @@ const PerformanceFeedback = () => {
                         {overallRating >= 80 ? "Outstanding performance!" : "Great progress this quarter!"}
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -350,79 +350,7 @@ const PerformanceFeedback = () => {
 
                   {/* AI Insights Tab */}
                   {activeTab === 'ai-insights' && (
-                    // <div className="space-y-6">
-                    //   <div className="flex items-center gap-2 mb-4">
-                    //     <Brain className="w-5 h-5 text-purple-600" />
-                    //     <h3 className="text-lg font-semibold text-gray-900">AI-Generated Performance Insights</h3>
-                    //     {insightsLoading && (
-                    //       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
-                    //     )}
-                    //   </div>
-
-                    //   {aiInsights ? (
-                    //     <div className="space-y-6">
-                          
-                    //       <div className="border border-gray-200 rounded-xl p-6">
-                    //         <div className="flex items-center justify-between mb-4">
-                    //           <h4 className="text-lg font-semibold text-gray-900">{aiInsights?.insights?.insightType}</h4>
-                    //           {aiInsights?.insights?.riskLevel && (
-                    //             <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(aiInsights.insights.riskLevel)}`}>
-                    //               {aiInsights.insights.riskLevel.toUpperCase()} RISK
-                    //             </span>
-                    //           )}
-                    //         </div>
-
-                    //         {aiInsights?.performanceAnalysis && (
-                    //           <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    //             <p className="text-gray-700 leading-relaxed">{aiInsights?.performanceAnalysis?.analysis}</p>
-                    //           </div>
-                    //         )}
-
-                    //         {aiInsights?.performanceAnalysis?.insights && (
-                    //           <div className="mb-4">
-                    //             <h5 className="font-medium text-gray-900 mb-2">Key Insights:</h5>
-                    //             <ul className="space-y-2">
-                    //               {aiInsights?.performanceAnalysis?.insights.map((item, idx) => (
-                    //                 <li key={idx} className="flex items-start gap-2">
-                    //                   <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                    //                   <span className="text-gray-700 text-sm">{item}</span>
-                    //                 </li>
-                    //               ))}
-                    //             </ul>
-                    //           </div>
-                    //         )}
-
-                    //         {aiInsights?.improvementSuggestions && aiInsights.improvementSuggestions.length > 0 && (
-                    //           <div>
-                    //             <h5 className="font-medium text-gray-900 mb-3">Recommended Actions:</h5>
-                    //             <div className="space-y-3">
-                    //               {aiInsights?.improvementSuggestions?.map((action, actionIdx) => (
-                    //                 <div key={actionIdx} className="bg-blue-50 rounded-lg p-3">
-                    //                   <div className="flex items-center justify-between mb-2">
-                    //                     <span className="font-medium text-blue-900">{action?.action}</span>
-                    //                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(action?.priority)}`}>
-                    //                       {action?.priority}
-                    //                     </span>
-                    //                   </div>
-                    //                   <p className="text-blue-800 text-sm mb-1">{action?.impact}</p>
-                    //                   <p className="text-blue-600 text-xs">Timeline: {action?.timeline}</p>
-                    //                 </div>
-                    //               ))}
-                    //             </div>
-                    //           </div>
-                    //         )}
-                    //       </div>
-                          
-                    //     </div>
-                    //   ) : (
-                    //     <div className="text-center py-8">
-                    //       <Brain className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    //       <h4 className="text-lg font-medium text-gray-900 mb-2">No AI Insights Available</h4>
-                    //       <p className="text-gray-600">AI insights will appear here once you have KPI data to analyze</p>
-                    //     </div>
-                    //   )}
-                    // </div>
-                    <AIInsightsDashboard aiInsights={aiInsightsData} />
+                   <AIInsightsDashboard aiInsights={aiInsightsData} />
                   )}
 
                   {/* Feedback Tab */}

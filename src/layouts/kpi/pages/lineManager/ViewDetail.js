@@ -114,7 +114,7 @@ const ManagerKPIDetailsView = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Edit3 className="w-4 h-4" />
-                Update KPI
+                Make Remark
               </button>
               <Link to={`/team/viewTeam/${kpiId}/feedback/${userId}`}>
                 <button

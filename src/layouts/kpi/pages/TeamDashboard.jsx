@@ -82,6 +82,20 @@ const PerformanceDashboard = () => {
   const performanceTrend = kpiDashboardData?.dashboard?.performanceTrend;
   const completionTrend = kpiDashboardData?.dashboard?.completionTrend;
 
+  if (kpiLoading && kpiDashboardLoading) {
+      return (
+        <DashboardLayout>
+          <DashboardNavbar />
+          <div className="min-h-screen p-3 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading KPI data...</p>
+            </div>
+          </div>
+        </DashboardLayout>
+      );
+  }
+
 
   return (
     <DashboardLayout>

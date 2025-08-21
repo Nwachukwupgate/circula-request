@@ -10,44 +10,6 @@ import { useParams } from 'react-router-dom';
 const ViewKpis = () => {
     const { id } = useParams();
     const { data, isLoading } = useGetUserKpisQuery(id);
-//   const kpis = [
-//     {
-//       id: 1,
-//       name: 'Sales Growth',
-//       dueDate: '2024-12-31',
-//       status: 'In Progress',
-//       progress: 75,
-//       icon: <TrendingUp className="w-6 h-6" />,
-//       color: 'bg-blue-500',
-//       bgColor: 'bg-blue-50',
-//       textColor: 'text-blue-600',
-//       progressColor: 'bg-blue-500'
-//     },
-//     {
-//       id: 2,
-//       name: 'Customer Satisfaction',
-//       dueDate: '2024-11-15',
-//       status: 'Completed',
-//       progress: 100,
-//       icon: <Users className="w-6 h-6" />,
-//       color: 'bg-green-500',
-//       bgColor: 'bg-green-50',
-//       textColor: 'text-green-600',
-//       progressColor: 'bg-green-500'
-//     },
-//     {
-//       id: 3,
-//       name: 'Project Completion Rate',
-//       dueDate: '2024-12-31',
-//       status: 'In Progress',
-//       progress: 50,
-//       icon: <CheckCircle className="w-6 h-6" />,
-//       color: 'bg-orange-500',
-//       bgColor: 'bg-orange-50',
-//       textColor: 'text-orange-600',
-//       progressColor: 'bg-orange-500'
-//     }
-//   ];
 
   const getStatusStyles = (status) => {
     switch (status) {

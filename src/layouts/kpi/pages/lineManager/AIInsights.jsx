@@ -147,8 +147,8 @@ const AIInsightsDashboard = ({aiInsights}) => {
                 <span className="text-sm font-medium text-gray-600">Confidence Score</span>
               </div>
               <div className="mt-2">
-                <span className={`text-2xl font-bold ${getConfidenceColor(aiInsights.performanceAnalysis.confidenceScore)}`}>
-                  {Math.round(aiInsights.performanceAnalysis.confidenceScore * 100)}%
+                <span className={`text-2xl font-bold ${getConfidenceColor(aiInsights?.performanceAnalysis?.confidenceScore)}`}>
+                  {Math.round(aiInsights?.performanceAnalysis?.confidenceScore * 100)}%
                 </span>
               </div>
             </div>
@@ -160,7 +160,7 @@ const AIInsightsDashboard = ({aiInsights}) => {
               </div>
               <div className="mt-2">
                 <span className="text-2xl font-bold text-red-600">
-                  {aiInsights.performanceAnalysis.completionProbability}%
+                  {aiInsights?.performanceAnalysis?.completionProbability}%
                 </span>
               </div>
             </div>
@@ -172,7 +172,7 @@ const AIInsightsDashboard = ({aiInsights}) => {
               </div>
               <div className="mt-2">
                 <span className="text-lg font-semibold text-gray-900">
-                  {formatDate(aiInsights.performanceAnalysis.predictedCompletion)}
+                  {formatDate(aiInsights?.performanceAnalysis?.predictedCompletion)}
                 </span>
               </div>
             </div>
@@ -183,8 +183,8 @@ const AIInsightsDashboard = ({aiInsights}) => {
                 <span className="text-sm font-medium text-gray-600">Risk Level</span>
               </div>
               <div className="mt-2">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(aiInsights.performanceAnalysis.riskLevel)}`}>
-                  {aiInsights.performanceAnalysis.riskLevel.toUpperCase()}
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(aiInsights?.performanceAnalysis?.riskLevel)}`}>
+                  {aiInsights?.performanceAnalysis?.riskLevel.toUpperCase()}
                 </span>
               </div>
             </div>

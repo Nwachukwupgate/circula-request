@@ -6,8 +6,8 @@ export const apiSlice = createApi({
     
     baseQuery: fetchBaseQuery({
         // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment old
-        // baseUrl: 'http://localhost:5000',
-         baseUrl: 'https://api.internalops.pro/', // Replace with your actual base URL use
+        baseUrl: 'http://localhost:5000',
+        //  baseUrl: 'https://api.internalops.pro/', // Replace with your actual base URL use
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
             const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
@@ -262,11 +262,21 @@ export const apiSlice = createApi({
         getUserKpis: builder.query({
             query: (id) => `api/kpi/kpis/${id}`,
             // transformResponse: (response) => response.data,
-            providesTags: ['Circular']
+            providesTags: ['Kpi']
+        }),
+
+        getMyKpis: builder.query({
+            query: () => `api/kpi/my/kpis`,
+            // transformResponse: (response) => response.data,
+            providesTags: ['Kpi']
         }),
 
         getKpiDetails: builder.query({
             query: ({ userId, kpiAssignmentId }) => `api/kpi/${userId}/${kpiAssignmentId}/kpis`
+        }),
+
+        getMyKpiDetails: builder.query({
+            query: ({ kpiAssignmentId }) => `api/kpi/${kpiAssignmentId}/kpis`
         }),
 
         // Get AI insights for multiple KPIs
@@ -277,18 +287,25 @@ export const apiSlice = createApi({
             providesTags: ['AIInsights'],
         }),
 
+        getMyAIInsights: builder.query({
+            query: ({ kpiAssignmentId }) => ({
+                url: `api/feedback/my-kpi/insights/${kpiAssignmentId}`,
+            }),
+            providesTags: ['AIInsights'],
+        }),
+
         // Get AI recommendations
         getRecommendations: builder.query({
-        query: ({ limit = 8 } = {}) => `api/feedback/recommendations?limit=${limit}`,
-        providesTags: ['Recommendations'],
-        transformResponse: (response) => response,
+            query: ({ limit = 8 } = {}) => `api/feedback/recommendations?limit=${limit}`,
+            providesTags: ['Recommendations'],
+            transformResponse: (response) => response,
         }),
 
         // Get daily reminder
         getDailyReminder: builder.query({
-        query: () => 'api/feedback/daily-reminder',
-        providesTags: ['DailyReminder'],
-        transformResponse: (response) => response,
+            query: () => 'api/feedback/daily-reminder',
+            providesTags: ['DailyReminder'],
+            transformResponse: (response) => response,
         }),
 
         // Track resource usage (mutation)
@@ -305,8 +322,8 @@ export const apiSlice = createApi({
 
         // Get individual KPI insights
         getKPIInsights: builder.query({
-        query: (kpiId) => `/ai/kpi/${kpiId}/insights`,
-        providesTags: (result, error, kpiId) => [{ type: 'AIInsights', id: kpiId }],
+            query: (kpiId) => `/ai/kpi/${kpiId}/insights`,
+            providesTags: (result, error, kpiId) => [{ type: 'AIInsights', id: kpiId }],
         }),
 
         // Submit KPI report
@@ -383,8 +400,15 @@ export const apiSlice = createApi({
         }),
         invalidatesTags: ['Feedback'],
         }),
+
+        createKpiReport: builder.mutation({query: (reportData) => ({
+            url: 'api/feedback/kpi/create/kpireports',
+            method: 'POST',
+            body: reportData,
+        }), invalidatesTags: ['KPI', 'AIInsights'],}),
+
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery, useCreateKpiMutation, useGetKpiTemplatesQuery, useUpdateTemplateMutation, useDeleteTemplateMutation, useGetAccessibleUsersQuery, useGetAllKpiTemplatesQuery, useAssignKpiMutation, useGetKpiIDQuery, useGetKpiDashboardQuery, useGetUserKpisQuery, useGetKpiDetailsQuery, useGetAIInsightsQuery, useGetRecommendationsQuery, useGetDailyReminderQuery, useTrackResourceUsageMutation, useGetKPIInsightsQuery, useSubmitKPIReportMutation, useUpdateKPIProgressMutation, useGetPerformanceAnalyticsQuery, useRateResourceMutation, useGetLearningProgressQuery, useRequestNewRecommendationsMutation, useGetManagerFeedbackQuery, useSubmitFeedbackRequestMutation } = apiSlice;
+export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery, useCreateKpiMutation, useGetKpiTemplatesQuery, useUpdateTemplateMutation, useDeleteTemplateMutation, useGetAccessibleUsersQuery, useGetAllKpiTemplatesQuery, useAssignKpiMutation, useGetKpiIDQuery, useGetKpiDashboardQuery, useGetUserKpisQuery, useGetKpiDetailsQuery, useGetAIInsightsQuery, useGetRecommendationsQuery, useGetDailyReminderQuery, useTrackResourceUsageMutation, useGetKPIInsightsQuery, useSubmitKPIReportMutation, useUpdateKPIProgressMutation, useGetPerformanceAnalyticsQuery, useRateResourceMutation, useGetLearningProgressQuery, useRequestNewRecommendationsMutation, useGetManagerFeedbackQuery, useSubmitFeedbackRequestMutation, useGetMyKpisQuery, useGetMyKpiDetailsQuery, useCreateKpiReportMutation, useGetMyAIInsightsQuery } = apiSlice;

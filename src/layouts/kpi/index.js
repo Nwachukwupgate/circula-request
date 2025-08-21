@@ -4,57 +4,55 @@ import { TrendingUp, Users, CheckCircle, Clock, Plus, Lightbulb, Calendar,Target
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Link } from 'react-router-dom';
+import { useGetMyKpisQuery } from 'api/apiSlice';
 
 const PerformanceHubPage = () => {
-  const kpis = [
-    {
-      id: 1,
-      name: 'Sales Growth',
-      dueDate: '2024-12-31',
-      status: 'In Progress',
-      progress: 75,
-      icon: <TrendingUp className="w-6 h-6" />,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
-      progressColor: 'bg-blue-500'
-    },
-    {
-      id: 2,
-      name: 'Customer Satisfaction',
-      dueDate: '2024-11-15',
-      status: 'Completed',
-      progress: 100,
-      icon: <Users className="w-6 h-6" />,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-600',
-      progressColor: 'bg-green-500'
-    },
-    {
-      id: 3,
-      name: 'Project Completion Rate',
-      dueDate: '2024-12-31',
-      status: 'In Progress',
-      progress: 50,
-      icon: <CheckCircle className="w-6 h-6" />,
-      color: 'bg-orange-500',
-      bgColor: 'bg-orange-50',
-      textColor: 'text-orange-600',
-      progressColor: 'bg-orange-500'
-    }
-  ];
+    const { data, isLoading } = useGetMyKpisQuery();
 
-  const getStatusStyles = (status) => {
-    switch (status) {
-      case 'Completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'In Progress':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+    const getStatusStyles = (status) => {
+        switch (status) {
+        case 'Completed':
+            return 'bg-green-100 text-green-800 border-green-200';
+        case 'In Progress':
+            return 'bg-blue-100 text-blue-800 border-blue-200';
+        default:
+            return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
+  
+    const iconMap = {
+      TrendingUp: <TrendingUp className="w-6 h-6" />,
+      Users: <Users className="w-6 h-6" />,
+      CheckCircle: <CheckCircle className="w-6 h-6" />,
+      Target: <Target className="w-6 h-6" />
+    };
+  
+    if (isLoading) {
+      return (
+        <DashboardLayout>
+          <DashboardNavbar />
+          <div className="min-h-screen p-3 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading KPI data...</p>
+            </div>
+          </div>
+        </DashboardLayout>
+      );
     }
-  };
+  
+    if (!data) {
+      return (
+        <DashboardLayout>
+          <DashboardNavbar />
+          <div className="min-h-screen p-3 flex items-center justify-center">
+            <p className="text-gray-600">No KPI data available</p>
+          </div>
+        </DashboardLayout>
+      );
+    }
+  
+    const { user, kpis, summary } = data;
 
   return (
     <>
@@ -68,7 +66,7 @@ const PerformanceHubPage = () => {
                 <div className="flex items-center justify-between">
                     <div>
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                        Welcome back, Sarah
+                        Welcome back, {user?.firstName}
                     </h1>
                     <p className="text-lg text-gray-600">
                         Here's your performance overview for this quarter
@@ -77,7 +75,7 @@ const PerformanceHubPage = () => {
                     <div className="hidden md:flex items-center space-x-4">
                     <div className="flex items-center space-x-2 text-gray-600">
                         <Calendar className="w-5 h-5" />
-                        <span className="text-sm">July 11, 2025</span>
+                        <span className="text-sm">{new Date().toLocaleDateString()}</span>
                     </div>
                     </div>
                 </div>
@@ -89,7 +87,7 @@ const PerformanceHubPage = () => {
                     <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm font-medium text-gray-600">Total KPIs</p>
-                        <p className="text-2xl font-bold text-gray-900">3</p>
+                        <p className="text-2xl font-bold text-gray-900">{summary.totalKpis}</p>
                     </div>
                     <Target className="w-8 h-8 text-blue-500" />
                     </div>
@@ -98,7 +96,7 @@ const PerformanceHubPage = () => {
                     <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm font-medium text-gray-600">Completed</p>
-                        <p className="text-2xl font-bold text-green-600">1</p>
+                        <p className="text-2xl font-bold text-green-600">{summary.completedKpis}</p>
                     </div>
                     <CheckCircle className="w-8 h-8 text-green-500" />
                     </div>
@@ -107,7 +105,7 @@ const PerformanceHubPage = () => {
                     <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm font-medium text-gray-600">In Progress</p>
-                        <p className="text-2xl font-bold text-blue-600">2</p>
+                        <p className="text-2xl font-bold text-blue-600">{summary.inProgressKpis}</p>
                     </div>
                     <Clock className="w-8 h-8 text-blue-500" />
                     </div>
@@ -116,7 +114,7 @@ const PerformanceHubPage = () => {
                     <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm font-medium text-gray-600">Avg Progress</p>
-                        <p className="text-2xl font-bold text-orange-600">75%</p>
+                        <p className="text-2xl font-bold text-orange-600">{summary.avgProgress}%</p>
                     </div>
                     <TrendingUp className="w-8 h-8 text-orange-500" />
                     </div>
@@ -137,15 +135,21 @@ const PerformanceHubPage = () => {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {kpis.length === 0 ? (
+                    <div className="text-center py-12">
+                        <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500 text-lg">No KPIs assigned yet</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {kpis.map((kpi) => (
-                    <div key={kpi.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200">
-                        <Link to={"/kpi/details"}>
+                        <div key={kpi.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200">
+                        <Link to={`/kpi/details/${kpi.id}`}>
                             <div className="p-6">
                             <div className="flex items-start justify-between mb-4">
                                 <div className={`p-3 rounded-xl ${kpi.bgColor}`}>
                                 <div className={kpi.textColor}>
-                                    {kpi.icon}
+                                    {iconMap[kpi.icon] || iconMap.Target}
                                 </div>
                                 </div>
                                 <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyles(kpi.status)}`}>
@@ -157,10 +161,12 @@ const PerformanceHubPage = () => {
                                 {kpi.name}
                             </h3>
                             
-                            <div className="flex items-center text-gray-600 mb-4">
+                            {kpi.dueDate && (
+                                <div className="flex items-center text-gray-600 mb-4">
                                 <Clock className="w-4 h-4 mr-2" />
-                                <span className="text-sm">Due: {kpi.dueDate}</span>
-                            </div>
+                                <span className="text-sm">Due: {new Date(kpi.dueDate).toLocaleDateString()}</span>
+                                </div>
+                            )}
                             
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
@@ -175,12 +181,17 @@ const PerformanceHubPage = () => {
                                     style={{ width: `${kpi.progress}%` }}
                                 ></div>
                                 </div>
+                                <div className="flex justify-between items-center text-xs text-gray-500 mt-2">
+                                <span>Current: {kpi.actualValue}</span>
+                                <span>Target: {kpi.targetValue}</span>
+                                </div>
                             </div>
                             </div>
                         </Link>
-                    </div>
+                        </div>
                     ))}
-                </div>
+                    </div>
+                )}
                 </div>
 
                 {/* AI Feedback Section */}
