@@ -15,10 +15,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import MDButton from 'components/MDButton';
 import { useCreateRolesMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 
 const CreateRole = ({ rolesClose, openRoles }) => {
-    const [createRoles] = useCreateRolesMutation()
+    const [createRoles, {isLoading}] = useCreateRolesMutation()
     const [formValues, setFormValues] = useState({
         name: '',
     });
@@ -54,14 +56,7 @@ const CreateRole = ({ rolesClose, openRoles }) => {
             onClose={rolesClose}
             PaperProps={{
               component: 'form',
-              onSubmit: (event) => {
-                event.preventDefault();
-                const formData = new FormData(event.currentTarget);
-                const formJson = Object.fromEntries(formData.entries());
-                // const email = formJson.email;
-                // console.log(email);
-                rolesClose();
-              },
+              onSubmit: handleSubmit,
             }}
           >
             <DialogTitle>Create Role</DialogTitle>
@@ -83,7 +78,7 @@ const CreateRole = ({ rolesClose, openRoles }) => {
             </DialogContent>
             <DialogActions>
               <MDButton  size="small" color='secondary' variant='outlined' onClick={rolesClose}>Cancel</MDButton>
-              <MDButton size="small" color='info' variant='contained' type="submit" onClick={handleSubmit}>Submit</MDButton>
+              <MDButton size="small" color='info' variant='contained' type="submit" disabled={isLoading}>{isLoading ? <CircularProgress size={20} color="inherit" /> : 'Submit'}</MDButton>
             </DialogActions>
           </Dialog>
         </React.Fragment>
