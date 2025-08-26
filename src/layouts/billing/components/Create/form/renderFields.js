@@ -71,7 +71,7 @@ export const renderFieldsByRequestType = (formValues, handleChange, handleDateCh
     case 'leave_hr':
       return (
         <>
-          <TextField fullWidth name="employeeName" label="Employee Name" value={formValues.employeeName || ''} onChange={handleChange} margin="dense" />
+          {/* <TextField fullWidth name="employeeName" label="Employee Name" value={formValues.employeeName || ''} onChange={handleChange} margin="dense" /> */}
           <TextField
             select
             fullWidth
@@ -102,10 +102,10 @@ export const renderFieldsByRequestType = (formValues, handleChange, handleDateCh
           </LocalizationProvider>
           <TextField fullWidth name="reason" label="Reason" value={formValues.reason || ''} onChange={handleChange} margin="dense" />
           <TextField fullWidth name="supervisorName" label="Supervisor Name" value={formValues.supervisorName || ''} onChange={handleChange} margin="dense" />
-          <Button variant="outlined" component="label" startIcon={<CloudUploadIcon />} fullWidth sx={{ mt: 2 }}>
+          {/* <Button variant="outlined" component="label" startIcon={<CloudUploadIcon />} fullWidth sx={{ mt: 2 }}>
             Upload Attachment
             <VisuallyHiddenInput type="file" onChange={handleFileChange} />
-          </Button>
+          </Button> */}
         </>
       );
 
@@ -133,7 +133,7 @@ export const renderFieldsByRequestType = (formValues, handleChange, handleDateCh
         <>
           <TextField fullWidth name="requestTitle" label="Request Title" value={formValues.requestTitle || ''} onChange={handleChange} margin="dense" />
           <TextField fullWidth name="description" label="Description" value={formValues.description || ''} onChange={handleChange} margin="dense" multiline rows={3} />
-          <TextField fullWidth name="department" label="Department" value={formValues.department || ''} onChange={handleChange} margin="dense" />
+          {/* <TextField fullWidth name="department" label="Department" value={formValues.department || ''} onChange={handleChange} margin="dense" /> */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Date Needed"
@@ -143,10 +143,10 @@ export const renderFieldsByRequestType = (formValues, handleChange, handleDateCh
             />
           </LocalizationProvider>
           <TextField fullWidth name="location" label="Location" value={formValues.location} onChange={handleChange} margin="dense" />
-          <Button variant="outlined" component="label" startIcon={<CloudUploadIcon />} fullWidth sx={{ mt: 2 }}>
+          {/* <Button variant="outlined" component="label" startIcon={<CloudUploadIcon />} fullWidth sx={{ mt: 2 }}>
             Upload Attachment
             <VisuallyHiddenInput type="file" onChange={handleFileChange} />
-          </Button>
+          </Button> */}
         </>
       );
 
