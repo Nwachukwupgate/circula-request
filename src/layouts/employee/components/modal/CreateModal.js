@@ -125,7 +125,7 @@ const CreateModal = ({ handleClose }) => {
                       onChange={handleChange}
                       required
                     />
-                    <TextField
+                    {/* <TextField
                       fullWidth
                       margin="normal"
                       label="Password"
@@ -134,7 +134,7 @@ const CreateModal = ({ handleClose }) => {
                       value={formValues.password}
                       onChange={handleChange}
                       required
-                    />
+                    /> */}
                 </div>
                 <div className='flex flex-col gap-6 px-4'>
                   <FormControl fullWidth>
