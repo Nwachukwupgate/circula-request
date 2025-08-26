@@ -29,14 +29,13 @@ const CreateModal = ({ handleClose, modalType, deptClose, openDepts }) => {
 
     const handleSubmit =async (e) => {
         e.preventDefault();
-        console.log('Form Submitted', formValues);
         // Add logic to handle form submission, e.g., API call
         try{
           await createDepartment(formValues).unwrap();
           toast.success("Department Created!")
-          handleClose()
+          deptClose()
         }catch(err){
-          toast.error("failed to Create Department")
+          toast.error(err.data?.message || "Failed to create department")
         }
         
     };
@@ -50,14 +49,7 @@ const CreateModal = ({ handleClose, modalType, deptClose, openDepts }) => {
             onClose={deptClose}
             PaperProps={{
               component: 'form',
-              onSubmit: (event) => {
-                event.preventDefault();
-                const formData = new FormData(event.currentTarget);
-                const formJson = Object.fromEntries(formData.entries());
-                const email = formJson.email;
-                console.log(email);
-                handleClose();
-              },
+              onSubmit: handleSubmit,
             }}
           >
             <DialogTitle>Create Department</DialogTitle>
@@ -77,7 +69,7 @@ const CreateModal = ({ handleClose, modalType, deptClose, openDepts }) => {
             </DialogContent>
             <DialogActions>
               <MDButton  size="small" color='secondary' variant='outlined' onClick={deptClose}>Cancel</MDButton>
-              <MDButton size="small" color='info' variant='contained' type="submit" disabled={isLoading} onClick={handleSubmit}>{isLoading ? <CircularProgress size={20} color="inherit" /> : 'Submit'}</MDButton>
+              <MDButton size="small" color='info' variant='contained' type="submit" disabled={isLoading}>{isLoading ? <CircularProgress size={20} color="inherit" /> : 'Submit'}</MDButton>
             </DialogActions>
           </Dialog>
         </React.Fragment>
