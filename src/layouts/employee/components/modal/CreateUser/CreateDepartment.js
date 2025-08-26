@@ -9,10 +9,11 @@ import DialogContent from '@mui/material/DialogContent';
 import { useCreateDepartmentMutation } from 'api/apiSlice';
 import DialogTitle from '@mui/material/DialogTitle';
 import MDButton from 'components/MDButton';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 const CreateModal = ({ handleClose, modalType, deptClose, openDepts }) => {
-  const [createDepartment, {data}] = useCreateDepartmentMutation()
+  const [createDepartment, {data, isLoading}] = useCreateDepartmentMutation()
     const [formValues, setFormValues] = useState({
         name: '',
     });
@@ -76,7 +77,7 @@ const CreateModal = ({ handleClose, modalType, deptClose, openDepts }) => {
             </DialogContent>
             <DialogActions>
               <MDButton  size="small" color='secondary' variant='outlined' onClick={deptClose}>Cancel</MDButton>
-              <MDButton size="small" color='info' variant='contained' type="submit" onClick={handleSubmit}>Submit</MDButton>
+              <MDButton size="small" color='info' variant='contained' type="submit" disabled={isLoading} onClick={handleSubmit}>{isLoading ? <CircularProgress size={20} color="inherit" /> : 'Submit'}</MDButton>
             </DialogActions>
           </Dialog>
         </React.Fragment>
