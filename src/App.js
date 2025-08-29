@@ -59,8 +59,9 @@ import routes from "routes";
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
 import { ToastContainer } from 'react-toastify';
-  import 'react-toastify/dist/ReactToastify.css';
-  import './index.css'
+import 'react-toastify/dist/ReactToastify.css';
+import './index.css'
+import { useFilteredRoutes } from "hooks/useFilteredRoutes";
 
 // Images
 // import brandWhite from "assets/images/logo-ct.png";
@@ -87,6 +88,7 @@ export default function App() {
   const dispatchUser = useDispatch();
   const token = useSelector((state) => state.user.token);
   const {data} = useGetProfileQuery()
+  const { routes: filteredRoutes, isLoading } = useFilteredRoutes();
 
   useEffect(() => {
     if(data) {
@@ -209,7 +211,7 @@ export default function App() {
               color={sidenavColor}
               brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
               brandName=""
-              routes={routes}
+              routes={filteredRoutes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
@@ -238,7 +240,7 @@ export default function App() {
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
             brandName=""
-            routes={routes}
+            routes={filteredRoutes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
@@ -264,7 +266,7 @@ export default function App() {
         <Route path="/team/createkpi" element={<CreateKpis />} />
         <Route path="/team/viewTeam/:kpiId/details/:userId" element={<ManagerKPIDetailsView />} />
         <Route path="/team/viewTeam/:kpiId/feedback/:userId" element={<PerformanceFeedback />} />
-          {getRoutes(routes)}
+          {getRoutes(filteredRoutes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>
     </ThemeProvider>

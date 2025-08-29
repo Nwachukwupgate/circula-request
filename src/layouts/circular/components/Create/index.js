@@ -46,10 +46,10 @@ export default function CreateCircular({ handleClose, open }) {
 
   const { data: departments = [] } = useGetDepartmentQuery();
   const { data: roles = [] } = useGetRoleQuery();
-  const { data: usersByDept = [] } = useGetUserDepartmentQuery(
-    selectedDepartment?.id,
-    { skip: !selectedDepartment }
-  );
+  const { data: usersByDept = { users: [] }, isLoading: isUsersLoading, isFetching: isUsersFetching,} = useGetUserDepartmentQuery(
+    selectedDepartment?.id, { skip: !selectedDepartment });
+  console.log("departments", selectedDepartment);
+  console.log("usersByDept", usersByDept);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -166,16 +166,39 @@ export default function CreateCircular({ handleClose, open }) {
               {selectedDepartment && (
                 <Autocomplete
                   multiple
-                  options={usersByDept}
+                  options={usersByDept.users}
                   getOptionLabel={getUserLabel}
                   value={selectedUsers}
                   onChange={(e, newVal) => setSelectedUsers(newVal)}
+                  loading={isUsersLoading || isUsersFetching}   // ✅ loader here
                   renderTags={(value, getTagProps) =>
                     value.map((option, index) => (
-                      <Chip key={option.id} variant="outlined" label={getUserLabel(option)} {...getTagProps({ index })} />
+                      <Chip
+                        key={option.id}
+                        variant="outlined"
+                        label={getUserLabel(option)}
+                        {...getTagProps({ index })}
+                      />
                     ))
                   }
-                  renderInput={(params) => <TextField {...params} label="Select Staff" placeholder="Start typing name..." />}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Staff"
+                      placeholder="Start typing name..."
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {(isUsersLoading || isUsersFetching) && (
+                              <CircularProgress color="inherit" size={20} />
+                            )}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
                 />
               )}
             </>

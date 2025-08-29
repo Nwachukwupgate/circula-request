@@ -54,12 +54,12 @@ const CreateModal = ({ handleClose }) => {
         // }
         createEmployee(formValues)
         .then((info) => {
-            console.log(info);       
-            toast.success(employeeData?.message);  
+            // console.log(info);       
+            toast.success("Employee Created!");  
             handleClose();        
         })
         .catch((err) => {
-          console.log(err);       
+          // console.log(err);
           toast.error(err?.message ?? err?.data?.message);
         });
     };

@@ -184,7 +184,7 @@ const AIInsightsDashboard = ({aiInsights}) => {
               </div>
               <div className="mt-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(aiInsights?.performanceAnalysis?.riskLevel)}`}>
-                  {aiInsights?.performanceAnalysis?.riskLevel.toUpperCase()}
+                  {aiInsights?.performanceAnalysis?.riskLevel?.toUpperCase()}
                 </span>
               </div>
             </div>
@@ -200,26 +200,26 @@ const AIInsightsDashboard = ({aiInsights}) => {
                 <BarChart3 className="w-5 h-5 text-blue-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Performance Analysis</h3>
               </div>
-              {expandedSections.performance ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              {expandedSections?.performance ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
             </div>
             
-            {expandedSections.performance && (
+            {expandedSections?.performance && (
               <div className="px-6 pb-6 border-t border-gray-100">
                 <div className="bg-blue-50 rounded-lg p-4 mb-4">
                   <div className="flex items-start gap-3">
                     <Info className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
                       <h4 className="font-medium text-blue-900 mb-2">Current Situation</h4>
-                      <p className="text-blue-800">{aiInsights.performanceAnalysis.analysis}</p>
+                      <p className="text-blue-800">{aiInsights?.performanceAnalysis?.analysis}</p>
                     </div>
                   </div>
                 </div>
 
-                {aiInsights.performanceAnalysis.insights && (
+                {aiInsights?.performanceAnalysis?.insights && (
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3">Key Insights</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {aiInsights.performanceAnalysis.insights.map((insight, idx) => (
+                      {aiInsights?.performanceAnalysis?.insights?.map((insight, idx) => (
                         <div key={idx} className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
                           <Lightbulb className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                           <span className="text-yellow-800 text-sm font-medium">{insight}</span>
@@ -242,30 +242,30 @@ const AIInsightsDashboard = ({aiInsights}) => {
                 <Zap className="w-5 h-5 text-orange-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Immediate Actions Required</h3>
                 <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">
-                  {aiInsights.improvementSuggestions.length} Action{aiInsights.improvementSuggestions.length !== 1 ? 's' : ''}
+                  {aiInsights?.improvementSuggestions?.length} Action{aiInsights?.improvementSuggestions?.length !== 1 ? 's' : ''}
                 </span>
               </div>
-              {expandedSections.actions ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              {expandedSections?.actions ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
             </div>
             
-            {expandedSections.actions && (
+            {expandedSections?.actions && (
               <div className="px-6 pb-6 border-t border-gray-100">
                 <div className="space-y-4">
-                  {aiInsights.improvementSuggestions.map((action, idx) => (
+                  {aiInsights?.improvementSuggestions?.map((action, idx) => (
                     <div key={idx} className="border border-orange-200 rounded-lg p-4 bg-orange-50">
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-orange-900">{action.action}</h4>
+                        <h4 className="font-semibold text-orange-900">{action?.action}</h4>
                         <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(action.priority)}`}>
-                            {action.priority.toUpperCase()} PRIORITY
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(action?.priority)}`}>
+                            {action?.priority?.toUpperCase()} PRIORITY
                           </span>
                         </div>
                       </div>
-                      <p className="text-orange-800 mb-2">{action.impact}</p>
+                      <p className="text-orange-800 mb-2">{action?.impact}</p>
                       <div className="flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4 text-orange-600" />
-                          <span className="text-orange-700">Timeline: {action.timeline}</span>
+                          <span className="text-orange-700">Timeline: {action?.timeline}</span>
                         </div>
                       </div>
                     </div>
@@ -285,24 +285,24 @@ const AIInsightsDashboard = ({aiInsights}) => {
                 <BookOpen className="w-5 h-5 text-green-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Recommended Resources</h3>
                 <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
-                  {aiInsights.resourceRecommendations.length} Resource{aiInsights.resourceRecommendations.length !== 1 ? 's' : ''}
+                  {aiInsights?.resourceRecommendations?.length} Resource{aiInsights?.resourceRecommendations?.length !== 1 ? 's' : ''}
                 </span>
               </div>
-              {expandedSections.resources ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              {expandedSections?.resources ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
             </div>
             
-            {expandedSections.resources && (
+            {expandedSections?.resources && (
               <div className="px-6 pb-6 border-t border-gray-100">
                 <div className="space-y-4">
-                  {aiInsights.resourceRecommendations.map((resource, idx) => (
+                  {aiInsights?.resourceRecommendations?.map((resource, idx) => (
                     <div key={idx} className="border border-green-200 rounded-lg p-4 bg-green-50">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-green-900 mb-2">{resource.title}</h4>
-                          <p className="text-green-800 text-sm mb-3">{resource.description}</p>
+                          <h4 className="font-semibold text-green-900 mb-2">{resource?.title}</h4>
+                          <p className="text-green-800 text-sm mb-3">{resource?.description}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(resource.priority)} ml-4`}>
-                          {resource.priority.toUpperCase()}
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(resource?.priority)} ml-4`}>
+                          {resource?.priority?.toUpperCase()}
                         </span>
                       </div>
                       
@@ -310,10 +310,10 @@ const AIInsightsDashboard = ({aiInsights}) => {
                         <div className="flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4 text-green-600" />
-                            <span className="text-green-700">{resource.estimatedDuration}</span>
+                            <span className="text-green-700">{resource?.estimatedDuration}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-green-700 font-medium">{resource.category.replace('-', ' ')}</span>
+                            <span className="text-green-700 font-medium">{resource?.category?.replace('-', ' ')}</span>
                           </div>
                         </div>
                         
@@ -323,9 +323,9 @@ const AIInsightsDashboard = ({aiInsights}) => {
                         </button>
                       </div>
                       
-                      {resource.tags && resource.tags.length > 0 && (
+                      {resource?.tags && resource?.tags.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {resource.tags.map((tag, tagIdx) => (
+                          {resource?.tags?.map((tag, tagIdx) => (
                             <span key={tagIdx} className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
                               {tag}
                             </span>
