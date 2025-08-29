@@ -48,8 +48,7 @@ export default function CreateCircular({ handleClose, open }) {
   const { data: roles = [] } = useGetRoleQuery();
   const { data: usersByDept = { users: [] }, isLoading: isUsersLoading, isFetching: isUsersFetching,} = useGetUserDepartmentQuery(
     selectedDepartment?.id, { skip: !selectedDepartment });
-  console.log("departments", selectedDepartment);
-  console.log("usersByDept", usersByDept);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
