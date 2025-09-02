@@ -5,12 +5,15 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import MDBox from "components/MDBox";
 import { useGetAccessibleUsersQuery, useGetAllKpiTemplatesQuery, useAssignKpiMutation } from 'api/apiSlice';
+import { useNavigate } from 'react-router-dom';
 
 
 const KPIAssignmentForm = () => {
   const { data: staffMembers = [] } = useGetAccessibleUsersQuery();
   const { data: kpiTemplates = [] } = useGetAllKpiTemplatesQuery();
   const [assignKpi, { isLoading: isSubmitting }] = useAssignKpiMutation();
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     staffMember: '',
@@ -64,14 +67,34 @@ const KPIAssignmentForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const resetForm = () => {
+    setFormData({
+      staffMember: '',
+        template: '',
+        targetValue: '',
+        // period: '',
+        description: '',
+        priority: 'medium',
+        dueDate: '',
+    });
+  };
+
+  const showNotification = (message, type) => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
     try {
         await assignKpi(formData).unwrap();
+        showNotification('KPI assigned successfully', 'success');
+        resetForm();
+        navigate('/team');
         // Handle success, e.g., show a success message or redirect
     } catch (error) {
-        console.error('Failed to assign KPI:', error);
         alert('Failed to assign KPI. Please try again.');
+        showNotification('Error assigning KPI', 'error');
     }
   };
 
@@ -324,6 +347,24 @@ const KPIAssignmentForm = () => {
                 </div>
                 </div>
             </div>
+
+            {/* Notification */}
+            {notification.show && (
+                <div className="fixed top-4 right-4 z-50">
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg ${
+                    notification.type === 'success' 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-red-500 text-white'
+                }`}>
+                    {notification.type === 'success' ? (
+                    <CheckCircle className="w-5 h-5" />
+                    ) : (
+                    <AlertCircle className="w-5 h-5" />
+                    )}
+                    <span>{notification.message}</span>
+                </div>
+                </div>
+            )}
             </div>
         <Footer />
     </DashboardLayout>
