@@ -247,7 +247,7 @@ export const apiSlice = createApi({
         getKpiID: builder.query({
             query: (id) => `api/kpi/${id}`,
             // transformResponse: (response) => response.data,
-            providesTags: ['Circular']
+            providesTags: ['Kpi']
         }),
 
         getKpiDashboard: builder.query({
@@ -272,11 +272,13 @@ export const apiSlice = createApi({
         }),
 
         getKpiDetails: builder.query({
-            query: ({ userId, kpiAssignmentId }) => `api/kpi/${userId}/${kpiAssignmentId}/kpis`
+            query: ({ userId, kpiAssignmentId }) => `api/kpi/${userId}/${kpiAssignmentId}/kpis`,
+            providesTags: ['Kpi']
         }),
 
         getMyKpiDetails: builder.query({
-            query: ({ kpiAssignmentId }) => `api/kpi/${kpiAssignmentId}/kpis`
+            query: ({ kpiAssignmentId }) => `api/kpi/${kpiAssignmentId}/kpis`,
+            providesTags: ['Kpi']
         }),
 
         // Get AI insights for multiple KPIs
@@ -284,27 +286,27 @@ export const apiSlice = createApi({
             query: ({userId, kpiAssignmentId}) => ({
                 url: `api/feedback/kpi/${userId}/insights/${kpiAssignmentId}`,
             }),
-            providesTags: ['AIInsights'],
+            providesTags: ['AIInsights', 'Kpi'],
         }),
 
         getMyAIInsights: builder.query({
             query: ({ kpiAssignmentId }) => ({
                 url: `api/feedback/my-kpi/insights/${kpiAssignmentId}`,
             }),
-            providesTags: ['AIInsights'],
+            providesTags: ['AIInsights', 'Kpi'],
         }),
 
         // Get AI recommendations
         getRecommendations: builder.query({
             query: ({ limit = 8 } = {}) => `api/feedback/recommendations?limit=${limit}`,
-            providesTags: ['Recommendations'],
+            providesTags: ['Recommendations', 'Kpi'],
             transformResponse: (response) => response,
         }),
 
         // Get daily reminder
         getDailyReminder: builder.query({
             query: () => 'api/feedback/daily-reminder',
-            providesTags: ['DailyReminder'],
+            providesTags: ['DailyReminder', 'Kpi'],
             transformResponse: (response) => response,
         }),
 
@@ -315,7 +317,7 @@ export const apiSlice = createApi({
             method: 'POST',
             body: { rating },
         }),
-        invalidatesTags: ['ResourceUsage', 'Recommendations'],
+        invalidatesTags: ['ResourceUsage', 'Recommendations', 'Kpi'],
         }),
 
         // Additional endpoints you might need:
@@ -366,13 +368,13 @@ export const apiSlice = createApi({
             method: 'POST',
             body: { rating, feedback },
         }),
-        invalidatesTags: ['Recommendations', 'ResourceUsage'],
+        invalidatesTags: ['Recommendations', 'ResourceUsage', 'Kpi'],
         }),
 
         // Get user's learning progress
         getLearningProgress: builder.query({
         query: () => '/ai/learning/progress',
-        providesTags: ['ResourceUsage'],
+        providesTags: ['ResourceUsage', 'Kpi'],
         }),
 
         // Request new AI recommendations
@@ -382,13 +384,13 @@ export const apiSlice = createApi({
             method: 'POST',
             body: { skills, interests, currentKPIs },
         }),
-        invalidatesTags: ['Recommendations'],
+        invalidatesTags: ['Recommendations', 'Kpi'],
         }),
 
         // Get manager feedback
         getManagerFeedback: builder.query({
         query: ({ limit = 10 } = {}) => `/feedback/manager?limit=${limit}`,
-        providesTags: ['Feedback'],
+        providesTags: ['Feedback', 'Kpi'],
         }),
 
         // Submit feedback request
@@ -405,7 +407,9 @@ export const apiSlice = createApi({
             url: 'api/feedback/kpi/create/kpireports',
             method: 'POST',
             body: reportData,
-        }), invalidatesTags: ['KPI', 'AIInsights'],}),
+        }), 
+        invalidatesTags: ['KPI', 'AIInsights'],
+        }),
 
     }),
 });

@@ -1,33 +1,25 @@
 import { useEffect } from "react";
-
-// @mui material components
 import Grid from "@mui/material/Grid";
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
-
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
-
-// Data
-// import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
-
 // Dashboard components
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 import { FaPen } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useGetDataQuery } from "api/apiSlice";
+import { useGetProfileQuery } from "api/apiSlice";
 
 
 function Dashboard() {
   // const { sales, tasks } = reportsLineChartData;
+  const {isLoading: profileLoading } = useGetProfileQuery()
   const { data, isLoading, isSuccess, error } = useGetDataQuery()
   const navigate = useNavigate();
 
@@ -40,6 +32,17 @@ function Dashboard() {
   const handlePenClick = () => {
     navigate("/request"); 
   };
+
+  if (isLoading && profileLoading) {
+      return (
+        <div className="min-h-screen p-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your account...</p>
+          </div>
+        </div>
+      );
+    }
 
   return (
     <DashboardLayout>
