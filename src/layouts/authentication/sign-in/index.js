@@ -61,7 +61,8 @@ function Basic() {
         localStorage.setItem("token", response?.token)
         console.log("data", response);     
         dispatch(GetUserToken(response.token));
-        navigate("/dashboard")
+        // navigate("/dashboard")
+        window.location.href = "/dashboard";
       }
     } catch (err) {
       const errorMessage = err?.data?.message || 'Login failed. Please try again.';
