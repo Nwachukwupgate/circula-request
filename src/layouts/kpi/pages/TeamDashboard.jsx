@@ -251,7 +251,7 @@ const PerformanceDashboard = () => {
               <div className="space-y-4">
                 {paginatedTeam.map((member, index) => (
                   <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all duration-200 hover:border-blue-200">
-                    <Link to={"/team/viewTeam"}>
+                    <Link to={`/team/viewTeam/${member.id}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1">
                         <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
