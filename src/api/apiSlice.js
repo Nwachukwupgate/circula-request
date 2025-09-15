@@ -6,7 +6,7 @@ export const apiSlice = createApi({
     
     baseQuery: fetchBaseQuery({
         // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment old
-        // baseUrl: 'http://localhost:5000',
+        // baseUrl: 'http://localhost:5000',   
          baseUrl: 'https://api.internalops.pro/', // Replace with your actual base URL use
         mode: 'cors', // Ensuring CORS mode is set
         prepareHeaders: (headers, { getState }) => {
@@ -335,7 +335,7 @@ export const apiSlice = createApi({
             method: 'POST',
             body: reportData,
         }),
-        invalidatesTags: ['KPI', 'AIInsights'],
+        invalidatesTags: ['Kpi', 'AIInsights'],
         }),
 
         // Update KPI progress
@@ -345,7 +345,7 @@ export const apiSlice = createApi({
             method: 'PUT',
             body: { progress, notes },
         }),
-        invalidatesTags: ['KPI', 'AIInsights'],
+        invalidatesTags: ['Kpi', 'AIInsights'],
         }),
 
         // Get performance analytics
@@ -358,7 +358,7 @@ export const apiSlice = createApi({
             
             return `/analytics/performance?${params.toString()}`;
         },
-        providesTags: ['KPI'],
+        providesTags: ['Kpi'],
         }),
 
         // Rate a learning resource
@@ -400,7 +400,7 @@ export const apiSlice = createApi({
             method: 'POST',
             body: { managerId, message, kpiId },
         }),
-        invalidatesTags: ['Feedback'],
+        invalidatesTags: ['Feedback, Kpi'],
         }),
 
         createKpiReport: builder.mutation({query: (reportData) => ({
@@ -408,7 +408,7 @@ export const apiSlice = createApi({
             method: 'POST',
             body: reportData,
         }), 
-        invalidatesTags: ['KPI', 'AIInsights'],
+        invalidatesTags: ['Kpi', 'AIInsights'],
         }),
 
     }),

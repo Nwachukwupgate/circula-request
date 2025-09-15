@@ -241,8 +241,12 @@ const KPIAssignmentForm = () => {
                     <input
                         type="text"
                         value={formData.targetValue}
-                        onChange={(e) => handleInputChange('targetValue', e.target.value)}
-                        placeholder="Enter target value (e.g., 85%, $50,000, 20 leads)"
+                        // onChange={(e) => handleInputChange('targetValue', e.target.value)}
+                        onChange={(e) => {
+                            const sanitizedValue = e.target.value.replace(/[%]/g, '');
+                            handleInputChange('targetValue', sanitizedValue);
+                        }}
+                        placeholder="Enter target value (e.g., 85 for percentage, $50000, 20 leads)"
                         className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                         errors.targetValue ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
