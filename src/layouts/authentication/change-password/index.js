@@ -2,7 +2,6 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useResetPasswordMutation } from "api/apiSlice";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
-
 // @mui material components
 import Card from "@mui/material/Card";
 
@@ -14,6 +13,9 @@ import MDButton from "components/MDButton";
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
+// Icons
+import { ArrowLeft } from "lucide-react";
+
 // Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
@@ -24,10 +26,10 @@ import { toast } from "react-toastify";
 
 
 function Cover() {
-  const [ resetPassword, {isLoading } ] = useResetPasswordMutation();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token'); // Extract token from URL
+  const token = searchParams.get('token');
   const navigate = useNavigate();
 
   const initialValues = {
@@ -36,17 +38,16 @@ function Cover() {
   };
 
   const handleSubmit = async (values) => {
-    console.log(values);
     const { newPassword, password } = values;
 
     if (newPassword !== password) {
-        toast.error('Passwords do not match');
-        return;
+      toast.error('Passwords do not match');
+      return;
     }
 
     try {
       const response = await resetPassword({ newPassword, token }).unwrap();
-      toast.success(response.message || 'Proceed to Login!');
+      toast.success(response.message || 'Password reset successful! Redirecting to login...');
       setTimeout(() => navigate('/authentication/sign-in'), 3000);
     } catch (err) {
       const errorMessage = err?.data?.message || 'Action failed. Please try again.';
@@ -69,14 +70,13 @@ function Cover() {
           textAlign="center"
         >
           <MDTypography variant="h3" fontWeight="medium" color="white" mt={1}>
-            Reset Password
+            Create New Password
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            You will receive an e-mail in maximum 60 seconds
+            Enter your new password below
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-
           <Formik
             initialValues={initialValues}
             validator={() => ({})}
@@ -91,8 +91,8 @@ function Cover() {
                     name="newPassword"
                     label="New Password"
                     fullWidth
-                    error={touched.password && Boolean(errors.password)}
-                    helperText={<ErrorMessage name="password" />}
+                    error={touched.newPassword && Boolean(errors.newPassword)}
+                    helperText={<ErrorMessage name="newPassword" />}
                   />
                 </MDBox>
 
@@ -108,17 +108,31 @@ function Cover() {
                   />
                 </MDBox>
                 
-                
-                <MDBox mt={6} mb={1}>
+                <MDBox mt={4} mb={1}>
                   <MDButton type="submit" variant="gradient" color="info" fullWidth>
-                    {isLoading ? <Box><CircularProgress /></Box> : "reset"}
+                    {isLoading ? <Box><CircularProgress size={24} color="inherit" /></Box> : "Update Password"}
                   </MDButton>
                 </MDBox>
-               
+
+                <MDBox mt={2} textAlign="center">
+                  <MDButton
+                    variant="text"
+                    color="info"
+                    onClick={() => navigate('/authentication/sign-in')}
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 0.5,
+                      mx: 'auto'
+                    }}
+                  >
+                    <ArrowLeft size={18} />
+                    Back to Sign In
+                  </MDButton>
+                </MDBox>
               </Form>
             )}
           </Formik>
-            
         </MDBox>
       </Card>
     </CoverLayout>

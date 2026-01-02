@@ -3,10 +3,10 @@ import Billing from "layouts/billing";
 import Circular from "layouts/circular";
 import Profile from "layouts/profile";
 import Employee from "layouts/employee"
-import Logout from "components/Logout";
 import PerformanceHubPage from "layouts/kpi";
 import PerformanceDashboard from "layouts/kpi/pages/TeamDashboard";
 import GrowthLibrary from "layouts/kpi/pages/GrowthLibrary";
+import HelpCenter from "layouts/help-center";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -103,20 +103,13 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Log Out",
-    key: "logout",
-    icon: <Icon fontSize="small">logout</Icon>,
-    route: "/logout",
-    component: <Logout />,
-    protected: false,
-    // onClick: () => {
-    //   // Clear local storage
-    //   localStorage.clear();
-
-    //   // Redirect to the sign-in page
-    //   window.location.href = "/authentication/sign-in";
-    // },
-  }, 
+    name: "Help Center",
+    key: "help",
+    icon: <Icon fontSize="small">help_outline</Icon>,
+    route: "/help-center",
+    component: <HelpCenter />,
+    protected: true,
+  },
   // {
   //   type: "collapse",
   //   name: "Sign Up",

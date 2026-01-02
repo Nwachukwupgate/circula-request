@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLoginMutation } from "api/apiSlice";
 import { useDispatch } from "react-redux";
 import { GetUserToken } from "api/userSlice";
+import { setTokens } from "utils/tokenManager";
 
 //import Formik
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -11,8 +12,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import SigninValidation from "utils/validations/SigninValidation";
 
 // react-router-dom components
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -40,7 +40,10 @@ function Basic() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Get the redirect path from location state (set by ProtectedRoute)
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
@@ -50,19 +53,25 @@ function Basic() {
   };
 
   const handleSubmit = async (values) => {
-    console.log(values);
     const { email, password } = values;
 
     try {
       const response = await login({ email, password }).unwrap();
       toast.success(response.message || 'Login successful!');
       
-      if(response?.token) {
-        localStorage.setItem("token", response?.token)
-        console.log("data", response);     
-        dispatch(GetUserToken(response.token));
-        // navigate("/dashboard")
-        window.location.href = "/dashboard";
+      // Check for new token format (accessToken/refreshToken) or legacy (token)
+      const accessToken = response?.accessToken || response?.token;
+      const refreshToken = response?.refreshToken;
+      
+      if(accessToken) {
+        // Store tokens using the token manager
+        setTokens(accessToken, refreshToken);
+        
+        // Legacy support - also dispatch to Redux
+        dispatch(GetUserToken(accessToken));
+        
+        // Navigate to the original destination or dashboard
+        window.location.href = from;
       }
     } catch (err) {
       const errorMessage = err?.data?.message || 'Login failed. Please try again.';

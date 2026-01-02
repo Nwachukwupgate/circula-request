@@ -2,26 +2,23 @@ import { useState } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import Tooltip from "@mui/material/Tooltip";
+import Fab from "@mui/material/Fab";
+import AddIcon from "@mui/icons-material/Add";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
-import Button from '@mui/material/Button';
+
 // Material Dashboard 2 React examples
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import MasterCard from "examples/Cards/MasterCard";
-import DefaultInfoCard from "examples/Cards/InfoCards/DefaultInfoCard";
 
 // Billing page components
-import PaymentMethod from "layouts/billing/components/PaymentMethod";
-import Invoices from "layouts/billing/components/Invoices";
-import { FaPen } from "react-icons/fa";
 import BillingInformation from "layouts/billing/components/BillingInformation";
 import Transactions from "layouts/billing/components/Transactions";
 
 import CreateRequest from "./components/Create"
-import MDButton from "components/MDButton";
 
 function Billing() {
   const [open, setOpen] = useState(false);
@@ -36,16 +33,11 @@ function Billing() {
 
   return (
     <>
-    <CreateRequest  open={open} handleClose={handleClose} />
+    <CreateRequest open={open} handleClose={handleClose} />
     <DashboardLayout>
       <DashboardNavbar absolute isMini />
         <div className="pb-6">
-          <MDBox mt={8} >
-            <div className="hidden lg:flex lg:justify-end my-2">
-              <MDButton variant="contained" color="info" onClick={handleClickOpen}>
-                Click to Make Request
-              </MDButton>
-            </div>
+          <MDBox mt={8}>
             <MDBox mb={3}>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={7}>
@@ -56,21 +48,35 @@ function Billing() {
                 </Grid>
               </Grid>
             </MDBox>
-
-            <MDButton variant="contained" color="info" onClick={handleClickOpen}>
-              Click to Make Request
-            </MDButton>
           </MDBox>
         </div>
       <Footer />
-      <div className="fixed bottom-9 left-4">
-        <button
-          className="bg-gray-800 p-3 rounded-full shadow-lg hover:bg-gray-700"
+      
+      {/* Single Floating Action Button for creating requests */}
+      <Tooltip title="Create New Request" placement="left">
+        <Fab
+          color="primary"
+          aria-label="create request"
           onClick={handleClickOpen}
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%)',
+              transform: 'scale(1.05)',
+              boxShadow: '0 6px 25px rgba(102, 126, 234, 0.5)',
+            },
+            transition: 'all 0.2s ease-in-out',
+            width: 60,
+            height: 60,
+          }}
         >
-          <FaPen className="text-white" size={20} />
-        </button>
-      </div>
+          <AddIcon sx={{ fontSize: 28 }} />
+        </Fab>
+      </Tooltip>
     </DashboardLayout>
     </>
   );

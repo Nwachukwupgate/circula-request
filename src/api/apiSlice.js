@@ -1,36 +1,230 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { 
+    getAccessToken, 
+    getRefreshToken, 
+    setTokens, 
+    updateAccessToken, 
+    clearTokens,
+    getIsRefreshing,
+    setRefreshing,
+    subscribeToRefresh,
+    onRefreshSuccess,
+    onRefreshFailure
+} from '../utils/tokenManager';
+
+// Base URL configuration
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+// Create base query with auth headers
+const baseQuery = fetchBaseQuery({
+    baseUrl: BASE_URL,
+    mode: 'cors',
+    prepareHeaders: (headers, { getState, endpoint, extra }) => {
+        const token = getAccessToken();
+        if (token) {
+            headers.set('authorization', `Bearer ${token}`);
+        }
+        headers.set('Accept', '*/*');
+        return headers;
+    },
+});
+
+// Public routes that should not trigger auth redirects
+const PUBLIC_PATHS = ['/authentication/sign-in', '/authentication/reset-password', '/change-password'];
+
+// Check if we're on a public route
+const isPublicRoute = () => {
+    if (typeof window !== 'undefined') {
+        return PUBLIC_PATHS.some(path => window.location.pathname.startsWith(path));
+    }
+    return false;
+};
+
+// Custom base query with automatic token refresh
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+    // Skip auth logic for login endpoint
+    const url = typeof args === 'string' ? args : args?.url;
+    if (url?.includes('api/auth/login') || url?.includes('api/auth/reqPasswordReset') || url?.includes('api/auth/resetPassword')) {
+        return await baseQuery(args, api, extraOptions);
+    }
+
+    // First, try the request with current token
+    let result = await baseQuery(args, api, extraOptions);
+
+    // If we get a 401 error, try to refresh the token
+    if (result?.error?.status === 401) {
+        // Don't try to refresh or redirect if we're on a public route
+        if (isPublicRoute()) {
+            return result;
+        }
+
+        const errorCode = result?.error?.data?.code;
+        
+        // Only try to refresh if token is expired (not if it's invalid or missing)
+        if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'NO_TOKEN') {
+            const refreshToken = getRefreshToken();
+            
+            if (refreshToken) {
+                // Check if we're already refreshing
+                if (!getIsRefreshing()) {
+                    setRefreshing(true);
+                    
+                    try {
+                        // Try to refresh the token
+                        const refreshResult = await baseQuery(
+                            {
+                                url: 'api/auth/refresh-token',
+                                method: 'POST',
+                                body: { refreshToken }
+                            },
+                            api,
+                            extraOptions
+                        );
+
+                        if (refreshResult?.data) {
+                            // Store new tokens
+                            const { accessToken, refreshToken: newRefreshToken, expiresIn, user } = refreshResult.data;
+                            setTokens(accessToken, newRefreshToken, user, expiresIn);
+                            
+                            // Notify all subscribers
+                            onRefreshSuccess(accessToken);
+                            
+                            // Retry the original request with new token
+                            result = await baseQuery(args, api, extraOptions);
+                        } else {
+                            // Refresh failed - clear tokens
+                            onRefreshFailure(refreshResult?.error);
+                            clearTokens();
+                            
+                            // Only redirect if not already on login page
+                            if (typeof window !== 'undefined' && !isPublicRoute()) {
+                                window.location.href = '/authentication/sign-in';
+                            }
+                        }
+                    } finally {
+                        setRefreshing(false);
+                    }
+                } else {
+                    // Another request is already refreshing, wait for it
+                    return new Promise((resolve) => {
+                        subscribeToRefresh(async (newToken, error) => {
+                            if (newToken) {
+                                // Retry with new token
+                                const retryResult = await baseQuery(args, api, extraOptions);
+                                resolve(retryResult);
+                            } else {
+                                resolve(result);
+                            }
+                        });
+                    });
+                }
+            } else {
+                // No refresh token available - clear tokens
+                clearTokens();
+                // Only redirect if not already on login page
+                if (typeof window !== 'undefined' && !isPublicRoute()) {
+                    window.location.href = '/authentication/sign-in';
+                }
+            }
+        }
+    }
+
+    return result;
+};
 
 // Define your API service
 export const apiSlice = createApi({
-    reducerPath: 'api', // Unique name for this API slice
-    
-    baseQuery: fetchBaseQuery({
-        // baseUrl: 'https://jellyfish-app-whqao.ondigitalocean.app/', // Adjust the base URL as per your environment old
-        // baseUrl: 'http://localhost:5000',   
-         baseUrl: 'https://api.internalops.pro/', // Replace with your actual base URL use
-        mode: 'cors', // Ensuring CORS mode is set
-        prepareHeaders: (headers, { getState }) => {
-            const token = localStorage.getItem("token") ?? getState().token; // Fetch token from auth state if exists
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`); // Set authorization header if token exists
-            }
-            headers.set('Accept', '*/*'); // Accept any type of content
-            headers.set('Content-Type', 'application/json'); // Ensure JSON format for request bodies
-            return headers; // Return modified headers
-        },
-    }),
-
-    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular', 'Kpi', 'AIInsights', 'Recommendations', 'DailyReminder', 'ResourceUsage'],
+    reducerPath: 'api',
+    baseQuery: baseQueryWithReauth,
+    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular', 'Kpi', 'AIInsights', 'Recommendations', 'DailyReminder', 'ResourceUsage', 'Notifications', 'Profile', 'Settings', 'Sessions'],
     
     endpoints: (builder) => ({
         // Mutation for user login
         login: builder.mutation({
             query: (credentials) => ({
-                url: 'api/auth/login', // API endpoint for login
-                method: 'POST', // HTTP method
-                body: credentials, // Payload for the request
+                url: 'api/auth/login',
+                method: 'POST',
+                body: credentials,
             }),
-            invalidatesTags: ['Login'], // Tag to invalidate, ensuring fresh data fetch if needed
+            // Handle login response to store tokens
+            async onQueryStarted(arg, { queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    if (data.accessToken) {
+                        setTokens(data.accessToken, data.refreshToken, data.user, data.expiresIn);
+                    }
+                } catch (error) {
+                    console.error('Login failed:', error);
+                }
+            },
+            invalidatesTags: ['Login'],
+        }),
+
+        // Refresh token endpoint
+        refreshToken: builder.mutation({
+            query: (refreshToken) => ({
+                url: 'api/auth/refresh-token',
+                method: 'POST',
+                body: { refreshToken },
+            }),
+        }),
+
+        // Logout endpoint
+        logout: builder.mutation({
+            query: () => {
+                const refreshToken = getRefreshToken();
+                return {
+                    url: 'api/auth/logout',
+                    method: 'POST',
+                    body: { refreshToken },
+                };
+            },
+            async onQueryStarted(arg, { queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                } finally {
+                    // Always clear tokens, even if logout request fails
+                    clearTokens();
+                }
+            },
+            invalidatesTags: ['Login', 'Profile'],
+        }),
+
+        // Logout from all devices
+        logoutAll: builder.mutation({
+            query: () => ({
+                url: 'api/auth/logout-all',
+                method: 'POST',
+            }),
+            async onQueryStarted(arg, { queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                } finally {
+                    clearTokens();
+                }
+            },
+            invalidatesTags: ['Login', 'Profile', 'Sessions'],
+        }),
+
+        // Get active sessions
+        getActiveSessions: builder.query({
+            query: () => 'api/auth/sessions',
+            providesTags: ['Sessions'],
+        }),
+
+        // Revoke a specific session
+        revokeSession: builder.mutation({
+            query: (sessionId) => ({
+                url: `api/auth/sessions/${sessionId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Sessions'],
+        }),
+
+        // Verify token validity
+        verifyToken: builder.query({
+            query: () => 'api/auth/verify',
+            providesTags: ['Login'],
         }),
 
         reqPasswordReset: builder.mutation({
@@ -59,8 +253,43 @@ export const apiSlice = createApi({
 
         getProfile: builder.query({
             query: (token) => `api/users/profile`,
-            // transformResponse: (response) => response.data,
-            providesTags: ['Login']
+            providesTags: ['Profile', 'Login']
+        }),
+
+        // Update user profile
+        updateProfile: builder.mutation({
+            query: (profileData) => ({
+                url: 'api/users/profile',
+                method: 'PUT',
+                body: profileData,
+            }),
+            invalidatesTags: ['Profile', 'Login'],
+        }),
+
+        // Upload profile image
+        uploadProfileImage: builder.mutation({
+            query: ({ image }) => ({
+                url: 'api/users/profile/upload-image',
+                method: 'POST',
+                body: { image },
+            }),
+            invalidatesTags: ['Profile', 'Login'],
+        }),
+
+        // Get user settings
+        getUserSettings: builder.query({
+            query: () => 'api/users/settings',
+            providesTags: ['Settings'],
+        }),
+
+        // Update user settings
+        updateUserSettings: builder.mutation({
+            query: (settings) => ({
+                url: 'api/users/settings',
+                method: 'PUT',
+                body: { settings },
+            }),
+            invalidatesTags: ['Settings'],
         }),
 
         getDepartment: builder.query({
@@ -109,12 +338,14 @@ export const apiSlice = createApi({
         }),
 
         createEmployee: builder.mutation({
-            query: (credentials) => ({
-                url: '/api/users/register', // API endpoint for login
-                method: 'POST', // HTTP method
-                body: credentials, // Payload for the request
+            query: (formData) => ({
+                url: '/api/users/register',
+                method: 'POST',
+                body: formData,
+                // Don't set Content-Type header - browser will set it automatically with boundary for FormData
+                formData: true,
             }),
-            invalidatesTags: ['Employees'], // Tag to invalidate, ensuring fresh data fetch if needed
+            invalidatesTags: ['Employees'],
         }),
 
         createRequest: builder.mutation({
@@ -303,6 +534,19 @@ export const apiSlice = createApi({
             transformResponse: (response) => response,
         }),
 
+        // Get Growth Library resources
+        getGrowthLibraryResources: builder.query({
+            query: ({ search = '', type = 'all', category = '', limit = 20 } = {}) => {
+                const params = new URLSearchParams();
+                if (search) params.append('search', search);
+                if (type && type !== 'all') params.append('type', type);
+                if (category) params.append('category', category);
+                params.append('limit', limit);
+                return `api/feedback/growth-library?${params.toString()}`;
+            },
+            providesTags: ['GrowthLibrary', 'Recommendations', 'Kpi'],
+        }),
+
         // Get daily reminder
         getDailyReminder: builder.query({
             query: () => 'api/feedback/daily-reminder',
@@ -411,8 +655,193 @@ export const apiSlice = createApi({
         invalidatesTags: ['Kpi', 'AIInsights'],
         }),
 
+        // Quick Actions - Set Milestone
+        setMilestone: builder.mutation({
+            query: ({ kpiAssignmentId, milestoneValue, milestoneNote, milestoneDate }) => ({
+                url: `api/kpi/${kpiAssignmentId}/milestone`,
+                method: 'POST',
+                body: { milestoneValue, milestoneNote, milestoneDate },
+            }),
+            invalidatesTags: ['Kpi'],
+        }),
+
+        // Quick Actions - Request Feedback
+        requestKpiFeedback: builder.mutation({
+            query: ({ kpiAssignmentId, message }) => ({
+                url: `api/kpi/${kpiAssignmentId}/request-feedback`,
+                method: 'POST',
+                body: { message },
+            }),
+            invalidatesTags: ['Kpi', 'Feedback'],
+        }),
+
+        // Quick Actions - Get Performance History
+        getPerformanceHistory: builder.query({
+            query: (kpiAssignmentId) => `api/kpi/${kpiAssignmentId}/performance-history`,
+            providesTags: ['Kpi'],
+        }),
+
+        // Manager Feedback - Submit Remark
+        submitManagerRemark: builder.mutation({
+            query: ({ kpiAssignmentId, comment, recommendation, rating }) => ({
+                url: `api/feedback/kpi/${kpiAssignmentId}/remark`,
+                method: 'POST',
+                body: { comment, recommendation, rating },
+            }),
+            invalidatesTags: ['Kpi', 'Feedback'],
+        }),
+
+        // Get Feedback History for a KPI assignment
+        getKpiFeedbackHistory: builder.query({
+            query: (kpiAssignmentId) => `api/feedback/kpi/${kpiAssignmentId}/history`,
+            providesTags: ['Kpi', 'Feedback'],
+        }),
+
+        // Reply to a staff's feedback request
+        replyToFeedbackRequest: builder.mutation({
+            query: ({ feedbackId, reply, recommendation }) => ({
+                url: `api/feedback/reply/${feedbackId}`,
+                method: 'PUT',
+                body: { reply, recommendation },
+            }),
+            invalidatesTags: ['Kpi', 'Feedback'],
+        }),
+
+        // ========== NOTIFICATION ENDPOINTS ==========
+        
+        // Get all notifications for the logged-in user
+        getNotifications: builder.query({
+            query: ({ limit = 20, offset = 0, unreadOnly = false } = {}) => {
+                const params = new URLSearchParams();
+                params.append('limit', limit);
+                params.append('offset', offset);
+                if (unreadOnly) params.append('unreadOnly', 'true');
+                return `api/notifications?${params.toString()}`;
+            },
+            providesTags: ['Notifications'],
+        }),
+
+        // Get unread notification count
+        getUnreadNotificationCount: builder.query({
+            query: () => 'api/notifications/unread-count',
+            providesTags: ['Notifications'],
+        }),
+
+        // Mark a notification as read
+        markNotificationAsRead: builder.mutation({
+            query: (notificationId) => ({
+                url: `api/notifications/${notificationId}/read`,
+                method: 'PATCH',
+            }),
+            invalidatesTags: ['Notifications'],
+        }),
+
+        // Mark all notifications as read
+        markAllNotificationsAsRead: builder.mutation({
+            query: () => ({
+                url: 'api/notifications/mark-all-read',
+                method: 'PATCH',
+            }),
+            invalidatesTags: ['Notifications'],
+        }),
+
+        // Delete a notification
+        deleteNotification: builder.mutation({
+            query: (notificationId) => ({
+                url: `api/notifications/${notificationId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Notifications'],
+        }),
+
+        // Clear all read notifications
+        clearReadNotifications: builder.mutation({
+            query: () => ({
+                url: 'api/notifications/clear-read',
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Notifications'],
+        }),
+
     }),
 });
 
 // Export hooks for usage in functional components
-export const { useLoginMutation, useGetDataQuery, useGetProfileQuery, useGetDepartmentQuery, useGetRoleQuery, useGetEmployeeQuery, useCreateDepartmentMutation, useCreateRolesMutation, useCreateEmployeeMutation, useGetRequestQuery, useCreateRequestMutation, useGetRequestIDQuery,useUpdateRequestStatusMutation, useReqPasswordResetMutation, useResetPasswordMutation, useCreateCircularMutation, useGetUserDepartmentQuery, useGetMyCircularQuery, useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery, useGetEveryEmployeeQuery, useCreateKpiMutation, useGetKpiTemplatesQuery, useUpdateTemplateMutation, useDeleteTemplateMutation, useGetAccessibleUsersQuery, useGetAllKpiTemplatesQuery, useAssignKpiMutation, useGetKpiIDQuery, useGetKpiDashboardQuery, useGetUserKpisQuery, useGetKpiDetailsQuery, useGetAIInsightsQuery, useGetRecommendationsQuery, useGetDailyReminderQuery, useTrackResourceUsageMutation, useGetKPIInsightsQuery, useSubmitKPIReportMutation, useUpdateKPIProgressMutation, useGetPerformanceAnalyticsQuery, useRateResourceMutation, useGetLearningProgressQuery, useRequestNewRecommendationsMutation, useGetManagerFeedbackQuery, useSubmitFeedbackRequestMutation, useGetMyKpisQuery, useGetMyKpiDetailsQuery, useCreateKpiReportMutation, useGetMyAIInsightsQuery } = apiSlice;
+export const { 
+    useLoginMutation, 
+    useGetDataQuery, 
+    useGetProfileQuery, 
+    useGetDepartmentQuery, 
+    useGetRoleQuery, 
+    useGetEmployeeQuery, 
+    useCreateDepartmentMutation, 
+    useCreateRolesMutation, 
+    useCreateEmployeeMutation, 
+    useGetRequestQuery, 
+    useCreateRequestMutation, 
+    useGetRequestIDQuery,
+    useUpdateRequestStatusMutation, 
+    useReqPasswordResetMutation, 
+    useResetPasswordMutation, 
+    useCreateCircularMutation, 
+    useGetUserDepartmentQuery, 
+    useGetMyCircularQuery, 
+    useGetCircularIDQuery, 
+    useRespondToCircularMutation, 
+    useGetResponseIDQuery, 
+    useGetEveryEmployeeQuery, 
+    useCreateKpiMutation, 
+    useGetKpiTemplatesQuery, 
+    useUpdateTemplateMutation, 
+    useDeleteTemplateMutation, 
+    useGetAccessibleUsersQuery, 
+    useGetAllKpiTemplatesQuery, 
+    useAssignKpiMutation, 
+    useGetKpiIDQuery, 
+    useGetKpiDashboardQuery, 
+    useGetUserKpisQuery, 
+    useGetKpiDetailsQuery, 
+    useGetAIInsightsQuery, 
+    useGetRecommendationsQuery, 
+    useGetDailyReminderQuery, 
+    useTrackResourceUsageMutation, 
+    useGetKPIInsightsQuery, 
+    useSubmitKPIReportMutation, 
+    useUpdateKPIProgressMutation, 
+    useGetPerformanceAnalyticsQuery, 
+    useRateResourceMutation, 
+    useGetLearningProgressQuery, 
+    useRequestNewRecommendationsMutation, 
+    useGetManagerFeedbackQuery, 
+    useSubmitFeedbackRequestMutation, 
+    useGetMyKpisQuery, 
+    useGetMyKpiDetailsQuery, 
+    useCreateKpiReportMutation, 
+    useGetMyAIInsightsQuery, 
+    useSetMilestoneMutation, 
+    useRequestKpiFeedbackMutation, 
+    useGetPerformanceHistoryQuery, 
+    useSubmitManagerRemarkMutation, 
+    useGetKpiFeedbackHistoryQuery, 
+    useReplyToFeedbackRequestMutation, 
+    useGetGrowthLibraryResourcesQuery,
+    // Notification hooks
+    useGetNotificationsQuery,
+    useGetUnreadNotificationCountQuery,
+    useMarkNotificationAsReadMutation,
+    useMarkAllNotificationsAsReadMutation,
+    useDeleteNotificationMutation,
+    useClearReadNotificationsMutation,
+    // Profile hooks
+    useUpdateProfileMutation,
+    useUploadProfileImageMutation,
+    useGetUserSettingsQuery,
+    useUpdateUserSettingsMutation,
+    // Auth hooks
+    useRefreshTokenMutation,
+    useLogoutMutation,
+    useLogoutAllMutation,
+    useGetActiveSessionsQuery,
+    useRevokeSessionMutation,
+    useVerifyTokenQuery
+} = apiSlice;

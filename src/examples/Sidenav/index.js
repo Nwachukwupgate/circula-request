@@ -23,7 +23,6 @@ import SidenavCollapse from "examples/Sidenav/SidenavCollapse";
 
 // Custom styles for the Sidenav
 import SidenavRoot from "examples/Sidenav/SidenavRoot";
-import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 
 // Material Dashboard 2 React context
 import {
@@ -132,7 +131,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       variant="permanent"
       ownerState={{ transparentSidenav, whiteSidenav, miniSidenav, darkMode }}
     >
-      <MDBox pt={3} pb={1} px={4} textAlign="center">
+      <MDBox pt={3} pb={2} px={3} textAlign="center">
         <MDBox
           display={{ xs: "block", xl: "none" }}
           position="absolute"
@@ -146,16 +145,44 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             <Icon sx={{ fontWeight: "bold" }}>close</Icon>
           </MDTypography>
         </MDBox>
-        <MDBox component={NavLink} to="/" display="flex" alignItems="center">
-          {brand && <MDBox component="img" src={brand} alt="Brand" width="2rem" />}
-          <MDBox
-            width={!brandName && "100%"}
-            sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}
-          >
-            <MDTypography component="h6" variant="button" fontWeight="medium" color={textColor}>
+        <MDBox 
+          component={NavLink} 
+          to="/" 
+          display="flex" 
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          sx={{ textDecoration: 'none' }}
+        >
+          {brand && (
+            <MDBox 
+              component="img" 
+              src={brand} 
+              alt="Brand" 
+              sx={{
+                width: miniSidenav ? '4.5rem' : '8rem',
+                height: miniSidenav ? '4.5rem' : '5rem',
+                objectFit: 'contain',
+                borderRadius: '12px',
+                transition: 'all 0.3s ease',
+                mb: miniSidenav ? 0 : 1,
+              }}
+            />
+          )}
+          {!miniSidenav && brandName && (
+            <MDTypography 
+              component="h6" 
+              variant="h6" 
+              fontWeight="bold" 
+              color={textColor}
+              sx={{ 
+                letterSpacing: '0.5px',
+                fontSize: '1rem',
+              }}
+            >
               {brandName}
             </MDTypography>
-          </MDBox>
+          )}
         </MDBox>
       </MDBox>
       <Divider

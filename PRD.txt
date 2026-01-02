@@ -1,0 +1,1087 @@
+================================================================================
+                         PRODUCT REQUIREMENTS DOCUMENT (PRD)
+                              CIRCULA-REQUEST PLATFORM
+                                   Version 1.0
+================================================================================
+
+Document Information
+--------------------
+Product Name:       Circula-Request
+Document Version:   1.0
+Last Updated:       December 30, 2025
+Document Owner:     Product Team
+Status:             Active Development
+
+================================================================================
+                              TABLE OF CONTENTS
+================================================================================
+
+1.  Executive Summary
+2.  Product Vision & Objectives
+3.  Target Users & Personas
+4.  Core Features & Modules
+5.  Functional Requirements
+6.  Non-Functional Requirements
+7.  User Stories
+8.  Technical Architecture
+9.  Data Models
+10. API Specifications
+11. Security Requirements
+12. Integration Requirements
+13. Success Metrics & KPIs
+14. Roadmap & Milestones
+15. Appendix
+
+================================================================================
+                           1. EXECUTIVE SUMMARY
+================================================================================
+
+Circula-Request is an enterprise-grade workflow management platform designed 
+to streamline internal operations, performance management, and organizational 
+communication for mid-to-large enterprises.
+
+The platform addresses three critical business needs:
+  • Structured approval workflows for organizational requests
+  • Employee performance tracking and KPI management
+  • Centralized company-wide communication (circulars)
+
+Key Differentiator: AI-powered performance insights and recommendations that 
+transform the platform from a passive tracking tool into an active coaching 
+and development system.
+
+================================================================================
+                       2. PRODUCT VISION & OBJECTIVES
+================================================================================
+
+VISION STATEMENT
+----------------
+"Empower organizations to operate efficiently, develop their people, and 
+communicate effectively through an intelligent, unified platform."
+
+PRODUCT OBJECTIVES
+------------------
+1. Reduce request approval cycle time by 60%
+2. Increase KPI completion rates by 40%
+3. Improve organizational communication reach to 95%+
+4. Provide actionable AI insights for employee development
+5. Create audit trails for compliance requirements
+
+BUSINESS OBJECTIVES
+-------------------
+1. Achieve 100 enterprise customers within 18 months
+2. Reach $1M ARR within 24 months
+3. Maintain 90%+ customer retention rate
+4. Expand to 3 African markets within 24 months
+
+================================================================================
+                        3. TARGET USERS & PERSONAS
+================================================================================
+
+PRIMARY PERSONAS
+----------------
+
+PERSONA 1: Staff Member (End User)
+----------------------------------
+Name:           Adaeze - Junior Accountant
+Age:            28
+Goals:          
+  - Submit requests quickly and track status
+  - View and respond to KPI assignments
+  - Stay updated on company announcements
+Pain Points:    
+  - Paper-based request processes are slow
+  - No visibility into approval status
+  - Missed important company updates
+Key Features:   
+  - Request submission & tracking
+  - KPI dashboard & progress reporting
+  - Notification center
+
+PERSONA 2: Line Manager (Team Lead)
+-----------------------------------
+Name:           Chukwuemeka - Finance Manager
+Age:            38
+Goals:          
+  - Review and approve team requests efficiently
+  - Monitor team performance and KPIs
+  - Provide constructive feedback to team members
+Pain Points:    
+  - Approval backlogs pile up
+  - Difficult to track team performance across KPIs
+  - No structured feedback mechanism
+Key Features:   
+  - Approval queue management
+  - Team KPI overview dashboard
+  - Performance feedback tools
+
+PERSONA 3: HR Administrator
+---------------------------
+Name:           Blessing - HR Manager
+Age:            35
+Goals:          
+  - Manage employee records and profiles
+  - Publish company-wide circulars
+  - Track organizational KPI performance
+Pain Points:    
+  - Employee data scattered across systems
+  - Communication doesn't reach everyone
+  - No centralized performance data
+Key Features:   
+  - Employee management
+  - Circular creation & distribution
+  - Organization-wide analytics
+
+PERSONA 4: Executive (C-Suite)
+------------------------------
+Name:           Dr. Okonkwo - Managing Director
+Age:            52
+Goals:          
+  - Final approval authority on major requests
+  - Strategic overview of organizational performance
+  - Quick access to key metrics
+Pain Points:    
+  - Too many approvals requiring attention
+  - Lack of real-time performance visibility
+  - Decision-making without data
+Key Features:   
+  - Executive dashboard
+  - Priority approval queue
+  - AI-generated insights
+
+================================================================================
+                       4. CORE FEATURES & MODULES
+================================================================================
+
+MODULE 1: REQUEST MANAGEMENT
+----------------------------
+Description:    Multi-tier approval workflow system for organizational requests
+Sub-features:
+  • Request creation with multiple types (Procurement, Leave, IT, Budget)
+  • Multi-level approval chains (configurable per organization)
+  • Status tracking and notifications
+  • Document attachment support
+  • Request history and audit trail
+  • Date-based filtering and search
+  • Bulk operations for approvers
+
+MODULE 2: CIRCULAR MANAGEMENT
+-----------------------------
+Description:    Company-wide communication and announcement system
+Sub-features:
+  • Rich text circular creation
+  • Target audience selection (All, Department, Role)
+  • File/image attachments
+  • Read receipts tracking
+  • Circular categories and tags
+  • Archive and search functionality
+  • Push notification triggers
+
+MODULE 3: KPI PERFORMANCE MANAGEMENT
+------------------------------------
+Description:    Employee performance tracking and evaluation system
+Sub-features:
+  • KPI template creation and management
+  • KPI assignment to employees
+  • Progress tracking with milestones
+  • Report submission by staff
+  • Manager review and feedback
+  • Performance history visualization
+  • Overdue alerts and reminders
+  • Priority level management
+
+MODULE 4: AI INSIGHTS ENGINE
+----------------------------
+Description:    AI-powered performance analysis and recommendations
+Sub-features:
+  • Daily performance reminders
+  • Predictive KPI completion analysis
+  • Personalized improvement suggestions
+  • Resource recommendations
+  • Trend identification
+  • Natural language feedback generation
+  • Risk identification for at-risk KPIs
+
+MODULE 5: GROWTH LIBRARY
+------------------------
+Description:    Curated learning resources for employee development
+Sub-features:
+  • Resource categorization (Courses, Articles, Videos, Tools)
+  • Personalized recommendations based on KPIs
+  • Department-specific resources
+  • Progress tracking
+  • Bookmarking and favorites
+  • External link integration
+
+MODULE 6: NOTIFICATION CENTER
+-----------------------------
+Description:    Real-time notification system for all platform activities
+Sub-features:
+  • Push notifications
+  • In-app notification center
+  • Email notification preferences
+  • Notification categorization
+  • Mark as read/unread
+  • Notification history
+  • Polling for real-time updates
+
+MODULE 7: EMPLOYEE MANAGEMENT
+-----------------------------
+Description:    Employee profile and organizational structure management
+Sub-features:
+  • Employee profile creation
+  • Profile image upload
+  • Department assignment
+  • Role management
+  • Contact information
+  • Activity tracking
+  • Employee directory
+
+MODULE 8: DASHBOARD & ANALYTICS
+-------------------------------
+Description:    Visual dashboards and reporting for insights
+Sub-features:
+  • Personalized dashboard widgets
+  • Request analytics charts
+  • KPI performance visualizations
+  • Quick action shortcuts
+  • Recent activity feed
+  • Export capabilities
+
+================================================================================
+                       5. FUNCTIONAL REQUIREMENTS
+================================================================================
+
+FR-001: USER AUTHENTICATION
+---------------------------
+ID:             FR-001
+Priority:       Critical
+Description:    System shall provide secure user authentication
+Requirements:
+  FR-001.1      Users can log in with email and password
+  FR-001.2      System generates JWT access tokens (15min expiry)
+  FR-001.3      System generates refresh tokens (7-day expiry)
+  FR-001.4      Auto-refresh tokens before expiry
+  FR-001.5      Logout invalidates tokens server-side
+  FR-001.6      Password reset via email link
+  FR-001.7      Protected routes require valid token
+
+FR-002: REQUEST SUBMISSION
+--------------------------
+ID:             FR-002
+Priority:       Critical
+Description:    Staff can create and submit requests
+Requirements:
+  FR-002.1      Form captures request type, description, amount, justification
+  FR-002.2      Date fields for delivery/need dates
+  FR-002.3      File attachment support (documents, images)
+  FR-002.4      Auto-assign to appropriate approval chain
+  FR-002.5      Confirmation notification to requester
+  FR-002.6      Notification to first approver
+
+FR-003: REQUEST APPROVAL WORKFLOW
+---------------------------------
+ID:             FR-003
+Priority:       Critical
+Description:    Multi-tier approval process for requests
+Requirements:
+  FR-003.1      Configurable approval chain per request type
+  FR-003.2      Sequential approval (must complete in order)
+  FR-003.3      Approvers can Approve, Reject, or Request Info
+  FR-003.4      Comments required for rejection
+  FR-003.5      Notifications at each approval stage
+  FR-003.6      Final status updates to requester
+  FR-003.7      Audit trail of all approval actions
+
+FR-004: KPI ASSIGNMENT
+----------------------
+ID:             FR-004
+Priority:       High
+Description:    Managers can assign KPIs to team members
+Requirements:
+  FR-004.1      Select from KPI templates or create custom
+  FR-004.2      Set target value and due date
+  FR-004.3      Assign priority level (Low, Medium, High, Critical)
+  FR-004.4      Add description and guidelines
+  FR-004.5      Notification to assigned staff member
+  FR-004.6      KPI appears in staff dashboard
+
+FR-005: KPI PROGRESS REPORTING
+------------------------------
+ID:             FR-005
+Priority:       High
+Description:    Staff can submit progress reports on assigned KPIs
+Requirements:
+  FR-005.1      Enter actual value achieved
+  FR-005.2      Add notes/comments for context
+  FR-005.3      Attach supporting documents
+  FR-005.4      System calculates progress percentage
+  FR-005.5      Progress history maintained
+  FR-005.6      Manager notified of submissions
+
+FR-006: AI DAILY REMINDERS
+--------------------------
+ID:             FR-006
+Priority:       Medium
+Description:    AI-generated daily performance insights
+Requirements:
+  FR-006.1      Generate personalized daily summary
+  FR-006.2      Highlight at-risk KPIs
+  FR-006.3      Provide actionable suggestions
+  FR-006.4      Include motivational messaging
+  FR-006.5      Display in dashboard widget
+
+FR-007: CIRCULAR PUBLISHING
+---------------------------
+ID:             FR-007
+Priority:       High
+Description:    Authorized users can publish circulars
+Requirements:
+  FR-007.1      Rich text editor for content
+  FR-007.2      Select target audience
+  FR-007.3      Add attachments
+  FR-007.4      Schedule for future publish (optional)
+  FR-007.5      Push notifications to recipients
+  FR-007.6      Track read/unread status
+
+FR-008: NOTIFICATION SYSTEM
+---------------------------
+ID:             FR-008
+Priority:       High
+Description:    Real-time notification delivery
+Requirements:
+  FR-008.1      In-app notification center
+  FR-008.2      Badge count for unread
+  FR-008.3      Click to navigate to related item
+  FR-008.4      Mark individual/all as read
+  FR-008.5      Clear read notifications
+  FR-008.6      Poll for updates (30-second interval)
+
+FR-009: USER PROFILE MANAGEMENT
+-------------------------------
+ID:             FR-009
+Priority:       Medium
+Description:    Users can manage their profiles
+Requirements:
+  FR-009.1      Upload/change profile image
+  FR-009.2      Edit personal information
+  FR-009.3      Update contact details
+  FR-009.4      Set notification preferences
+  FR-009.5      View activity history
+
+FR-010: EMPLOYEE MANAGEMENT
+---------------------------
+ID:             FR-010
+Priority:       High
+Description:    Admin can manage employee accounts
+Requirements:
+  FR-010.1      Create new employee accounts
+  FR-010.2      Assign department and role
+  FR-010.3      Set employee type (Staff/Contract)
+  FR-010.4      Upload profile image during creation
+  FR-010.5      View employee directory
+  FR-010.6      Edit employee details
+
+================================================================================
+                      6. NON-FUNCTIONAL REQUIREMENTS
+================================================================================
+
+NFR-001: PERFORMANCE
+--------------------
+  • Page load time: < 3 seconds
+  • API response time: < 500ms (95th percentile)
+  • Support 500 concurrent users
+  • Database queries optimized with indexes
+
+NFR-002: SECURITY
+-----------------
+  • JWT-based authentication
+  • Passwords hashed with bcrypt (10 rounds)
+  • HTTPS encryption in transit
+  • Role-based access control (RBAC)
+  • SQL injection prevention (parameterized queries)
+  • XSS protection
+  • CORS configuration
+
+NFR-003: AVAILABILITY
+---------------------
+  • 99.5% uptime SLA
+  • Graceful degradation for AI services
+  • Database backups (daily)
+  • Error logging and monitoring
+
+NFR-004: SCALABILITY
+--------------------
+  • Horizontal scaling capability
+  • Stateless API design
+  • Database connection pooling
+  • CDN for static assets
+
+NFR-005: USABILITY
+------------------
+  • Mobile-responsive design
+  • Maximum 3 clicks to any feature
+  • Consistent UI patterns
+  • Loading states for async operations
+  • Empty states for no-data scenarios
+  • Error messages with guidance
+
+NFR-006: COMPATIBILITY
+----------------------
+  • Modern browsers (Chrome, Firefox, Safari, Edge)
+  • Mobile browsers (iOS Safari, Chrome Android)
+  • Minimum screen width: 320px
+
+================================================================================
+                            7. USER STORIES
+================================================================================
+
+EPIC: REQUEST MANAGEMENT
+------------------------
+
+US-001: As a staff member, I want to submit a procurement request so that I 
+        can obtain necessary supplies for my work.
+        Acceptance Criteria:
+        - Can select "Procurement" as request type
+        - Can enter item name, quantity, preferred vendor
+        - Can attach quotations
+        - Receive confirmation notification
+        
+US-002: As a manager, I want to view pending approval requests so that I can 
+        process them in a timely manner.
+        Acceptance Criteria:
+        - See list of requests pending my approval
+        - View request details
+        - Approve or reject with comments
+        - See requester information
+
+US-003: As a staff member, I want to track my request status so that I know 
+        when to expect resolution.
+        Acceptance Criteria:
+        - See current approval stage
+        - View approval history
+        - Receive notifications on status changes
+
+EPIC: KPI MANAGEMENT
+--------------------
+
+US-004: As a manager, I want to assign KPIs to my team members so that I can 
+        track their performance against objectives.
+        Acceptance Criteria:
+        - Select employee from my team
+        - Choose or create KPI template
+        - Set target value and due date
+        - Employee receives notification
+
+US-005: As a staff member, I want to submit progress on my KPIs so that my 
+        manager can track my achievements.
+        Acceptance Criteria:
+        - Enter current value achieved
+        - Add notes explaining progress
+        - See updated progress percentage
+        - Attach supporting documents
+
+US-006: As a staff member, I want to request feedback from my manager on a 
+        specific KPI so that I can get guidance on improvement.
+        Acceptance Criteria:
+        - Select KPI to request feedback on
+        - Write request message
+        - Manager receives notification
+        - Can view manager's response
+
+US-007: As a manager, I want to provide remarks on staff KPI performance so 
+        that they can improve.
+        Acceptance Criteria:
+        - View staff KPI details
+        - Write feedback/remarks
+        - Staff receives notification
+        - Feedback visible in history
+
+EPIC: CIRCULARS
+---------------
+
+US-008: As an HR admin, I want to publish a company-wide circular so that all 
+        employees receive important updates.
+        Acceptance Criteria:
+        - Create circular with rich text
+        - Select "All Employees" as audience
+        - Attach relevant documents
+        - All employees notified
+
+US-009: As a staff member, I want to view circulars relevant to me so that I 
+        stay informed about company matters.
+        Acceptance Criteria:
+        - See list of circulars I'm targeted for
+        - Read full circular content
+        - Download attachments
+        - See new vs read circulars
+
+EPIC: NOTIFICATIONS
+-------------------
+
+US-010: As a user, I want to receive real-time notifications so that I don't 
+        miss important updates.
+        Acceptance Criteria:
+        - See notification badge with count
+        - View notification list
+        - Click to navigate to related item
+        - Mark as read
+
+US-011: As a user, I want to customize my notification preferences so that I 
+        only receive relevant notifications.
+        Acceptance Criteria:
+        - Toggle email notifications by type
+        - Toggle push notifications
+        - Save preferences
+        - Preferences persist
+
+EPIC: AI INSIGHTS
+-----------------
+
+US-012: As a staff member, I want to receive AI-powered daily reminders so 
+        that I stay on track with my KPIs.
+        Acceptance Criteria:
+        - See personalized insight on dashboard
+        - Insights reference my specific KPIs
+        - Actionable suggestions provided
+        - Updates daily
+
+US-013: As a staff member, I want AI-recommended resources so that I can 
+        improve my skills relevant to my KPIs.
+        Acceptance Criteria:
+        - Resources match my department/role
+        - Resources relate to current KPIs
+        - Can access/view resources
+        - Can track completed resources
+
+================================================================================
+                        8. TECHNICAL ARCHITECTURE
+================================================================================
+
+SYSTEM ARCHITECTURE
+-------------------
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              CLIENT LAYER                                │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │                     React Frontend (SPA)                          │  │
+│  │  • Material Dashboard 2 React                                     │  │
+│  │  • Redux Toolkit + RTK Query                                      │  │
+│  │  • React Router v6                                                │  │
+│  │  • Tailwind CSS                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    │ HTTPS
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              API LAYER                                   │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │                   Express.js REST API                             │  │
+│  │  • JWT Authentication Middleware                                  │  │
+│  │  • Role-based Authorization                                       │  │
+│  │  • Request Validation                                             │  │
+│  │  • Error Handling                                                 │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│  PostgreSQL │ │  Cloudinary │ │   Ollama    │ │  Postmark   │
+│  Database   │ │  (Files)    │ │  (AI/LLM)   │ │  (Email)    │
+└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+
+TECHNOLOGY STACK
+----------------
+
+Frontend:
+  • React 18.x
+  • Redux Toolkit 1.9.x
+  • RTK Query (API caching)
+  • React Router 6.x
+  • Material-UI 5.x
+  • Tailwind CSS 3.x
+  • Chart.js / Recharts
+  • Formik + Yup (forms)
+  • Moment.js / Luxon (dates)
+  • Lucide React (icons)
+
+Backend:
+  • Node.js 18.x LTS
+  • Express.js 4.x
+  • Sequelize ORM 6.x
+  • PostgreSQL 14.x
+  • JWT (jsonwebtoken)
+  • bcrypt (password hashing)
+  • multer (file uploads)
+  • node-cron (scheduled tasks)
+
+AI/ML:
+  • Ollama (local LLM)
+  • TensorFlow.js (optional)
+
+External Services:
+  • Cloudinary (image/file storage)
+  • Postmark (transactional email)
+
+DevOps:
+  • Git (version control)
+  • npm (package management)
+
+================================================================================
+                            9. DATA MODELS
+================================================================================
+
+USER MODEL
+----------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key, auto-increment
+firstName           STRING          User's first name
+surname             STRING          User's surname/last name
+email               STRING          Unique email address
+password            STRING          Hashed password
+departmentId        INTEGER         FK to Department
+roleId              INTEGER         FK to Role
+employeeType        ENUM            'staff' | 'contract'
+profileImage        STRING          Cloudinary URL
+phone               STRING          Contact number
+bio                 TEXT            User biography
+location            STRING          Work location
+jobTitle            STRING          Job title
+settings            JSONB           User preferences
+lastActiveAt        DATE            Last activity timestamp
+createdAt           DATE            Record creation
+updatedAt           DATE            Last update
+
+REQUEST MODEL
+-------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+requestTitle        STRING          Title of request
+itemName            STRING          Item/service requested
+description         TEXT            Detailed description
+amount              DECIMAL         Monetary value
+requestType         ENUM            Type of request
+userId              INTEGER         FK to User (requester)
+departmentId        INTEGER         FK to Department
+finalStatus         ENUM            'pending'|'approved'|'rejected'
+justification       TEXT            Business justification
+dateNeeded          DATE            Required by date
+attachments         JSONB           File references
+createdAt           DATE            Submission date
+updatedAt           DATE            Last update
+
+REQUEST_APPROVER MODEL
+----------------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+requestId           INTEGER         FK to Request
+userId              INTEGER         FK to User (approver)
+approvalOrder       INTEGER         Sequence in chain
+approvalStatus      ENUM            'pending'|'approved'|'rejected'
+comment             TEXT            Approver's comment
+approvedAt          DATE            Approval timestamp
+
+KPI_TEMPLATE MODEL
+------------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+title               STRING          KPI title
+description         TEXT            KPI description
+unit                STRING          Measurement unit
+category            STRING          KPI category
+departmentId        INTEGER         FK to Department (optional)
+createdBy           INTEGER         FK to User
+isActive            BOOLEAN         Template status
+
+KPI_ASSIGNMENT MODEL
+--------------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+kpiTemplateId       INTEGER         FK to KPITemplate
+staffId             INTEGER         FK to User (assigned to)
+assignedBy          INTEGER         FK to User (manager)
+targetValue         DECIMAL         Target to achieve
+currentValue        DECIMAL         Calculated current value
+dueDate             DATE            Completion deadline
+priorityLevel       ENUM            'low'|'medium'|'high'|'critical'
+status              ENUM            'pending'|'in_progress'|'completed'|'overdue'
+description         TEXT            Assignment notes
+
+KPI_REPORT MODEL
+----------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+kpiAssignmentId     INTEGER         FK to KPIAssignment
+actualValue         DECIMAL         Value achieved
+notes               TEXT            Progress notes
+attachments         JSONB           Supporting documents
+submittedAt         DATE            Submission timestamp
+
+KPI_FEEDBACK MODEL
+------------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+kpiAssignmentId     INTEGER         FK to KPIAssignment
+staffId             INTEGER         FK to User
+managerId           INTEGER         FK to User
+feedbackType        ENUM            'manager_remark'|'staff_request'
+requestMessage      TEXT            Staff's request (if applicable)
+responseMessage     TEXT            Manager's response
+status              ENUM            'pending'|'responded'
+createdAt           DATE            Creation timestamp
+
+CIRCULAR MODEL
+--------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+title               STRING          Circular title
+body                TEXT            Rich text content
+targetAudience      ENUM            'all'|'department'|'role'
+targetDepartmentId  INTEGER         FK to Department (if targeted)
+targetRoleId        INTEGER         FK to Role (if targeted)
+attachments         JSONB           File references
+createdBy           INTEGER         FK to User
+publishedAt         DATE            Publication date
+
+NOTIFICATION MODEL
+------------------
+Field               Type            Description
+─────────────────────────────────────────────────────────────
+id                  INTEGER         Primary key
+userId              INTEGER         FK to User (recipient)
+type                ENUM            Notification type
+title               STRING          Notification title
+message             TEXT            Notification content
+entityType          STRING          Related entity type
+entityId            INTEGER         Related entity ID
+actionUrl           STRING          Click navigation URL
+priority            ENUM            'low'|'normal'|'high'|'urgent'
+isRead              BOOLEAN         Read status
+metadata            JSONB           Additional data
+createdAt           DATE            Creation timestamp
+
+================================================================================
+                         10. API SPECIFICATIONS
+================================================================================
+
+BASE URL: /api
+
+AUTHENTICATION ENDPOINTS
+------------------------
+POST   /auth/login              Login user, return tokens
+POST   /auth/refresh-token      Refresh access token
+POST   /auth/logout             Invalidate tokens
+POST   /auth/logout-all         Invalidate all user sessions
+POST   /auth/forgot-password    Initiate password reset
+POST   /auth/reset-password     Complete password reset
+
+USER ENDPOINTS
+--------------
+GET    /users/profile           Get current user profile
+PUT    /users/profile           Update user profile
+POST   /users/profile/upload-image    Upload profile image
+GET    /users/settings          Get user settings
+PUT    /users/settings          Update user settings
+POST   /users/register          Create new employee (admin)
+GET    /users/employees         List all employees (paginated)
+GET    /users/:id               Get user by ID
+
+REQUEST ENDPOINTS
+-----------------
+GET    /requests                List user's requests (filtered)
+POST   /requests                Create new request
+GET    /requests/:id            Get request details
+PUT    /requests/:id            Update request
+DELETE /requests/:id            Delete request (draft only)
+PATCH  /requests/:id/status     Update approval status
+
+KPI ENDPOINTS
+-------------
+GET    /kpi/templates           List KPI templates
+POST   /kpi/templates           Create KPI template
+GET    /kpi/my-kpis             Get staff's assigned KPIs
+POST   /kpi/assign              Assign KPI to staff
+GET    /kpi/:id                 Get KPI assignment details
+POST   /kpi/:id/report          Submit progress report
+POST   /kpi/:id/milestone       Set milestone
+GET    /kpi/:id/history         Get performance history
+GET    /kpi/staff/:userId       Get staff KPIs (manager view)
+
+FEEDBACK ENDPOINTS
+------------------
+GET    /feedback/daily-reminder         Get AI daily reminder
+POST   /feedback/request-feedback       Staff requests feedback
+POST   /feedback/manager-remark         Manager submits remark
+GET    /feedback/kpi/:id/history        Get feedback history
+POST   /feedback/reply/:feedbackId      Manager replies to request
+GET    /feedback/growth-library         Get recommended resources
+GET    /feedback/predictive-analysis    Get AI analysis
+
+CIRCULAR ENDPOINTS
+------------------
+GET    /circulars               List circulars (filtered)
+POST   /circulars               Create circular
+GET    /circulars/my-circulars  Get user's targeted circulars
+GET    /circulars/:id           Get circular details
+PUT    /circulars/:id           Update circular
+DELETE /circulars/:id           Delete circular
+
+NOTIFICATION ENDPOINTS
+----------------------
+GET    /notifications           List notifications (paginated)
+GET    /notifications/unread-count      Get unread count
+PATCH  /notifications/:id/read  Mark as read
+PATCH  /notifications/mark-all-read     Mark all as read
+DELETE /notifications/:id       Delete notification
+DELETE /notifications/clear-read        Clear read notifications
+
+DEPARTMENT & ROLE ENDPOINTS
+---------------------------
+GET    /departments             List departments
+POST   /departments             Create department
+GET    /roles                   List roles
+POST   /roles                   Create role
+
+================================================================================
+                        11. SECURITY REQUIREMENTS
+================================================================================
+
+AUTHENTICATION
+--------------
+• JWT-based stateless authentication
+• Access tokens: 15-minute expiry, stored in memory
+• Refresh tokens: 7-day expiry, stored in httpOnly cookie
+• Token refresh happens automatically before expiry
+• Logout invalidates refresh token server-side
+
+AUTHORIZATION
+-------------
+• Role-based access control (RBAC)
+• Roles: Staff, Manager, HR Admin, HOD, CFO, COO, MD
+• Resource-level permissions checked per request
+• Users can only access their own data unless authorized
+
+DATA PROTECTION
+---------------
+• Passwords hashed with bcrypt (10 salt rounds)
+• Sensitive data encrypted at rest
+• All API communication over HTTPS
+• SQL injection prevention via parameterized queries
+• XSS prevention via input sanitization
+
+SESSION MANAGEMENT
+------------------
+• Concurrent session support with limits
+• Session revocation on password change
+• Activity timeout after 30 minutes of inactivity
+
+AUDIT LOGGING
+-------------
+• All authentication attempts logged
+• All data modifications logged with user ID
+• Approval actions logged with timestamps
+• Log retention: 90 days minimum
+
+================================================================================
+                       12. INTEGRATION REQUIREMENTS
+================================================================================
+
+CLOUDINARY INTEGRATION
+----------------------
+Purpose:        File and image storage
+Configuration:  
+  - Cloud name, API key, API secret via environment
+  - Automatic image optimization
+  - Secure URL generation
+Endpoints Used:
+  - Profile image uploads
+  - Request attachments
+  - Circular attachments
+
+EMAIL INTEGRATION (POSTMARK)
+----------------------------
+Purpose:        Transactional emails
+Email Types:
+  - Welcome email (new employee)
+  - Password reset
+  - Request approval notifications
+  - KPI assignment notifications
+  - Weekly digest (optional)
+
+AI INTEGRATION (OLLAMA)
+-----------------------
+Purpose:        AI-powered insights and analysis
+Features:
+  - Daily performance reminders
+  - Predictive KPI analysis
+  - Resource recommendations
+  - Natural language feedback
+Fallback:       Static responses when AI unavailable
+
+FUTURE INTEGRATIONS (Roadmap)
+-----------------------------
+• SSO (SAML 2.0, OAuth)
+• Microsoft 365 / Google Workspace
+• Slack / Microsoft Teams
+• SAP / Oracle ERP
+• QuickBooks / Accounting systems
+
+================================================================================
+                       13. SUCCESS METRICS & KPIs
+================================================================================
+
+PRODUCT METRICS
+---------------
+Metric                          Target          Measurement
+─────────────────────────────────────────────────────────────
+Daily Active Users (DAU)        70% of users    Analytics
+Request Approval Time           < 48 hours      Avg. duration
+KPI On-Time Completion          > 80%           Completed/Total
+Circular Read Rate              > 90%           Reads/Recipients
+Notification Click-Through      > 30%           Clicks/Views
+
+TECHNICAL METRICS
+-----------------
+Metric                          Target          Measurement
+─────────────────────────────────────────────────────────────
+API Response Time (p95)         < 500ms         APM
+Page Load Time                  < 3 seconds     RUM
+Uptime                          99.5%           Monitoring
+Error Rate                      < 1%            Error tracking
+
+BUSINESS METRICS
+----------------
+Metric                          Target          Measurement
+─────────────────────────────────────────────────────────────
+Customer Acquisition            10/month        CRM
+Customer Retention              90%             Renewals
+Net Promoter Score (NPS)        > 40            Surveys
+Monthly Recurring Revenue       +15% MoM        Finance
+
+================================================================================
+                        14. ROADMAP & MILESTONES
+================================================================================
+
+PHASE 1: MVP (Completed)
+------------------------
+Timeline:       Q3-Q4 2025
+Features:
+  ✓ User authentication & authorization
+  ✓ Request submission & approval workflow
+  ✓ Basic KPI management
+  ✓ Circular publishing
+  ✓ Employee management
+  ✓ Dashboard with charts
+
+PHASE 2: AI & Engagement (Current)
+----------------------------------
+Timeline:       Q1 2026
+Features:
+  ✓ AI daily reminders
+  ✓ Notification system
+  ✓ Growth library
+  ✓ Performance feedback
+  ✓ Profile enhancements
+  □ Mobile responsiveness improvements
+  □ Email notification system
+
+PHASE 3: Enterprise Features
+----------------------------
+Timeline:       Q2 2026
+Features:
+  □ SSO integration
+  □ Advanced analytics dashboard
+  □ Custom approval workflows
+  □ API for integrations
+  □ White-labeling support
+  □ Multi-language support
+
+PHASE 4: Scale & Expand
+-----------------------
+Timeline:       Q3-Q4 2026
+Features:
+  □ Mobile native apps (iOS/Android)
+  □ Offline mode
+  □ Advanced AI (goal setting, coaching)
+  □ Third-party integrations (Slack, Teams)
+  □ Multi-tenant architecture
+  □ Regional expansion (Ghana, Kenya)
+
+================================================================================
+                              15. APPENDIX
+================================================================================
+
+A. GLOSSARY
+-----------
+Term                Definition
+─────────────────────────────────────────────────────────────
+KPI                 Key Performance Indicator
+JWT                 JSON Web Token
+RBAC                Role-Based Access Control
+SPA                 Single Page Application
+ORM                 Object-Relational Mapping
+API                 Application Programming Interface
+CRUD                Create, Read, Update, Delete
+
+B. APPROVAL WORKFLOW TYPES
+--------------------------
+Type                Approval Chain
+─────────────────────────────────────────────────────────────
+Procurement         Manager → HOD → Finance → CFO
+Leave Request       Manager → HR
+IT Request          Manager → IT Admin
+Budget Request      Manager → HOD → CFO → MD
+General Request     Manager → HOD
+
+C. NOTIFICATION TYPES
+---------------------
+Type                        Trigger Event
+─────────────────────────────────────────────────────────────
+circular_published          New circular targeting user
+request_submitted           Request awaiting user's approval
+request_approved            User's request approved
+request_rejected            User's request rejected
+kpi_assigned                New KPI assigned to user
+kpi_reminder                Weekly KPI reminder
+kpi_overdue                 KPI past due date
+kpi_feedback_received       Manager provided feedback
+feedback_request            Staff requested feedback
+feedback_reply              Manager replied to request
+ai_insight                  New AI insight available
+resource_recommendation     New resource recommended
+
+D. ENVIRONMENT VARIABLES
+------------------------
+Variable                    Description
+─────────────────────────────────────────────────────────────
+DATABASE_URL                PostgreSQL connection string
+JWT_SECRET                  Secret for signing JWTs
+JWT_REFRESH_SECRET          Secret for refresh tokens
+CLOUDINARY_CLOUD_NAME       Cloudinary cloud name
+CLOUDINARY_API_KEY          Cloudinary API key
+CLOUDINARY_API_SECRET       Cloudinary API secret
+POSTMARK_API_KEY            Postmark API key
+OLLAMA_HOST                 Ollama server URL
+NODE_ENV                    Environment (development/production)
+PORT                        Server port
+
+================================================================================
+                            END OF DOCUMENT
+================================================================================
+
+Document History:
+-----------------
+Version     Date            Author          Changes
+1.0         2025-12-30      Product Team    Initial PRD creation
+
+================================================================================
+

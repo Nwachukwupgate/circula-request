@@ -15,7 +15,7 @@ const root = createRoot(container);
 root.render(
   <BrowserRouter>
     <Provider store={Store}>
-    <MaterialUIControllerProvider>
+      <MaterialUIControllerProvider>
         <App />
       </MaterialUIControllerProvider>
     </Provider>

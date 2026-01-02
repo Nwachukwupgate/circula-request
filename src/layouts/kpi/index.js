@@ -4,10 +4,11 @@ import { TrendingUp, Users, CheckCircle, Clock, Plus, Lightbulb, Calendar,Target
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { Link } from 'react-router-dom';
-import { useGetMyKpisQuery } from 'api/apiSlice';
+import { useGetMyKpisQuery, useGetDailyReminderQuery } from 'api/apiSlice';
 
 const PerformanceHubPage = () => {
     const { data, isLoading } = useGetMyKpisQuery();
+    const { data: aiData, isLoading: aiLoading } = useGetDailyReminderQuery();
 
     const getStatusStyles = (status) => {
         switch (status) {
@@ -202,37 +203,116 @@ const PerformanceHubPage = () => {
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
                     <div className="p-6">
-                    <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                        <div className="p-3 bg-purple-100 rounded-xl">
-                            <Lightbulb className="w-6 h-6 text-purple-600" />
+                    {aiLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                            <span className="ml-3 text-gray-600">Loading AI insights...</span>
                         </div>
-                        </div>
-                        
-                        <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                            AI-Powered Insights
-                        </h3>
-                        <p className="text-gray-700 leading-relaxed mb-4">
-                            Based on your recent performance data, the AI suggests focusing on enhancing customer 
-                            engagement strategies to further boost satisfaction scores. Consider exploring new 
-                            communication channels and personalized service approaches.
-                        </p>
-                        <button className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-200 font-medium">
-                            View Detailed Analysis
-                        </button>
-                        </div>
-                        
-                        <div className="flex-shrink-0 hidden lg:block">
-                        <div className="flex space-x-2">
-                            <div className="w-16 h-16 bg-gradient-to-br from-pink-200 to-orange-200 rounded-lg"></div>
-                            <div className="w-16 h-16 bg-gradient-to-br from-green-200 to-teal-200 rounded-lg flex items-center justify-center">
-                            <div className="w-8 h-8 bg-teal-600 rounded-full"></div>
+                    ) : aiData ? (
+                        <div className="flex items-start space-x-4">
+                            <div className="flex-shrink-0">
+                                <div className={`p-3 rounded-xl ${
+                                    aiData.urgentKPI?.riskLevel === 'critical' ? 'bg-red-100' :
+                                    aiData.urgentKPI?.riskLevel === 'high' ? 'bg-orange-100' :
+                                    aiData.urgentKPI?.riskLevel === 'medium' ? 'bg-yellow-100' :
+                                    'bg-purple-100'
+                                }`}>
+                                    <Lightbulb className={`w-6 h-6 ${
+                                        aiData.urgentKPI?.riskLevel === 'critical' ? 'text-red-600' :
+                                        aiData.urgentKPI?.riskLevel === 'high' ? 'text-orange-600' :
+                                        aiData.urgentKPI?.riskLevel === 'medium' ? 'text-yellow-600' :
+                                        'text-purple-600'
+                                    }`} />
+                                </div>
                             </div>
-                            <div className="w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-200 rounded-lg"></div>
+                            
+                            <div className="flex-1">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                    AI-Powered Insights
+                                </h3>
+                                <p className="text-gray-700 leading-relaxed mb-4">
+                                    {aiData.reminder}
+                                </p>
+                                
+                                {aiData.urgentKPI && (
+                                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm font-medium text-gray-700">
+                                                Focus KPI: {aiData.urgentKPI.title}
+                                            </span>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                aiData.urgentKPI.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
+                                                aiData.urgentKPI.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
+                                                aiData.urgentKPI.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-green-100 text-green-700'
+                                            }`}>
+                                                {aiData.urgentKPI.riskLevel} risk
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                                            <span>Progress: {Math.round(aiData.urgentKPI.progress)}%</span>
+                                            <span>•</span>
+                                            <span>{aiData.urgentKPI.daysUntilDue} days until due</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                            <div 
+                                                className={`h-2 rounded-full transition-all duration-500 ${
+                                                    aiData.urgentKPI.progress >= 75 ? 'bg-green-500' :
+                                                    aiData.urgentKPI.progress >= 50 ? 'bg-yellow-500' :
+                                                    'bg-red-500'
+                                                }`}
+                                                style={{ width: `${Math.min(aiData.urgentKPI.progress, 100)}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {aiData.urgentKPI && (
+                                    <Link to={`/kpi/details/${aiData.urgentKPI.id}`}>
+                                        <button className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-200 font-medium">
+                                            View Detailed Analysis
+                                        </button>
+                                    </Link>
+                                )}
+                            </div>
+                            
+                            <div className="flex-shrink-0 hidden lg:block">
+                                <div className="flex flex-col space-y-2">
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900">{aiData.totalActiveKPIs}</div>
+                                        <div className="text-xs text-gray-500">Active KPIs</div>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <div className={`w-16 h-16 rounded-lg flex items-center justify-center ${
+                                            aiData.urgentKPI?.riskLevel === 'critical' ? 'bg-gradient-to-br from-red-200 to-red-300' :
+                                            aiData.urgentKPI?.riskLevel === 'high' ? 'bg-gradient-to-br from-orange-200 to-orange-300' :
+                                            aiData.urgentKPI?.riskLevel === 'medium' ? 'bg-gradient-to-br from-yellow-200 to-yellow-300' :
+                                            'bg-gradient-to-br from-green-200 to-teal-200'
+                                        }`}>
+                                            <Target className="w-8 h-8 text-gray-700" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    ) : (
+                        <div className="flex items-start space-x-4">
+                            <div className="flex-shrink-0">
+                                <div className="p-3 bg-green-100 rounded-xl">
+                                    <CheckCircle className="w-6 h-6 text-green-600" />
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                    All Caught Up!
+                                </h3>
+                                <p className="text-gray-700 leading-relaxed">
+                                    Great job! You're all caught up with your KPIs. Keep up the excellent work and continue 
+                                    monitoring your performance metrics for continuous improvement.
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    )}
                     </div>
                 </div>
                 </div>

@@ -3,7 +3,7 @@ import {
   User, MessageSquare, Code, BookOpen, Play, GraduationCap, TrendingUp, TrendingDown, 
   Calendar, CheckCircle, Target, Award, Brain, Zap, Users, Home, BarChart3, 
   AlertTriangle, Clock, Star, ExternalLink, RefreshCw, Activity, Lightbulb,
-  FileText, Eye, ThumbsUp, TrendingDown as TrendingDownIcon
+  FileText, Eye, ThumbsUp, TrendingDown as TrendingDownIcon, X
 } from 'lucide-react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -11,7 +11,7 @@ import Footer from "examples/Footer";
 import MDBox from "components/MDBox";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
-import { useGetKpiDetailsQuery, useGetAIInsightsQuery, useGetRecommendationsQuery, useGetDailyReminderQuery, useTrackResourceUsageMutation } from 'api/apiSlice'; // Adjust path as needed
+import { useGetKpiDetailsQuery, useGetAIInsightsQuery, useGetRecommendationsQuery, useGetDailyReminderQuery, useTrackResourceUsageMutation, useGetKpiFeedbackHistoryQuery, useReplyToFeedbackRequestMutation } from 'api/apiSlice'; // Adjust path as needed
 import { Link, useParams } from 'react-router-dom';
 import AIInsightsDashboard from './AIInsights';
 
@@ -50,7 +50,35 @@ const PerformanceFeedback = () => {
     refetch: refetchReminder 
   } = useGetDailyReminderQuery();
 
+  const {
+    data: feedbackHistoryData,
+    isLoading: feedbackLoading,
+    refetch: refetchFeedbackHistory
+  } = useGetKpiFeedbackHistoryQuery(kpiId);
+
   const [trackResourceUsage] = useTrackResourceUsageMutation();
+  const [replyToRequest, { isLoading: replyLoading }] = useReplyToFeedbackRequestMutation();
+  
+  // State for reply modal
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  
+  const handleReplyToRequest = async () => {
+    if (!selectedRequest || !replyText.trim()) return;
+    try {
+      await replyToRequest({
+        feedbackId: selectedRequest.id,
+        reply: replyText
+      }).unwrap();
+      setShowReplyModal(false);
+      setReplyText('');
+      setSelectedRequest(null);
+      refetchFeedbackHistory();
+    } catch (error) {
+      console.error('Failed to send reply:', error);
+    }
+  };
 
   // Derived state from RTK Query data
   const performanceData = kpiData?.summary;
@@ -58,6 +86,13 @@ const PerformanceFeedback = () => {
   const aiInsights = aiInsightsData || [];
   const recommendations = recommendationsData?.recommendations || [];
   const dailyReminder = dailyReminderData?.reminder || '';
+  
+  // Current KPI specific data
+  const currentKpi = kpiData;
+  const kpiReports = kpiData?.reports || [];
+  const kpiProgress = kpiData?.progress || 0;
+  const kpiTargetValue = kpiData?.assignment?.targetValue || 0;
+  const kpiCurrentValue = kpiData?.totalValue || 0;
 
   // Loading state - true if any critical data is loading
   const loading = kpiLoading || insightsLoading || recommendationsLoading || reminderLoading;
@@ -137,13 +172,40 @@ const PerformanceFeedback = () => {
     },
   };
 
-  // Performance trend chart data
+  // Performance trend chart data - using actual reports
+  const getChartDataFromReports = () => {
+    if (!kpiReports || kpiReports.length === 0) {
+      return {
+        labels: ['No Data'],
+        data: [0]
+      };
+    }
+    
+    // Sort reports by date and take last 6
+    const sortedReports = [...kpiReports]
+      .sort((a, b) => new Date(a.reportDate) - new Date(b.reportDate))
+      .slice(-6);
+    
+    const labels = sortedReports.map(report => {
+      const date = new Date(report.reportDate);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    
+    const data = sortedReports.map(report => {
+      return kpiTargetValue > 0 ? Math.round((report.actualValue / kpiTargetValue) * 100) : 0;
+    });
+    
+    return { labels, data };
+  };
+  
+  const chartData = getChartDataFromReports();
+  
   const trendData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: chartData.labels,
     datasets: [
       {
-        label: 'Performance Score',
-        data: [58, 62, 67, 65, 69, overallRating],
+        label: 'Progress %',
+        data: chartData.data,
         borderColor: '#1d4ed8',
         backgroundColor: 'rgba(29, 78, 216, 0.1)',
         tension: 0.4,
@@ -307,14 +369,33 @@ const PerformanceFeedback = () => {
                   {/* Overview Tab */}
                   {activeTab === 'overview' && (
                     <div className="space-y-6">
+                      {/* KPI Header Info */}
+                      {currentKpi && (
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900">{currentKpi.template?.title || 'KPI Details'}</h3>
+                              <p className="text-gray-600 mt-1">{currentKpi.template?.description || ''}</p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              kpiProgress >= 100 ? 'bg-green-100 text-green-700' :
+                              kpiProgress >= 50 ? 'bg-blue-100 text-blue-700' :
+                              'bg-orange-100 text-orange-700'
+                            }`}>
+                              {kpiProgress >= 100 ? 'Completed' : kpiProgress >= 50 ? 'On Track' : 'In Progress'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* KPI Summary Cards */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="bg-blue-50 rounded-lg p-4">
                           <div className="flex items-center gap-3">
                             <Target className="w-8 h-8 text-blue-500" />
                             <div>
-                              <p className="text-sm text-blue-600 font-medium">Total KPIs</p>
-                              <p className="text-2xl font-bold text-blue-900">{performanceData?.totalKpis || 0}</p>
+                              <p className="text-sm text-blue-600 font-medium">Target Value</p>
+                              <p className="text-2xl font-bold text-blue-900">{kpiTargetValue}</p>
                             </div>
                           </div>
                         </div>
@@ -322,29 +403,114 @@ const PerformanceFeedback = () => {
                           <div className="flex items-center gap-3">
                             <CheckCircle className="w-8 h-8 text-green-500" />
                             <div>
-                              <p className="text-sm text-green-600 font-medium">Completed</p>
-                              <p className="text-2xl font-bold text-green-900">{performanceData?.completedKpis || 0}</p>
+                              <p className="text-sm text-green-600 font-medium">Current Value</p>
+                              <p className="text-2xl font-bold text-green-900">{kpiCurrentValue}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-purple-50 rounded-lg p-4">
+                          <div className="flex items-center gap-3">
+                            <Activity className="w-8 h-8 text-purple-500" />
+                            <div>
+                              <p className="text-sm text-purple-600 font-medium">Progress</p>
+                              <p className="text-2xl font-bold text-purple-900">{kpiProgress.toFixed(1)}%</p>
                             </div>
                           </div>
                         </div>
                         <div className="bg-orange-50 rounded-lg p-4">
                           <div className="flex items-center gap-3">
-                            <Activity className="w-8 h-8 text-orange-500" />
+                            <FileText className="w-8 h-8 text-orange-500" />
                             <div>
-                              <p className="text-sm text-orange-600 font-medium">In Progress</p>
-                              <p className="text-2xl font-bold text-orange-900">{performanceData?.inProgressKpis || 0}</p>
+                              <p className="text-sm text-orange-600 font-medium">Reports</p>
+                              <p className="text-2xl font-bold text-orange-900">{kpiReports.length}</p>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Performance Trend */}
-                      <div className="bg-gray-50 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Trend</h3>
-                        <div className="h-64">
-                          <Line data={trendData} options={trendOptions} />
+                      {/* Progress Bar */}
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">Overall Progress</span>
+                          <span className="text-sm font-bold text-gray-900">{kpiCurrentValue} / {kpiTargetValue}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-4">
+                          <div 
+                            className={`h-4 rounded-full transition-all duration-500 ${
+                              kpiProgress >= 100 ? 'bg-green-500' :
+                              kpiProgress >= 70 ? 'bg-blue-500' :
+                              kpiProgress >= 40 ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${Math.min(kpiProgress, 100)}%` }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between mt-2 text-xs text-gray-500">
+                          <span>0%</span>
+                          <span>50%</span>
+                          <span>100%</span>
                         </div>
                       </div>
+
+                      {/* Performance Trend */}
+                      <div className="bg-gray-50 rounded-lg p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-gray-900">Performance Trend</h3>
+                          <span className="text-sm text-gray-500">Based on {kpiReports.length} report(s)</span>
+                        </div>
+                        {kpiReports.length > 0 ? (
+                          <div className="h-64">
+                            <Line data={trendData} options={trendOptions} />
+                          </div>
+                        ) : (
+                          <div className="h-64 flex items-center justify-center">
+                            <div className="text-center">
+                              <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                              <p className="text-gray-500">No reports submitted yet</p>
+                              <p className="text-sm text-gray-400 mt-1">Reports will show performance trend here</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Recent Reports Summary */}
+                      {kpiReports.length > 0 && (
+                        <div className="bg-white rounded-lg border border-gray-200">
+                          <div className="p-4 border-b border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900">Recent Reports</h3>
+                          </div>
+                          <div className="divide-y divide-gray-100">
+                            {kpiReports.slice(0, 3).map((report, idx) => (
+                              <div key={idx} className="p-4 flex items-center justify-between hover:bg-gray-50">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                    idx === 0 ? 'bg-blue-100' : 'bg-gray-100'
+                                  }`}>
+                                    <FileText className={`w-5 h-5 ${idx === 0 ? 'text-blue-600' : 'text-gray-600'}`} />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-gray-900 capitalize">{report.period} Report</p>
+                                    <p className="text-sm text-gray-500">
+                                      {new Date(report.reportDate).toLocaleDateString('en-US', { 
+                                        month: 'short', day: 'numeric', year: 'numeric' 
+                                      })}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-bold text-gray-900">{report.actualValue}</p>
+                                  <p className={`text-sm ${
+                                    kpiTargetValue > 0 && (report.actualValue / kpiTargetValue) >= 0.5 
+                                      ? 'text-green-600' : 'text-gray-500'
+                                  }`}>
+                                    {kpiTargetValue > 0 ? `${((report.actualValue / kpiTargetValue) * 100).toFixed(0)}% of target` : ''}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -356,60 +522,173 @@ const PerformanceFeedback = () => {
                   {/* Feedback Tab */}
                   {activeTab === 'feedback' && (
                     <div className="space-y-6">
-                      {/* Manager Comments */}
-                      <div className="bg-green-50 rounded-xl p-6">
-                        <div className="flex items-center space-x-3 mb-4">
-                          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center">
-                            <MessageSquare className="w-6 h-6 text-white" />
-                          </div>
-                          <h3 className="text-xl font-semibold text-gray-900">Manager Feedback</h3>
+                      {feedbackLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                          <span className="ml-3 text-gray-600">Loading feedback...</span>
                         </div>
-
-                        <div className="bg-white rounded-xl p-5">
-                          <div className="flex items-start space-x-4">
-                            <div className="w-10 h-10 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center flex-shrink-0">
-                              <User className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-2">
-                                <span className="font-medium text-gray-900">Sarah</span>
-                                <span className="text-xs text-gray-500 flex items-center">
-                                  <Calendar className="w-3 h-3 mr-1" />
-                                  2 weeks ago
+                      ) : (
+                        <>
+                          {/* Staff Feedback Requests */}
+                          {feedbackHistoryData?.staffRequests?.length > 0 && (
+                            <div className="bg-orange-50 rounded-xl p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl flex items-center justify-center">
+                                    <AlertTriangle className="w-6 h-6 text-white" />
+                                  </div>
+                                  <h3 className="text-xl font-semibold text-gray-900">Feedback Requests</h3>
+                                </div>
+                                <span className="px-3 py-1 bg-orange-200 text-orange-800 rounded-full text-sm font-medium">
+                                  {feedbackHistoryData.staffRequests.filter(r => r.status === 'pending').length} pending
                                 </span>
                               </div>
-                              <p className="text-gray-700 text-sm leading-relaxed">
-                                "I've noticed a significant improvement in your project management skills. Keep up the great work! However, let's work on refining your presentation style to make it more engaging."
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
 
-                      {/* System Generated Feedback */}
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900">System Analysis</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="border border-gray-200 rounded-lg p-4">
-                            <div className="flex items-center gap-3 mb-3">
-                              <Code className="w-6 h-6 text-purple-500" />
-                              <span className="font-medium text-gray-900">Technical Proficiency</span>
+                              <div className="space-y-3">
+                                {feedbackHistoryData.staffRequests.map((request, idx) => (
+                                  <div key={idx} className={`bg-white rounded-xl p-5 border ${request.status === 'pending' ? 'border-orange-200' : 'border-gray-200'}`}>
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex items-start space-x-4">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${request.status === 'pending' ? 'bg-orange-100' : 'bg-green-100'}`}>
+                                          <User className={`w-5 h-5 ${request.status === 'pending' ? 'text-orange-600' : 'text-green-600'}`} />
+                                        </div>
+                                        <div className="flex-1">
+                                          <div className="flex items-center space-x-2 mb-2">
+                                            <span className="font-medium text-gray-900">{feedbackHistoryData.kpi?.staffName || 'Staff'}</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${request.status === 'pending' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                                              {request.status}
+                                            </span>
+                                            <span className="text-xs text-gray-500 flex items-center">
+                                              <Calendar className="w-3 h-3 mr-1" />
+                                              {new Date(request.createdAt).toLocaleDateString()}
+                                            </span>
+                                          </div>
+                                          <p className="text-gray-700 text-sm leading-relaxed italic">
+                                            "{request.message}"
+                                          </p>
+                                        </div>
+                                      </div>
+                                      {request.status === 'pending' && (
+                                        <button 
+                                          onClick={() => {
+                                            setSelectedRequest(request);
+                                            setShowReplyModal(true);
+                                          }}
+                                          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                                        >
+                                          Reply
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                            <p className="text-gray-600 text-sm">
-                              Strong technical skills demonstrated across projects. Consider exploring advanced frameworks to enhance productivity.
-                            </p>
-                          </div>
-                          <div className="border border-gray-200 rounded-lg p-4">
-                            <div className="flex items-center gap-3 mb-3">
-                              <MessageSquare className="w-6 h-6 text-blue-500" />
-                              <span className="font-medium text-gray-900">Communication</span>
+                          )}
+
+                          {/* Manager Comments */}
+                          <div className="bg-green-50 rounded-xl p-6">
+                            <div className="flex items-center space-x-3 mb-4">
+                              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center">
+                                <MessageSquare className="w-6 h-6 text-white" />
+                              </div>
+                              <h3 className="text-xl font-semibold text-gray-900">Manager Feedback</h3>
                             </div>
-                            <p className="text-gray-600 text-sm">
-                              Good collaboration in team settings. Focus on presentation skills and documentation clarity.
-                            </p>
+
+                            {feedbackHistoryData?.managerFeedback?.length > 0 ? (
+                              <div className="space-y-3">
+                                {feedbackHistoryData.managerFeedback.map((feedback, idx) => (
+                                  <div key={idx} className="bg-white rounded-xl p-5">
+                                    <div className="flex items-start space-x-4">
+                                      <div className="w-10 h-10 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <User className="w-5 h-5 text-white" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <div className="flex items-center space-x-2 mb-2">
+                                          <span className="font-medium text-gray-900">{feedbackHistoryData.manager?.name || 'Manager'}</span>
+                                          <span className="text-xs text-gray-500 flex items-center">
+                                            <Calendar className="w-3 h-3 mr-1" />
+                                            {new Date(feedback.createdAt).toLocaleDateString()}
+                                          </span>
+                                        </div>
+                                        <p className="text-gray-700 text-sm leading-relaxed">
+                                          "{feedback.comment}"
+                                        </p>
+                                        {feedback.recommendation && (
+                                          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                                            <p className="text-sm text-blue-800">
+                                              <span className="font-medium">Recommendation:</span> {feedback.recommendation}
+                                            </p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="bg-white rounded-xl p-8 text-center">
+                                <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                                <p className="text-gray-500">No manager feedback yet</p>
+                                <p className="text-sm text-gray-400 mt-1">Feedback will appear here once provided</p>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      </div>
+
+                          {/* System Generated Feedback / AI Analysis */}
+                          <div className="space-y-4">
+                            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                              <Brain className="w-5 h-5 text-purple-500" />
+                              AI System Analysis
+                            </h3>
+                            {feedbackHistoryData?.systemAnalysis?.length > 0 ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {feedbackHistoryData.systemAnalysis.map((analysis, idx) => (
+                                  <div key={idx} className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors">
+                                    <div className="flex items-center gap-3 mb-3">
+                                      {analysis.icon === 'trending-up' && <TrendingUp className="w-6 h-6 text-green-500" />}
+                                      {analysis.icon === 'target' && <Target className="w-6 h-6 text-blue-500" />}
+                                      {analysis.icon === 'alert' && <AlertTriangle className="w-6 h-6 text-orange-500" />}
+                                      {!['trending-up', 'target', 'alert'].includes(analysis.icon) && <Brain className="w-6 h-6 text-purple-500" />}
+                                      <span className="font-medium text-gray-900">{analysis.category}</span>
+                                    </div>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                      {analysis.content}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="border border-gray-200 rounded-lg p-4">
+                                  <div className="flex items-center gap-3 mb-3">
+                                    <TrendingUp className="w-6 h-6 text-green-500" />
+                                    <span className="font-medium text-gray-900">Performance Trend</span>
+                                  </div>
+                                  <p className="text-gray-600 text-sm">
+                                    {kpiData?.progress >= 70 
+                                      ? "Excellent progress towards target. Continue maintaining this momentum for optimal results."
+                                      : kpiData?.progress >= 40
+                                      ? "Good progress being made. Consider focusing on key deliverables to accelerate completion."
+                                      : "Early stage progress. Set clear milestones and track regularly for better outcomes."}
+                                  </p>
+                                </div>
+                                <div className="border border-gray-200 rounded-lg p-4">
+                                  <div className="flex items-center gap-3 mb-3">
+                                    <Target className="w-6 h-6 text-blue-500" />
+                                    <span className="font-medium text-gray-900">Goal Alignment</span>
+                                  </div>
+                                  <p className="text-gray-600 text-sm">
+                                    {kpiData?.assignment?.priorityLevel === 'high'
+                                      ? "High priority KPI - requires focused attention and regular check-ins."
+                                      : "Aligned with departmental objectives. Regular updates recommended."}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
 
@@ -509,41 +788,61 @@ const PerformanceFeedback = () => {
 
             {/* Right Column - Sidebar */}
             <div className="space-y-6">
-              {/* Performance Summary Circle */}
+              {/* KPI Progress Circle */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Performance Summary</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Staff's KPI Progress</h3>
                 
                 <div className="flex flex-col items-center mb-8">
-                  <div className="relative w-64 h-64">
-                    <Doughnut data={doughnutData} options={doughnutOptions} />
-                    <div className="absolute inset-0 top-16 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-bold text-gray-900">{overallRating}%</span>
-                      <span className="text-sm text-gray-600">Overall Rating</span>
+                  <div className="relative w-48 h-48">
+                    <Doughnut 
+                      data={{
+                        labels: ['Progress', 'Remaining'],
+                        datasets: [{
+                          data: [Math.min(kpiProgress, 100), Math.max(100 - kpiProgress, 0)],
+                          backgroundColor: [
+                            kpiProgress >= 100 ? '#10b981' : kpiProgress >= 70 ? '#3b82f6' : kpiProgress >= 40 ? '#f59e0b' : '#ef4444',
+                            '#f3f4f6'
+                          ],
+                          borderWidth: 0,
+                          cutout: '75%',
+                          circumference: 360,
+                          rotation: -90,
+                        }],
+                      }} 
+                      options={doughnutOptions} 
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className={`text-3xl font-bold ${
+                        kpiProgress >= 100 ? 'text-green-600' : kpiProgress >= 70 ? 'text-blue-600' : kpiProgress >= 40 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>{kpiProgress.toFixed(0)}%</span>
+                      <span className="text-sm text-gray-500">Complete</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                     <div>
-                      <p className="text-gray-600 text-sm">KPIs Completed</p>
-                      <p className="text-2xl font-bold text-gray-900">{performanceData?.completedKpis || 0}</p>
+                      <p className="text-gray-600 text-sm">Target Value</p>
+                      <p className="text-xl font-bold text-blue-900">{kpiTargetValue}</p>
                     </div>
-                    <div className="flex items-center space-x-1 text-green-500">
-                      <span className="text-sm font-medium">+15%</span>
-                      <TrendingUp className="w-4 h-4" />
-                    </div>
+                    <Target className="w-6 h-6 text-blue-500" />
                   </div>
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                     <div>
-                      <p className="text-gray-600 text-sm">Avg Progress</p>
-                      <p className="text-2xl font-bold text-gray-900">{performanceData?.avgProgress || 0}%</p>
+                      <p className="text-gray-600 text-sm">Current Value</p>
+                      <p className="text-xl font-bold text-green-900">{kpiCurrentValue}</p>
                     </div>
-                    <div className="flex items-center space-x-1 text-blue-500">
-                      <span className="text-sm font-medium">+8%</span>
-                      <TrendingUp className="w-4 h-4" />
+                    <CheckCircle className="w-6 h-6 text-green-500" />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                    <div>
+                      <p className="text-gray-600 text-sm">Reports Submitted</p>
+                      <p className="text-xl font-bold text-purple-900">{kpiReports.length}</p>
                     </div>
+                    <FileText className="w-6 h-6 text-purple-500" />
                   </div>
                 </div>
               </div>
@@ -551,7 +850,7 @@ const PerformanceFeedback = () => {
               {/* AI Risk Assessment */}
               {aiInsights.length > 0 && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Risk Assessment</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Risk Assessment</h3>
                   <div className="space-y-3">
                     {aiInsights.slice(0, 3).map((insight, index) => {
                       const riskLevel = insight.insights?.riskLevel || 'medium';
@@ -583,87 +882,139 @@ const PerformanceFeedback = () => {
                 </div>
               )}
 
-              {/* Quick Actions */}
+              {/* Pending Feedback Requests */}
+              {feedbackHistoryData?.feedbackHistory?.filter(f => f.type === 'request' && f.status === 'pending').length > 0 && (
+                <div className="bg-orange-50 rounded-2xl shadow-sm border border-orange-200 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                      <AlertTriangle className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-orange-900">Pending Requests</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {feedbackHistoryData.feedbackHistory.filter(f => f.type === 'request' && f.status === 'pending').slice(0, 2).map((request) => (
+                      <div key={request.id} className="bg-white rounded-lg p-3 shadow-sm">
+                        <p className="text-sm text-gray-700 line-clamp-2 mb-2">{request.message}</p>
+                        <button 
+                          onClick={() => {
+                            setSelectedRequest(request);
+                            setShowReplyModal(true);
+                          }}
+                          className="text-sm text-orange-600 font-medium hover:text-orange-700"
+                        >
+                          Reply →
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Manager Quick Actions */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Manager Actions</h3>
                 <div className="space-y-3">
-                  <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    <span className="text-gray-700">Submit KPI Report</span>
+                  <Link to={`/kpi/view/${userId}/${kpiId}`}>
+                    <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
+                      <Eye className="w-5 h-5 text-blue-600" />
+                      <span className="text-gray-700">View Full KPI Details</span>
+                    </button>
+                  </Link>
+                  <button 
+                    onClick={() => setActiveTab('feedback')}
+                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <MessageSquare className="w-5 h-5 text-green-600" />
+                    <span className="text-gray-700">View/Add Feedback</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
-                    <Target className="w-5 h-5 text-green-600" />
-                    <span className="text-gray-700">View All KPIs</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => setActiveTab('resources')}
+                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors"
+                  >
                     <BookOpen className="w-5 h-5 text-purple-600" />
-                    <span className="text-gray-700">Browse Learning Resources</span>
+                    <span className="text-gray-700">Learning Resources</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
-                    <MessageSquare className="w-5 h-5 text-orange-600" />
-                    <span className="text-gray-700">Request Feedback</span>
-                  </button>
+                  <Link to={`/kpi/team`}>
+                    <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
+                      <Users className="w-5 h-5 text-orange-600" />
+                      <span className="text-gray-700">Back to Team KPIs</span>
+                    </button>
+                  </Link>
                 </div>
               </div>
 
-              {/* Recent Achievements */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Achievements</h3>
-                <div className="space-y-3">
-                  {kpiAssignments.filter(kpi => kpi.progress >= 100).slice(0, 3).map((kpi, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span className="text-sm text-gray-700">{kpi.name}</span>
+              {/* KPI Details */}
+              {currentKpi && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">KPI Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 text-sm">
+                      <span className="text-gray-500 min-w-[80px]">Title:</span>
+                      <span className="text-gray-900 font-medium">{currentKpi.template?.title}</span>
                     </div>
-                  ))}
-                  {kpiAssignments.filter(kpi => kpi.progress >= 100).length === 0 && (
-                    <p className="text-sm text-gray-500 italic">No completed KPIs yet. Keep working towards your goals!</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Performance Stats */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">This Month</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium text-blue-900">Reports Submitted</p>
-                      <p className="text-lg font-bold text-blue-900">
-                        {kpiAssignments.reduce((total, kpi) => total + (kpi.reports?.length || 0), 0)}
-                      </p>
+                    {currentKpi.template?.description && (
+                      <div className="flex items-start gap-3 text-sm">
+                        <span className="text-gray-500 min-w-[80px]">Description:</span>
+                        <span className="text-gray-700 line-clamp-3">{currentKpi.template.description}</span>
+                      </div>
+                    )}
+                    <div className="flex items-start gap-3 text-sm">
+                      <span className="text-gray-500 min-w-[80px]">Period:</span>
+                      <span className="text-gray-700 capitalize">{currentKpi.assignment?.period || 'N/A'}</span>
                     </div>
-                    <div className="flex items-center text-sm font-medium text-blue-600">
-                      <TrendingUp className="w-4 h-4 mr-1" />
-                      +12%
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium text-green-900">Goals Achieved</p>
-                      <p className="text-lg font-bold text-green-900">{performanceData?.completedKpis || 0}</p>
-                    </div>
-                    <div className="flex items-center text-sm font-medium text-green-600">
-                      <TrendingUp className="w-4 h-4 mr-1" />
-                      +25%
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium text-purple-900">Learning Hours</p>
-                      <p className="text-lg font-bold text-purple-900">
-                        {recommendations.filter(r => r.usageCount > 0).length * 2}h
-                      </p>
-                    </div>
-                    <div className="flex items-center text-sm font-medium text-purple-600">
-                      <TrendingUp className="w-4 h-4 mr-1" />
-                      +18%
-                    </div>
+                    {currentKpi.assignment?.endDate && (
+                      <div className="flex items-start gap-3 text-sm">
+                        <span className="text-gray-500 min-w-[80px]">Due Date:</span>
+                        <span className="text-gray-700">
+                          {new Date(currentKpi.assignment.endDate).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    )}
+                    {currentKpi.assignment?.status && (
+                      <div className="flex items-start gap-3 text-sm">
+                        <span className="text-gray-500 min-w-[80px]">Status:</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          currentKpi.assignment.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          currentKpi.assignment.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {currentKpi.assignment.status}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Recent Reports */}
+              {kpiReports.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Reports</h3>
+                  <div className="space-y-3">
+                    {kpiReports.slice(0, 3).map((report, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 capitalize">{report.period}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(report.reportDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-gray-900">{report.actualValue}</p>
+                          <p className={`text-xs ${
+                            kpiTargetValue > 0 && (report.actualValue / kpiTargetValue) >= 0.5
+                              ? 'text-green-600' : 'text-gray-500'
+                          }`}>
+                            {kpiTargetValue > 0 ? `${((report.actualValue / kpiTargetValue) * 100).toFixed(0)}%` : ''}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* AI Prediction Summary */}
               {aiInsights.length > 0 && (
@@ -674,7 +1025,7 @@ const PerformanceFeedback = () => {
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-white/90">Expected Goal Completion</span>
+                      <span className="text-white/90">Completion Probability</span>
                       <span className="font-bold">
                         {Math.round(aiInsights.reduce((avg, insight) => 
                           avg + (insight.performanceAnalysis?.completionProbability || 0), 0
@@ -682,7 +1033,7 @@ const PerformanceFeedback = () => {
                       </span>
                     </div>
                     <div className="text-sm text-white/80">
-                      Based on current performance trends and AI analysis
+                      Based on staff's current progress and AI analysis
                     </div>
                   </div>
                 </div>
@@ -691,6 +1042,75 @@ const PerformanceFeedback = () => {
           </div>
         </main>
       </div>
+      
+      {/* Reply to Feedback Request Modal */}
+      {showReplyModal && selectedRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <MessageSquare className="w-5 h-5 text-orange-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Reply to Request</h3>
+              </div>
+              <button onClick={() => setShowReplyModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Original Request */}
+              <div className="bg-orange-50 rounded-lg p-4">
+                <p className="text-sm text-orange-800 font-medium mb-1">Staff's Request:</p>
+                <p className="text-gray-700 italic">"{selectedRequest.message}"</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Reply <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all resize-none"
+                  placeholder="Provide your feedback response..."
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReplyModal(false);
+                    setReplyText('');
+                    setSelectedRequest(null);
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReplyToRequest}
+                  disabled={replyLoading || !replyText.trim()}
+                  className="flex-1 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {replyLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Reply'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <Footer />
     </DashboardLayout>
   );

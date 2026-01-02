@@ -93,19 +93,66 @@ function CircularDetails() {
                       <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: circular?.body || '' }} />
                     </div>
 
-                    {circular?.attachment && (
-                      <MDTypography variant="body2" className="mb-4">
-                        Attachment:{" "}
-                        <Link
-                          href={circular.attachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          color="info"
-                          underline="hover"
-                        >
-                          View/Download
-                        </Link>
-                      </MDTypography>
+                    {/* Attachment Section */}
+                    {(circular?.attachment || circular?.file) && (
+                      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">Attached File</p>
+                            <p className="text-sm text-gray-500">Click to view or download</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Link
+                              href={circular.attachment || circular.file}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                              View
+                            </Link>
+                            <a
+                              href={circular.attachment || circular.file}
+                              download
+                              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium flex items-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              Download
+                            </a>
+                          </div>
+                        </div>
+                        
+                        {/* Preview for images */}
+                        {(circular.attachment || circular.file)?.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+                          <div className="mt-4">
+                            <img 
+                              src={circular.attachment || circular.file} 
+                              alt="Attachment preview" 
+                              className="max-w-full max-h-64 rounded-lg border border-gray-200"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Preview for PDFs - show link info */}
+                        {(circular.attachment || circular.file)?.match(/\.pdf$/i) && (
+                          <div className="mt-4 p-3 bg-red-50 rounded-lg flex items-center gap-3">
+                            <svg className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/>
+                            </svg>
+                            <span className="text-sm text-red-700">PDF Document - Click "View" to open</span>
+                          </div>
+                        )}
+                      </div>
                     )}
 
                     <Divider className="my-4" />

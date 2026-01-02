@@ -1,10 +1,10 @@
 // components/form/useRequestForm.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import dayjs from 'dayjs';
 import { useCreateRequestMutation, useGetEveryEmployeeQuery } from 'api/apiSlice';
 import { validationSchemas } from './requestValidation';
-import * as yup from 'yup';
+import { getCurrencyFromIP, getCurrencyFromLocale } from 'utils/currencyDetector';
+import { formatValidationErrors } from 'components/ValidationErrorBanner';
 
 const initialFormState = {
   requestType: '',
@@ -12,6 +12,8 @@ const initialFormState = {
   description: '',
   dateNeeded: '',
   amount: '',
+  currency: 'USD', // Default, will be updated based on location
+  currencySymbol: '$',
   vendor: '',
   paymentMethod: '',
   attachment: '',
@@ -23,8 +25,43 @@ export const useRequestForm = (handleClose) => {
   const [formValues, setFormValues] = useState(initialFormState);
   const [selectedFile, setSelectedFile] = useState(null);
   const [addedLeads, setAddedLeads] = useState([]);
+  const [currencyDetected, setCurrencyDetected] = useState(false);
+  
+  // Validation state
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
+  
   const [createRequest, { isLoading, isSuccess, error }] = useCreateRequestMutation();
   const { data: employees } = useGetEveryEmployeeQuery();
+
+  // Detect user's currency on mount
+  useEffect(() => {
+    const detectCurrency = async () => {
+      if (currencyDetected) return;
+      
+      try {
+        // First try IP-based detection
+        const currency = await getCurrencyFromIP();
+        setFormValues(prev => ({
+          ...prev,
+          currency: currency.code,
+          currencySymbol: currency.symbol,
+        }));
+        setCurrencyDetected(true);
+      } catch (error) {
+        // Fallback to locale-based detection
+        const localeCurrency = getCurrencyFromLocale();
+        setFormValues(prev => ({
+          ...prev,
+          currency: localeCurrency.code,
+          currencySymbol: localeCurrency.symbol,
+        }));
+        setCurrencyDetected(true);
+      }
+    };
+
+    detectCurrency();
+  }, [currencyDetected]);
 
   const availableEmployees = employees?.employees?.map((employee) => ({
     id: employee?.id,
@@ -48,7 +85,32 @@ export const useRequestForm = (handleClose) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+      setValidationErrors(prev => prev.filter(err => err.field !== name));
+    }
+    
+    // If currency is changed, also update the symbol
+    if (name === 'currency') {
+      const currencySymbols = {
+        NGN: '₦', USD: '$', EUR: '€', GBP: '£', GHS: '₵', 
+        KES: 'KSh', ZAR: 'R', INR: '₹', AED: 'د.إ',
+        CAD: 'C$', AUD: 'A$', JPY: '¥', CNY: '¥',
+      };
+      setFormValues((prev) => ({ 
+        ...prev, 
+        [name]: value,
+        currencySymbol: currencySymbols[value] || value
+      }));
+    } else {
+      setFormValues((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleDateChange = (name, value) => {
@@ -70,21 +132,46 @@ export const useRequestForm = (handleClose) => {
   const handleNext = async () => {
     const schema = validationSchemas[formValues.requestType];
     if (!schema) {
-        toast.error('Invalid or missing request type');
-        return;
+      setValidationErrors([{ message: 'Please select a request type first' }]);
+      return;
     }
 
     try {
-        await schema.validate(formValues, { abortEarly: false });
-        setStep((prev) => prev + 1);
+      // Clear previous errors
+      setValidationErrors([]);
+      setFieldErrors({});
+      
+      await schema.validate(formValues, { abortEarly: false });
+      setStep((prev) => prev + 1);
     } catch (err) {
-        if (err?.inner) {
-        err.inner.forEach((e) => toast.error(e.message));
-        } else {
-        toast.error(err.message || 'Validation failed');
+      // Format errors for the banner
+      const errors = formatValidationErrors(err);
+      setValidationErrors(errors);
+      
+      // Also set field-level errors for inline display
+      const fieldErrs = {};
+      errors.forEach(error => {
+        if (error.field) {
+          fieldErrs[error.field] = error.message;
         }
+      });
+      setFieldErrors(fieldErrs);
+      
+      // Scroll to the error banner
+      setTimeout(() => {
+        const errorBanner = document.querySelector('[data-error-banner]');
+        if (errorBanner) {
+          errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
     }
   };
+  
+  // Clear all validation errors
+  const clearValidationErrors = useCallback(() => {
+    setValidationErrors([]);
+    setFieldErrors({});
+  }, []);
 
   const handleBack = () => setStep((prev) => prev - 1);
 
@@ -130,6 +217,10 @@ export const useRequestForm = (handleClose) => {
     availableEmployees,
     addedLeads,
     handleAddLead,
-    handleRemoveLead
+    handleRemoveLead,
+    // Validation state
+    validationErrors,
+    fieldErrors,
+    clearValidationErrors,
   };
 };

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Edit3, Target, TrendingUp, BookOpen, Play, Award, AlertCircle, CheckCircle, FileText, Calendar, Activity, BarChart3, Plus } from 'lucide-react';
+import { Edit3, Target, TrendingUp, BookOpen, Play, Award, AlertCircle, CheckCircle, FileText, Calendar, Activity, BarChart3, Plus, X, MessageSquare, Flag, History } from 'lucide-react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import MDBox from "components/MDBox";
 import { Link, useParams } from 'react-router-dom';
-import { useGetMyKpiDetailsQuery } from 'api/apiSlice';
+import { useGetMyKpiDetailsQuery, useSetMilestoneMutation, useRequestKpiFeedbackMutation, useGetPerformanceHistoryQuery } from 'api/apiSlice';
 import CreateKpiReportForm from '../components/ReportKpi';
+import { toast } from 'react-toastify';
 
 
 
@@ -15,17 +16,63 @@ const KPIDetailsView = () => {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showRecommendations, setShowRecommendations] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
-
+    
+    // Quick Actions Modal States
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [showMilestoneModal, setShowMilestoneModal] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    
+    // Form States
+    const [milestoneData, setMilestoneData] = useState({
+      milestoneValue: '',
+      milestoneNote: '',
+      milestoneDate: ''
+    });
+    const [feedbackMessage, setFeedbackMessage] = useState('');
 
     const { data: kpiData, isLoading: loading } = useGetMyKpiDetailsQuery({ kpiAssignmentId: id });
-    const kpiId = 1
-    const userId = 1; // Replace with actual user ID from context or props
+    const { data: historyData, isLoading: historyLoading, refetch: refetchHistory } = useGetPerformanceHistoryQuery(id, { skip: !showHistoryModal });
+    
+    const [setMilestone, { isLoading: milestoneLoading }] = useSetMilestoneMutation();
+    const [requestFeedback, { isLoading: feedbackLoading }] = useRequestKpiFeedbackMutation();
 
     const [formData, setFormData] = useState({
       targetValue: '',
       priorityLevel: '',
       description: ''
     });
+    
+    // Handle Milestone Submit
+    const handleMilestoneSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        await setMilestone({
+          kpiAssignmentId: id,
+          ...milestoneData
+        }).unwrap();
+        toast.success('Milestone set successfully!');
+        setShowMilestoneModal(false);
+        setMilestoneData({ milestoneValue: '', milestoneNote: '', milestoneDate: '' });
+      } catch (error) {
+        toast.error(error.data?.message || 'Failed to set milestone');
+      }
+    };
+    
+    // Handle Feedback Request Submit
+    const handleFeedbackSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await requestFeedback({
+          kpiAssignmentId: id,
+          message: feedbackMessage
+        }).unwrap();
+        toast.success(`Feedback request sent to ${response.data?.manager || 'your manager'}!`);
+        setShowFeedbackModal(false);
+        setFeedbackMessage('');
+      } catch (error) {
+        toast.error(error.data?.message || 'Failed to request feedback');
+      }
+    };
   
     const getPriorityColor = (priority) => {
       switch(priority) {
@@ -99,7 +146,7 @@ const KPIDetailsView = () => {
                     <Edit3 className="w-4 h-4" />
                     Submit Report
                   </button>
-                  <Link to={`/kpi/feedback/${kpiId}`}>
+                  <Link to={`/kpi/feedback/${id}`}>
                     <button
                       onClick={() => setShowRecommendations(!showRecommendations)}
                       className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -220,14 +267,14 @@ const KPIDetailsView = () => {
                             fill="none"
                             stroke="#3b82f6"
                             strokeWidth="8"
-                            strokeDasharray={`${kpiData.totalValue * 3.14159} 314.159`}
+                            strokeDasharray={`${kpiData?.progress * 3.14159} 314.159`}
                             strokeLinecap="round"
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
-                            <div className={`text-2xl font-bold ${getProgressColor(kpiData.totalValue)}`}>
-                              {kpiData.totalValue.toFixed(1)}%
+                            <div className={`text-2xl font-bold ${getProgressColor(kpiData?.progress)}`}>
+                              {kpiData?.progress?.toFixed(1)}%
                             </div>
                             <div className="text-xs text-gray-500">Progress</div>
                           </div>
@@ -259,16 +306,25 @@ const KPIDetailsView = () => {
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
                     <div className="space-y-3">
-                      <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
-                        <TrendingUp className="w-5 h-5 text-blue-600" />
+                      <button 
+                        onClick={() => setShowHistoryModal(true)}
+                        className="w-full flex items-center gap-3 p-3 text-left hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200"
+                      >
+                        <History className="w-5 h-5 text-blue-600" />
                         <span className="text-gray-700">View Performance History</span>
                       </button>
-                      <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
-                        <Award className="w-5 h-5 text-green-600" />
+                      <button 
+                        onClick={() => setShowMilestoneModal(true)}
+                        className="w-full flex items-center gap-3 p-3 text-left hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-200"
+                      >
+                        <Flag className="w-5 h-5 text-green-600" />
                         <span className="text-gray-700">Set Milestone</span>
                       </button>
-                      <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
-                        <AlertCircle className="w-5 h-5 text-orange-600" />
+                      <button 
+                        onClick={() => setShowFeedbackModal(true)}
+                        className="w-full flex items-center gap-3 p-3 text-left hover:bg-orange-50 rounded-lg transition-colors border border-transparent hover:border-orange-200"
+                      >
+                        <MessageSquare className="w-5 h-5 text-orange-600" />
                         <span className="text-gray-700">Request Feedback</span>
                       </button>
                     </div>
@@ -409,6 +465,266 @@ const KPIDetailsView = () => {
             {/* Update Modal */}
             {showUpdateModal && (
               <CreateKpiReportForm kpiAssignmentId={id} setShowCreateModal={setShowUpdateModal} />
+            )}
+            
+            {/* Performance History Modal */}
+            {showHistoryModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
+                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <History className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <h2 className="text-xl font-semibold text-gray-900">Performance History</h2>
+                    </div>
+                    <button onClick={() => setShowHistoryModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                      <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  
+                  <div className="p-6 overflow-y-auto max-h-[60vh]">
+                    {historyLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <span className="ml-3 text-gray-600">Loading history...</span>
+                      </div>
+                    ) : historyData ? (
+                      <div className="space-y-6">
+                        {/* Statistics Summary */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="bg-blue-50 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-blue-600">{historyData.statistics?.totalReports || 0}</p>
+                            <p className="text-sm text-gray-600">Total Reports</p>
+                          </div>
+                          <div className="bg-green-50 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-green-600">{historyData.statistics?.avgValue || 0}</p>
+                            <p className="text-sm text-gray-600">Average Value</p>
+                          </div>
+                          <div className="bg-purple-50 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-purple-600">{historyData.statistics?.maxValue || 0}</p>
+                            <p className="text-sm text-gray-600">Best Value</p>
+                          </div>
+                          <div className="bg-orange-50 rounded-lg p-4 text-center">
+                            <p className={`text-2xl font-bold ${historyData.statistics?.trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {historyData.statistics?.trend >= 0 ? '+' : ''}{historyData.statistics?.trend || 0}
+                            </p>
+                            <p className="text-sm text-gray-600">Trend</p>
+                          </div>
+                        </div>
+                        
+                        {/* Reports Timeline */}
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4">Report Timeline</h3>
+                          {historyData.reports?.length > 0 ? (
+                            <div className="space-y-3">
+                              {historyData.reports.map((report, index) => (
+                                <div key={report.id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                    index === 0 ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-600'
+                                  }`}>
+                                    <FileText className="w-5 h-5" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="font-medium text-gray-900 capitalize">{report.period} Report</span>
+                                      <span className="text-sm text-gray-500">
+                                        {new Date(report.reportDate).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-sm">
+                                      <span className="text-gray-600">Value: <strong className="text-gray-900">{report.actualValue}</strong></span>
+                                      {report.notes && <span className="text-gray-500">• {report.notes}</span>}
+                                    </div>
+                                    {report.feedback && (
+                                      <div className="mt-2 p-2 bg-white rounded border border-gray-200 text-sm text-gray-600">
+                                        {report.feedback.managerComment || report.feedback.systemFeedback}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-gray-500">
+                              <History className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                              <p>No reports submitted yet</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-gray-500">
+                        <AlertCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                        <p>Unable to load performance history</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Set Milestone Modal */}
+            {showMilestoneModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <Flag className="w-5 h-5 text-green-600" />
+                      </div>
+                      <h2 className="text-xl font-semibold text-gray-900">Set Milestone</h2>
+                    </div>
+                    <button onClick={() => setShowMilestoneModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                      <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  
+                  <form onSubmit={handleMilestoneSubmit} className="p-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Milestone Value <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={milestoneData.milestoneValue}
+                        onChange={(e) => setMilestoneData({ ...milestoneData, milestoneValue: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                        placeholder={`Target: ${kpiData?.assignment?.targetValue || 0}`}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Target Date
+                      </label>
+                      <input
+                        type="date"
+                        value={milestoneData.milestoneDate}
+                        onChange={(e) => setMilestoneData({ ...milestoneData, milestoneDate: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Note (Optional)
+                      </label>
+                      <textarea
+                        value={milestoneData.milestoneNote}
+                        onChange={(e) => setMilestoneData({ ...milestoneData, milestoneNote: e.target.value })}
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all resize-none"
+                        placeholder="Describe this milestone..."
+                      />
+                    </div>
+                    
+                    <div className="flex gap-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowMilestoneModal(false)}
+                        className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={milestoneLoading}
+                        className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {milestoneLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            Setting...
+                          </>
+                        ) : (
+                          <>
+                            <Flag className="w-4 h-4" />
+                            Set Milestone
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+            
+            {/* Request Feedback Modal */}
+            {showFeedbackModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-orange-100 rounded-lg">
+                        <MessageSquare className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <h2 className="text-xl font-semibold text-gray-900">Request Feedback</h2>
+                    </div>
+                    <button onClick={() => setShowFeedbackModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                      <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  
+                  <form onSubmit={handleFeedbackSubmit} className="p-6 space-y-4">
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <p className="text-sm text-orange-800">
+                        Your feedback request will be sent to your manager who assigned this KPI. They will be notified to review your progress.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        KPI
+                      </label>
+                      <div className="px-4 py-3 bg-gray-100 rounded-lg text-gray-700">
+                        {kpiData?.template?.title || 'Loading...'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Message to Manager
+                      </label>
+                      <textarea
+                        value={feedbackMessage}
+                        onChange={(e) => setFeedbackMessage(e.target.value)}
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all resize-none"
+                        placeholder="Describe what feedback you're looking for, any challenges you're facing, or questions you have..."
+                      />
+                    </div>
+                    
+                    <div className="flex gap-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowFeedbackModal(false)}
+                        className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={feedbackLoading}
+                        className="flex-1 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {feedbackLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare className="w-4 h-4" />
+                            Send Request
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             )}
           </div>
           <Footer />

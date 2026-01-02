@@ -1,5 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useReqPasswordResetMutation } from "api/apiSlice";
+import { useNavigate } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -12,6 +13,9 @@ import MDButton from "components/MDButton";
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
+// Icons
+import { ArrowLeft } from "lucide-react";
+
 // Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
@@ -22,21 +26,19 @@ import { toast } from "react-toastify";
 
 
 function Cover() {
-  const [ reqPasswordReset, {isLoading } ] = useReqPasswordResetMutation();
+  const [reqPasswordReset, { isLoading }] = useReqPasswordResetMutation();
+  const navigate = useNavigate();
 
   const initialValues = {
     email: "",
   };
 
   const handleSubmit = async (values) => {
-    console.log("clicked btn");   
-    console.log(values);
     const { email } = values;
 
     try {
       const response = await reqPasswordReset({ email }).unwrap();
       toast.success(response.message || 'Check your Mail box!');
-
     } catch (err) {
       const errorMessage = err?.data?.message || 'Action failed. Please try again.';
       toast.error(errorMessage);
@@ -83,12 +85,28 @@ function Cover() {
                     helperText={<ErrorMessage name="email" />}
                   />
                 </MDBox>            
-                <MDBox mt={6} mb={1}>
+                <MDBox mt={4} mb={1}>
                   <MDButton type="submit" variant="gradient" color="info" fullWidth>
-                    {isLoading ? <Box><CircularProgress /></Box> : "reset"}
+                    {isLoading ? <Box><CircularProgress size={24} color="inherit" /></Box> : "Send Reset Link"}
                   </MDButton>
                 </MDBox>
-               
+
+                <MDBox mt={2} textAlign="center">
+                  <MDButton
+                    variant="text"
+                    color="info"
+                    onClick={() => navigate('/authentication/sign-in')}
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 0.5,
+                      mx: 'auto'
+                    }}
+                  >
+                    <ArrowLeft size={18} />
+                    Back to Sign In
+                  </MDButton>
+                </MDBox>
               </Form>
             )}
           </Formik>            

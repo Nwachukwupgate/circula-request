@@ -1,14 +1,46 @@
 
-
 /**
   This file is used for controlling the global states of the components,
   you can customize the states for the different components here.
 */
 
-import { createContext, useContext, useReducer, useMemo } from "react";
+import { createContext, useContext, useReducer, useMemo, useEffect } from "react";
 
 // prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
+
+// Local storage key for persisting settings
+const SETTINGS_STORAGE_KEY = "circula_ui_settings";
+
+// Helper function to get saved settings from localStorage
+const getSavedSettings = () => {
+  try {
+    const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (error) {
+    console.warn("Failed to load saved settings:", error);
+  }
+  return null;
+};
+
+// Helper function to save settings to localStorage
+const saveSettings = (settings) => {
+  try {
+    // Only save the customizable settings, not transient ones
+    const settingsToSave = {
+      transparentSidenav: settings.transparentSidenav,
+      whiteSidenav: settings.whiteSidenav,
+      sidenavColor: settings.sidenavColor,
+      fixedNavbar: settings.fixedNavbar,
+      darkMode: settings.darkMode,
+    };
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settingsToSave));
+  } catch (error) {
+    console.warn("Failed to save settings:", error);
+  }
+};
 
 // Material Dashboard 2 React main context
 const MaterialUI = createContext();
@@ -18,56 +50,78 @@ MaterialUI.displayName = "MaterialUIContext";
 
 // Material Dashboard 2 React reducer
 function reducer(state, action) {
+  let newState;
+  
   switch (action.type) {
     case "MINI_SIDENAV": {
-      return { ...state, miniSidenav: action.value };
+      newState = { ...state, miniSidenav: action.value };
+      break;
     }
     case "TRANSPARENT_SIDENAV": {
-      return { ...state, transparentSidenav: action.value };
+      newState = { ...state, transparentSidenav: action.value };
+      saveSettings(newState); // Persist
+      break;
     }
     case "WHITE_SIDENAV": {
-      return { ...state, whiteSidenav: action.value };
+      newState = { ...state, whiteSidenav: action.value };
+      saveSettings(newState); // Persist
+      break;
     }
     case "SIDENAV_COLOR": {
-      return { ...state, sidenavColor: action.value };
+      newState = { ...state, sidenavColor: action.value };
+      saveSettings(newState); // Persist
+      break;
     }
     case "TRANSPARENT_NAVBAR": {
-      return { ...state, transparentNavbar: action.value };
+      newState = { ...state, transparentNavbar: action.value };
+      break;
     }
     case "FIXED_NAVBAR": {
-      return { ...state, fixedNavbar: action.value };
+      newState = { ...state, fixedNavbar: action.value };
+      saveSettings(newState); // Persist
+      break;
     }
     case "OPEN_CONFIGURATOR": {
-      return { ...state, openConfigurator: action.value };
+      newState = { ...state, openConfigurator: action.value };
+      break;
     }
     case "DIRECTION": {
-      return { ...state, direction: action.value };
+      newState = { ...state, direction: action.value };
+      break;
     }
     case "LAYOUT": {
-      return { ...state, layout: action.value };
+      newState = { ...state, layout: action.value };
+      break;
     }
     case "DARKMODE": {
-      return { ...state, darkMode: action.value };
+      newState = { ...state, darkMode: action.value };
+      saveSettings(newState); // Persist
+      break;
     }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
   }
+  
+  return newState;
 }
 
 // Material Dashboard 2 React context provider
 function MaterialUIControllerProvider({ children }) {
+  // Load saved settings or use defaults
+  const savedSettings = getSavedSettings();
+  
   const initialState = {
     miniSidenav: false,
-    transparentSidenav: false,
-    whiteSidenav: false,
-    sidenavColor: "info",
+    transparentSidenav: savedSettings?.transparentSidenav ?? false,
+    whiteSidenav: savedSettings?.whiteSidenav ?? false,
+    sidenavColor: savedSettings?.sidenavColor ?? "info",
     transparentNavbar: true,
-    fixedNavbar: true,
+    fixedNavbar: savedSettings?.fixedNavbar ?? true,
     openConfigurator: false,
     direction: "ltr",
     layout: "dashboard",
-    darkMode: false,
+    darkMode: savedSettings?.darkMode ?? false,
   };
 
   const [controller, dispatch] = useReducer(reducer, initialState);

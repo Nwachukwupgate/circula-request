@@ -1,8 +1,4 @@
-
-
-import { useState, useEffect } from "react";
-
-// prop-types is a library for typechecking of props.
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 
 // @mui material components
@@ -12,44 +8,127 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import CircularProgress from "@mui/material/CircularProgress";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 
-
 import breakpoints from "assets/theme/base/breakpoints";
+import { useUploadProfileImageMutation } from "api/apiSlice";
+import { toast } from 'react-toastify';
 
 // Images
-import burceMars from "assets/images/bruce.jpeg";
 import backgroundImage from "assets/images/bg-profile.jpeg";
 
-function Header({ children, data }) {
+// Default avatar with initials
+const getInitials = (firstName, surname) => {
+  return `${firstName?.[0] || ''}${surname?.[0] || ''}`.toUpperCase();
+};
+
+function Header({ children, data, onEditProfile }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const fileInputRef = useRef(null);
+  
+  const [uploadProfileImage, { isLoading: isUploading }] = useUploadProfileImageMutation();
 
   useEffect(() => {
-    // A function that sets the orientation state of the tabs.
     function handleTabsOrientation() {
       return window.innerWidth < breakpoints.values.sm
         ? setTabsOrientation("vertical")
         : setTabsOrientation("horizontal");
     }
 
-    /** 
-     The event listener that's calling the handleTabsOrientation function when resizing the window.
-    */
     window.addEventListener("resize", handleTabsOrientation);
-
-    // Call the handleTabsOrientation function to set the state with the initial value.
     handleTabsOrientation();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleTabsOrientation);
   }, [tabsOrientation]);
 
   const handleSetTabValue = (event, newValue) => setTabValue(newValue);
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        await uploadProfileImage({ image: reader.result }).unwrap();
+        toast.success('Profile image updated successfully!');
+      } catch (error) {
+        toast.error('Failed to upload image');
+        console.error('Upload error:', error);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Generate avatar content
+  const renderAvatar = () => {
+    if (data?.profileImage) {
+      return (
+        <MDAvatar 
+          src={data.profileImage} 
+          alt="profile-image" 
+          size="xl" 
+          shadow="sm"
+          sx={{ 
+            cursor: 'pointer',
+            transition: 'transform 0.2s',
+            '&:hover': { transform: 'scale(1.05)' }
+          }}
+        />
+      );
+    }
+
+    // Fallback to initials avatar
+    const initials = getInitials(data?.firstName, data?.surname);
+    return (
+      <MDBox
+        sx={{
+          width: 74,
+          height: 74,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          cursor: 'pointer',
+          transition: 'transform 0.2s',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          '&:hover': { transform: 'scale(1.05)' }
+        }}
+      >
+        {initials}
+      </MDBox>
+    );
+  };
 
   return (
     <MDBox position="relative" mb={5}>
@@ -81,34 +160,102 @@ function Header({ children, data }) {
       >
         <Grid container spacing={3} alignItems="center">
           <Grid item>
-            <MDAvatar src={burceMars} alt="profile-image" size="xl" shadow="sm" />
+            {/* Profile Image with Upload */}
+            <MDBox
+              position="relative"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              onClick={handleImageClick}
+              sx={{ cursor: 'pointer' }}
+            >
+              {isUploading ? (
+                <MDBox
+                  sx={{
+                    width: 74,
+                    height: 74,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgcolor: 'grey.200'
+                  }}
+                >
+                  <CircularProgress size={30} />
+                </MDBox>
+              ) : (
+                renderAvatar()
+              )}
+              
+              {/* Hover overlay */}
+              {isHovering && !isUploading && (
+                <MDBox
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: 74,
+                    height: 74,
+                    borderRadius: '50%',
+                    bgcolor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                  }}
+                >
+                  <Icon>camera_alt</Icon>
+                </MDBox>
+              )}
+              
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+            </MDBox>
           </Grid>
           <Grid item>
             <MDBox height="100%" mt={0.5} lineHeight={1}>
-              <MDTypography variant="h5" fontWeight="medium">
-                {`${data?.surname} ${data?.firstName}`}
-              </MDTypography>
+              <MDBox display="flex" alignItems="center" gap={1}>
+                <MDTypography variant="h5" fontWeight="medium">
+                  {`${data?.surname || ''} ${data?.firstName || ''}`}
+                </MDTypography>
+                {onEditProfile && (
+                  <Tooltip title="Edit Profile">
+                    <IconButton size="small" onClick={onEditProfile}>
+                      <Icon fontSize="small">edit</Icon>
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </MDBox>
               <MDTypography variant="button" color="text" fontWeight="regular">
-              {`${data?.department?.name} / ${data?.role?.name}`}
+                {data?.jobTitle || `${data?.department?.name || ''} / ${data?.role?.name || ''}`}
               </MDTypography>
+              {data?.location && (
+                <MDTypography variant="caption" color="text" display="block">
+                  📍 {data.location}
+                </MDTypography>
+              )}
             </MDBox>
           </Grid>
           <Grid item xs={12} md={6} lg={4} sx={{ ml: "auto" }}>
             <AppBar position="static">
               <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
                 <Tab
-                  label="App"
+                  label="Overview"
                   icon={
                     <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      home
+                      person
                     </Icon>
                   }
                 />
                 <Tab
-                  label="Message"
+                  label="Activity"
                   icon={
                     <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      Request
+                      history
                     </Icon>
                   }
                 />
@@ -130,14 +277,15 @@ function Header({ children, data }) {
   );
 }
 
-// Setting default props for the Header
 Header.defaultProps = {
   children: "",
+  onEditProfile: null,
 };
 
-// Typechecking props for the Header
 Header.propTypes = {
   children: PropTypes.node,
+  data: PropTypes.object,
+  onEditProfile: PropTypes.func,
 };
 
 export default Header;

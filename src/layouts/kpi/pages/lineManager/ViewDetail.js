@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Edit3, Target, TrendingUp, BookOpen, Play, Award, AlertCircle, CheckCircle, FileText, Calendar, Activity, BarChart3, Plus } from 'lucide-react';
+import { Edit3, Target, TrendingUp, BookOpen, Play, Award, AlertCircle, CheckCircle, FileText, Calendar, Activity, BarChart3, Plus, X, MessageSquare, Send } from 'lucide-react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import MDBox from "components/MDBox";
 import { Link, useParams } from 'react-router-dom';
-import { useGetKpiDetailsQuery } from 'api/apiSlice';
+import { useGetKpiDetailsQuery, useSubmitManagerRemarkMutation, useGetKpiFeedbackHistoryQuery } from 'api/apiSlice';
+import { toast } from 'react-toastify';
 
 
 const ManagerKPIDetailsView = () => {
@@ -16,6 +17,35 @@ const ManagerKPIDetailsView = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const { data: kpiData, isLoading: loading } = useGetKpiDetailsQuery({ userId, kpiAssignmentId: kpiId });
+  const { data: feedbackHistory, refetch: refetchFeedback } = useGetKpiFeedbackHistoryQuery(kpiId);
+  const [submitRemark, { isLoading: remarkLoading }] = useSubmitManagerRemarkMutation();
+
+  // Remark form state
+  const [remarkData, setRemarkData] = useState({
+    comment: '',
+    recommendation: ''
+  });
+
+  const handleSubmitRemark = async (e) => {
+    e.preventDefault();
+    if (!remarkData.comment.trim()) {
+      toast.error('Please enter a comment');
+      return;
+    }
+    try {
+      await submitRemark({
+        kpiAssignmentId: kpiId,
+        comment: remarkData.comment,
+        recommendation: remarkData.recommendation
+      }).unwrap();
+      toast.success('Remark submitted successfully!');
+      setShowUpdateModal(false);
+      setRemarkData({ comment: '', recommendation: '' });
+      refetchFeedback();
+    } catch (error) {
+      toast.error(error.data?.message || 'Failed to submit remark');
+    }
+  };
 
   const [formData, setFormData] = useState({
     targetValue: '',
@@ -423,62 +453,115 @@ const ManagerKPIDetailsView = () => {
           </div>
         )}
 
-        {/* Update Modal */}
+        {/* Make Remark Modal */}
         {showUpdateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Update KPI Assignment</h3>
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900">Make Remark</h3>
+                    <p className="text-sm text-gray-500">Provide feedback for {kpiData?.template?.title}</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowUpdateModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Target Value</label>
-                  <input
-                    type="number"
-                    value={formData.targetValue}
-                    onChange={(e) => setFormData({...formData, targetValue: parseFloat(e.target.value)})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    step="0.1"
-                  />
+              {/* Previous Remarks */}
+              {feedbackHistory?.managerFeedback?.length > 0 && (
+                <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 max-h-40 overflow-y-auto">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Previous Remarks:</p>
+                  <div className="space-y-2">
+                    {feedbackHistory.managerFeedback.slice(0, 3).map((fb, idx) => (
+                      <div key={idx} className="bg-white p-3 rounded-lg border border-gray-200 text-sm">
+                        <p className="text-gray-700">{fb.comment}</p>
+                        <p className="text-xs text-gray-400 mt-1">{new Date(fb.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Priority Level</label>
-                  <select
-                    value={formData.priorityLevel}
-                    onChange={(e) => setFormData({...formData, priorityLevel: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
+              )}
+
+              {/* Staff Feedback Requests */}
+              {feedbackHistory?.staffRequests?.filter(r => r.status === 'pending').length > 0 && (
+                <div className="px-6 py-4 bg-orange-50 border-b border-orange-200">
+                  <p className="text-sm font-medium text-orange-700 mb-2 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    Pending Feedback Requests:
+                  </p>
+                  <div className="space-y-2">
+                    {feedbackHistory.staffRequests.filter(r => r.status === 'pending').map((req, idx) => (
+                      <div key={idx} className="bg-white p-3 rounded-lg border border-orange-200 text-sm">
+                        <p className="text-gray-700 italic">"{req.message}"</p>
+                        <p className="text-xs text-gray-400 mt-1">{new Date(req.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                
+              )}
+              
+              {/* Remark Form */}
+              <form onSubmit={handleSubmitRemark} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Comment <span className="text-red-500">*</span>
+                  </label>
                   <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows="3"
+                    value={remarkData.comment}
+                    onChange={(e) => setRemarkData({...remarkData, comment: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+                    rows="4"
+                    placeholder="Provide your feedback on the staff's performance..."
+                    required
                   />
                 </div>
-              </div>
-              
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={handleUpdate}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Update KPI
-                </button>
-                <button
-                  onClick={() => setShowUpdateModal(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Recommendation (Optional)
+                  </label>
+                  <textarea
+                    value={remarkData.recommendation}
+                    onChange={(e) => setRemarkData({...remarkData, recommendation: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+                    rows="2"
+                    placeholder="Any specific recommendations for improvement..."
+                  />
+                </div>
+                
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowUpdateModal(false)}
+                    className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={remarkLoading}
+                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {remarkLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Submit Remark
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

@@ -1,20 +1,12 @@
-
-
 import { useState, useEffect } from "react";
-
-// react-github-btn
-import GitHubButton from "react-github-btn";
 
 // @mui material components
 import Divider from "@mui/material/Divider";
 import Switch from "@mui/material/Switch";
 import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
 import Icon from "@mui/material/Icon";
-
-// @mui icons
-import TwitterIcon from "@mui/icons-material/Twitter";
-import FacebookIcon from "@mui/icons-material/Facebook";
+import Tooltip from "@mui/material/Tooltip";
+import Alert from "@mui/material/Alert";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -127,7 +119,7 @@ function Configurator() {
         <MDBox>
           <MDTypography variant="h5">Settings</MDTypography>
           <MDTypography variant="body2" color="text">
-            See our dashboard options.
+            Customize your dashboard experience
           </MDTypography>
         </MDBox>
 
@@ -146,59 +138,85 @@ function Configurator() {
         </Icon>
       </MDBox>
 
+      {/* Settings Saved Indicator */}
+      <MDBox px={3} pb={1}>
+        <Alert 
+          severity="success" 
+          icon={<Icon fontSize="small">check_circle</Icon>}
+          sx={{ 
+            py: 0.5, 
+            fontSize: '0.75rem',
+            '& .MuiAlert-icon': { fontSize: '1rem' }
+          }}
+        >
+          Your preferences are saved automatically
+        </Alert>
+      </MDBox>
+
       <Divider />
 
       <MDBox pt={0.5} pb={3} px={3}>
+        {/* Sidenav Colors */}
         <MDBox>
-          <MDTypography variant="h6">Sidenav Colors</MDTypography>
+          <Tooltip title="Choose an accent color for your sidebar navigation" placement="top" arrow>
+            <MDTypography variant="h6" sx={{ cursor: 'help' }}>
+              Sidenav Colors
+            </MDTypography>
+          </Tooltip>
 
           <MDBox mb={0.5}>
             {sidenavColors.map((color) => (
-              <IconButton
-                key={color}
-                sx={({
-                  borders: { borderWidth },
-                  palette: { white, dark, background },
-                  transitions,
-                }) => ({
-                  width: "24px",
-                  height: "24px",
-                  padding: 0,
-                  border: `${borderWidth[1]} solid ${darkMode ? background.sidenav : white.main}`,
-                  borderColor: () => {
-                    let borderColorValue = sidenavColor === color && dark.main;
+              <Tooltip key={color} title={`${color.charAt(0).toUpperCase() + color.slice(1)} theme`} arrow>
+                <IconButton
+                  sx={({
+                    borders: { borderWidth },
+                    palette: { white, dark, background },
+                    transitions,
+                  }) => ({
+                    width: "24px",
+                    height: "24px",
+                    padding: 0,
+                    border: `${borderWidth[1]} solid ${darkMode ? background.sidenav : white.main}`,
+                    borderColor: () => {
+                      let borderColorValue = sidenavColor === color && dark.main;
 
-                    if (darkMode && sidenavColor === color) {
-                      borderColorValue = white.main;
-                    }
+                      if (darkMode && sidenavColor === color) {
+                        borderColorValue = white.main;
+                      }
 
-                    return borderColorValue;
-                  },
-                  transition: transitions.create("border-color", {
-                    easing: transitions.easing.sharp,
-                    duration: transitions.duration.shorter,
-                  }),
-                  backgroundImage: ({ functions: { linearGradient }, palette: { gradients } }) =>
-                    linearGradient(gradients[color].main, gradients[color].state),
+                      return borderColorValue;
+                    },
+                    transition: transitions.create("border-color", {
+                      easing: transitions.easing.sharp,
+                      duration: transitions.duration.shorter,
+                    }),
+                    backgroundImage: ({ functions: { linearGradient }, palette: { gradients } }) =>
+                      linearGradient(gradients[color].main, gradients[color].state),
 
-                  "&:not(:last-child)": {
-                    mr: 1,
-                  },
+                    "&:not(:last-child)": {
+                      mr: 1,
+                    },
 
-                  "&:hover, &:focus, &:active": {
-                    borderColor: darkMode ? white.main : dark.main,
-                  },
-                })}
-                onClick={() => setSidenavColor(dispatch, color)}
-              />
+                    "&:hover, &:focus, &:active": {
+                      borderColor: darkMode ? white.main : dark.main,
+                    },
+                  })}
+                  onClick={() => setSidenavColor(dispatch, color)}
+                />
+              </Tooltip>
             ))}
           </MDBox>
         </MDBox>
 
+        {/* Sidenav Type */}
         <MDBox mt={3} lineHeight={1}>
-          <MDTypography variant="h6">Sidenav Type</MDTypography>
+          <Tooltip title="Change the appearance of your sidebar" placement="top" arrow>
+            <MDTypography variant="h6" sx={{ cursor: 'help' }}>
+              Sidenav Type
+            </MDTypography>
+          </Tooltip>
           <MDTypography variant="button" color="text">
-            Choose between different sidenav types.
+            Choose between different sidenav styles
           </MDTypography>
 
           <MDBox
@@ -208,52 +226,60 @@ function Configurator() {
               mr: 1,
             }}
           >
-            <MDButton
-              color="dark"
-              variant="gradient"
-              onClick={handleDarkSidenav}
-              disabled={disabled}
-              fullWidth
-              sx={
-                !transparentSidenav && !whiteSidenav
-                  ? sidenavTypeActiveButtonStyles
-                  : sidenavTypeButtonsStyles
-              }
-            >
-              Dark
-            </MDButton>
-            <MDBox sx={{ mx: 1, width: "8rem", minWidth: "8rem" }}>
+            <Tooltip title="Solid dark sidebar background" arrow>
               <MDButton
                 color="dark"
                 variant="gradient"
-                onClick={handleTransparentSidenav}
+                onClick={handleDarkSidenav}
                 disabled={disabled}
                 fullWidth
                 sx={
-                  transparentSidenav && !whiteSidenav
+                  !transparentSidenav && !whiteSidenav
                     ? sidenavTypeActiveButtonStyles
                     : sidenavTypeButtonsStyles
                 }
               >
-                Transparent
+                Dark
               </MDButton>
+            </Tooltip>
+            <MDBox sx={{ mx: 1, width: "8rem", minWidth: "8rem" }}>
+              <Tooltip title="See-through sidebar that shows background" arrow>
+                <MDButton
+                  color="dark"
+                  variant="gradient"
+                  onClick={handleTransparentSidenav}
+                  disabled={disabled}
+                  fullWidth
+                  sx={
+                    transparentSidenav && !whiteSidenav
+                      ? sidenavTypeActiveButtonStyles
+                      : sidenavTypeButtonsStyles
+                  }
+                >
+                  Transparent
+                </MDButton>
+              </Tooltip>
             </MDBox>
-            <MDButton
-              color="dark"
-              variant="gradient"
-              onClick={handleWhiteSidenav}
-              disabled={disabled}
-              fullWidth
-              sx={
-                whiteSidenav && !transparentSidenav
-                  ? sidenavTypeActiveButtonStyles
-                  : sidenavTypeButtonsStyles
-              }
-            >
-              White
-            </MDButton>
+            <Tooltip title="Clean white sidebar background" arrow>
+              <MDButton
+                color="dark"
+                variant="gradient"
+                onClick={handleWhiteSidenav}
+                disabled={disabled}
+                fullWidth
+                sx={
+                  whiteSidenav && !transparentSidenav
+                    ? sidenavTypeActiveButtonStyles
+                    : sidenavTypeButtonsStyles
+                }
+              >
+                White
+              </MDButton>
+            </Tooltip>
           </MDBox>
         </MDBox>
+
+        {/* Navbar Fixed Toggle */}
         <MDBox
           display="flex"
           justifyContent="space-between"
@@ -261,13 +287,37 @@ function Configurator() {
           mt={3}
           lineHeight={1}
         >
-          <MDTypography variant="h6">Navbar Fixed</MDTypography>
+          <Tooltip 
+            title="When enabled, the top navigation bar stays visible as you scroll down the page. This gives you quick access to search, notifications, and your profile without scrolling back up." 
+            placement="left" 
+            arrow
+          >
+            <MDBox sx={{ cursor: 'help' }}>
+              <MDTypography variant="h6">Navbar Fixed</MDTypography>
+              <MDTypography variant="caption" color="text">
+                {fixedNavbar ? "Navbar stays at top while scrolling" : "Navbar scrolls with page content"}
+              </MDTypography>
+            </MDBox>
+          </Tooltip>
 
           <Switch checked={fixedNavbar} onChange={handleFixedNavbar} />
         </MDBox>
         <Divider />
+
+        {/* Dark Mode Toggle */}
         <MDBox display="flex" justifyContent="space-between" alignItems="center" lineHeight={1}>
-          <MDTypography variant="h6">Light / Dark</MDTypography>
+          <Tooltip 
+            title="Switch between light and dark color schemes. Dark mode is easier on the eyes in low-light environments and can reduce screen glare." 
+            placement="left" 
+            arrow
+          >
+            <MDBox sx={{ cursor: 'help' }}>
+              <MDTypography variant="h6">Light / Dark</MDTypography>
+              <MDTypography variant="caption" color="text">
+                {darkMode ? "Dark mode active" : "Light mode active"}
+              </MDTypography>
+            </MDBox>
+          </Tooltip>
 
           <Switch checked={darkMode} onChange={handleDarkMode} />
         </MDBox>

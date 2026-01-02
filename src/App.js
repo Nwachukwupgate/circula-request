@@ -26,7 +26,6 @@ import ChangePassword from "./layouts/authentication/change-password"
 import CircularDetails from './layouts/circular/pages/CircularDetails'
 import SubmitKPIForm from "layouts/kpi/pages/SubmitKpiform";
 import PerformanceFeedbackPage from "layouts/kpi/pages/KpiFeedback";
-import PerformanceDashboard from "layouts/kpi/pages/TeamDashboard";
 import KPIAssignmentForm from "layouts/kpi/pages/AssignmentForm";
 import GrowthLibrary from "layouts/kpi/pages/GrowthLibrary";
 import KPIDetailsView from "layouts/kpi/pages/KpiDetails";
@@ -35,6 +34,8 @@ import KPIDetailPage from "layouts/kpi/pages/lineManager/KpiDetail";
 import CreateKpis from "layouts/kpi/pages/lineManager/CreateKpi";
 import ManagerKPIDetailsView from "layouts/kpi/pages/lineManager/ViewDetail";
 import PerformanceFeedback from "layouts/kpi/pages/lineManager/PerformanceFeedback";
+import NotificationsPage from "layouts/notifications";
+import HelpCenter from "layouts/help-center";
 
 
 // Material Dashboard 2 React themes
@@ -58,8 +59,23 @@ import routes from "routes";
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+// Custom toast configuration for better UX
+const toastConfig = {
+  position: "bottom-center",      // More visible, near user's focus
+  autoClose: 5000,                // 5 seconds instead of default 3
+  hideProgressBar: false,         // Show progress so users know when it will dismiss
+  newestOnTop: true,
+  closeOnClick: true,
+  rtl: false,
+  pauseOnFocusLoss: true,         // Pause when user leaves tab
+  draggable: true,
+  pauseOnHover: true,             // Pause on hover so users can read
+  transition: Slide,
+  limit: 3,                       // Max 3 toasts at once to avoid clutter
+};
 import './index.css'
 import { useFilteredRoutes } from "hooks/useFilteredRoutes";
 
@@ -202,7 +218,7 @@ export default function App() {
   return direction === "rtl" ? (
     
     <CacheProvider value={rtlCache}>
-      <ToastContainer />
+      <ToastContainer {...toastConfig} />
       <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
         <CssBaseline />
         {layout === "dashboard" && (
@@ -225,6 +241,7 @@ export default function App() {
           <Route path="/authentication/reset-password" element={<ResetPassword />} />
           <Route path="/change-password" element={<ChangePassword />} />
           {getRoutes(routes)}
+          <Route path="/notification" element={<NotificationsPage />} />
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
           <Route path="/circulars/:id" element={<CircularDetails />} />
         </Routes>
@@ -232,7 +249,7 @@ export default function App() {
     </CacheProvider>
   ) : (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
-      <ToastContainer />
+      <ToastContainer {...toastConfig} />
       <CssBaseline />
       {layout === "dashboard" && (
         <>
@@ -266,6 +283,8 @@ export default function App() {
         <Route path="/team/createkpi" element={<CreateKpis />} />
         <Route path="/team/viewTeam/:kpiId/details/:userId" element={<ManagerKPIDetailsView />} />
         <Route path="/team/viewTeam/:kpiId/feedback/:userId" element={<PerformanceFeedback />} />
+        <Route path="/notification" element={<NotificationsPage />} />
+        <Route path="/help-center" element={<HelpCenter />} />
           {getRoutes(filteredRoutes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>

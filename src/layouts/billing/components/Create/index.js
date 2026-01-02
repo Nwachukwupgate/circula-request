@@ -1,28 +1,32 @@
 import React from 'react';
 import {
   AppBar, Toolbar, IconButton, Typography, Dialog, DialogContent,
-  Stepper, Step, StepLabel, Slide, TextField, MenuItem, Button, CircularProgress,
+  Slide, TextField, MenuItem, Button, CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useRequestForm } from './form/useRequestForm';
 import { renderFieldsByRequestType } from './form/renderFields';
 import StepSelectLeads from './form/StepSelectLeads.';
 import Box from '@mui/material/Box';
+import ValidationErrorBanner from 'components/ValidationErrorBanner';
 
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 const requestTypes = [
-  { value: 'financial', label: 'Financial Request' },
-  { value: 'it_support', label: 'IT Support Request' },
-  { value: 'leave_hr', label: 'Leave or HR Request' },
-  { value: 'procurement', label: 'Procurement Request' },
-  { value: 'general_admin', label: 'General Administrative Request' },
+  { value: 'financial', label: '💰 Financial Request' },
+  { value: 'it_support', label: '🖥️ IT Support Request' },
+  { value: 'leave_hr', label: '📅 Leave or HR Request' },
+  { value: 'procurement', label: '📦 Procurement Request' },
+  { value: 'general_admin', label: '📋 General Administrative Request' },
 ];
 
 export default function FullScreenDialog({ open, handleClose }) {
   const {
     step, formValues, isLoading, handleChange, handleFileChange,
-    handleDateChange, handleNext, handleBack, handleSubmit, searchQuery, setSearchQuery, availableEmployees, addedLeads, handleAddLead, handleRemoveLead
+    handleDateChange, handleNext, handleBack, handleSubmit, searchQuery, setSearchQuery, 
+    availableEmployees, addedLeads, handleAddLead, handleRemoveLead,
+    validationErrors, fieldErrors, clearValidationErrors
   } = useRequestForm(handleClose);
 
   return (
@@ -67,13 +71,79 @@ export default function FullScreenDialog({ open, handleClose }) {
 
           {step === 0 && (
             <>
-              <TextField select fullWidth label="Request Type" name="requestType" value={formValues.requestType} onChange={handleChange} sx={{height: 56, '& .MuiInputBase-root': {height: 56,},}}>
+              {/* Validation Error Banner - Shows all errors in one place */}
+              <div data-error-banner>
+                <ValidationErrorBanner 
+                  errors={validationErrors}
+                  onDismiss={clearValidationErrors}
+                  title="Please fix the following errors before continuing"
+                />
+              </div>
+              
+              {/* Required fields note */}
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.5, 
+                mb: 1,
+                color: 'text.secondary',
+                fontSize: '0.75rem'
+              }}>
+                <span style={{ color: '#ef4444', fontWeight: 'bold' }}>*</span>
+                <span>indicates required field</span>
+              </Box>
+
+              {/* Request Type Dropdown with clear visual indicator */}
+              <TextField 
+                select 
+                fullWidth 
+                label="Request Type *"
+                name="requestType" 
+                value={formValues.requestType} 
+                onChange={handleChange}
+                placeholder="Select a request type"
+                SelectProps={{
+                  displayEmpty: true,
+                  IconComponent: KeyboardArrowDownIcon,
+                  MenuProps: {
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 300,
+                        '& .MuiMenuItem-root': {
+                          py: 1.5,
+                          borderBottom: '1px solid #f0f0f0',
+                          '&:last-child': { borderBottom: 'none' }
+                        }
+                      }
+                    }
+                  }
+                }}
+                sx={{
+                  height: 56, 
+                  '& .MuiInputBase-root': { height: 56 },
+                  '& .MuiSelect-icon': {
+                    color: '#667eea',
+                    fontSize: 28,
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: '#667eea',
+                    },
+                  },
+                }}
+                helperText={!formValues.requestType ? "Click to select the type of request you want to make" : ""}
+              >
+                <MenuItem value="" disabled>
+                  <em style={{ color: '#9e9e9e' }}>-- Select Request Type --</em>
+                </MenuItem>
                 {requestTypes.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
                 ))}
               </TextField>
 
-              {formValues.requestType && renderFieldsByRequestType(formValues, handleChange, handleDateChange, handleFileChange)}
+              {formValues.requestType && renderFieldsByRequestType(formValues, handleChange, handleDateChange, handleFileChange, fieldErrors)}
 
               <Button variant="contained" fullWidth onClick={handleNext} sx={{mt: 3, color: '#fff' }} disabled={!formValues.requestType}>
                 Continue to Approvers

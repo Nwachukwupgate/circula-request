@@ -1,14 +1,21 @@
-import { Navigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import { Navigate, useLocation } from "react-router-dom";
+import { getAccessToken, getRefreshToken } from "./utils/tokenManager";
 
-const ProtectedRoute = ({ element, ...rest }) => {
-  const token = localStorage.getItem("token") 
+const ProtectedRoute = ({ element }) => {
+  const location = useLocation();
+  
+  // Check for either access token or refresh token
+  const accessToken = getAccessToken();
+  const refreshToken = getRefreshToken();
+  const hasToken = accessToken || refreshToken;
 
-  // If the user is not authenticated, redirect to the sign-in page
-  if (!token) {
-    return <Navigate to="/sign-in" />;
+  // No tokens - redirect to login
+  if (!hasToken) {
+    // Save the attempted URL for redirecting after login
+    return <Navigate to="/authentication/sign-in" state={{ from: location }} replace />;
   }
 
+  // Has tokens - render the protected component
   return element;
 };
 
