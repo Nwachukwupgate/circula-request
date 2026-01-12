@@ -460,7 +460,7 @@ function Dashboard() {
               <ComplexStatisticsCard
                 color="error"
                 icon="cancel"
-                title="Rejected Requests"
+                title="Outstanding Requests"
                 count={statsData?.totalRejectedRequests || 0}
                 percentage={{
                   color: statsData?.rejectedRequestsIncrease <= 0 ? "success" : "warning",

@@ -108,7 +108,7 @@ function BillingInformation() {
         }}
       >
         <PlusCircle size={18} />
-        <span>Use the "Make Request" button to get started</span>
+        <span>Click the "Make Request" button at the bottom right of the page to get started</span>
       </MDBox>
     </MDBox>
   );

@@ -5,6 +5,7 @@ import Grid from "@mui/material/Grid";
 import Tooltip from "@mui/material/Tooltip";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
+import { keyframes } from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -19,6 +20,16 @@ import BillingInformation from "layouts/billing/components/BillingInformation";
 import Transactions from "layouts/billing/components/Transactions";
 
 import CreateRequest from "./components/Create"
+
+// Animation for floating button
+const floatAnimation = keyframes`
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+`;
 
 function Billing() {
   const [open, setOpen] = useState(false);
@@ -64,10 +75,12 @@ function Billing() {
             right: 32,
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+            animation: `${floatAnimation} 2s ease-in-out infinite`,
             '&:hover': {
               background: 'linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%)',
               transform: 'scale(1.05)',
               boxShadow: '0 6px 25px rgba(102, 126, 234, 0.5)',
+              animation: 'none', // Stop animation on hover
             },
             transition: 'all 0.2s ease-in-out',
             width: 60,

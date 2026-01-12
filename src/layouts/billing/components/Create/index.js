@@ -97,7 +97,7 @@ export default function FullScreenDialog({ open, handleClose }) {
               <TextField 
                 select 
                 fullWidth 
-                label="Request Type *"
+                // label="Request Type *"
                 name="requestType" 
                 value={formValues.requestType} 
                 onChange={handleChange}

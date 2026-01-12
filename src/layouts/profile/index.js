@@ -383,7 +383,7 @@ function Overview() {
                   fullName: `${data?.surname || ''} ${data?.firstName || ''}`,
                   email: data?.email || '',
                   phone: data?.phone || 'Not set',
-                  location: data?.location || 'Lagos, Nigeria',
+                  location: data?.location || 'Not set',
                   department: data?.department?.name || 'N/A',
                   role: data?.role?.name || 'N/A',
                   memberSince: formatDate(data?.createdAt)
