@@ -81,7 +81,7 @@ export const useRequestForm = (handleClose) => {
     if (error) {
       toast.error('Something went wrong. Try again.');
     }
-  }, [isSuccess, error]);
+  }, [isSuccess, error, handleClose]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

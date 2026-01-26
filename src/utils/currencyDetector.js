@@ -92,8 +92,7 @@ export const getCurrencyFromLocale = () => {
     }
     
     // Fallback: try to get from Intl API
-    const formatter = new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD' });
-    const resolvedOptions = formatter.resolvedOptions();
+    // const formatter = new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD' });
     
     // If locale suggests a specific region, try to match
     return DEFAULT_CURRENCY;
@@ -174,7 +173,7 @@ export const commonCurrencies = [
   { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
 ];
 
-export default {
+const currencyDetector = {
   getCurrencyFromLocale,
   getCurrencyFromIP,
   getAvailableCurrencies,
@@ -182,4 +181,6 @@ export default {
   countryCurrencyMap,
   DEFAULT_CURRENCY,
 };
+
+export default currencyDetector;
 

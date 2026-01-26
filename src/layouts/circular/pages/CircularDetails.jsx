@@ -10,6 +10,30 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useGetCircularIDQuery, useRespondToCircularMutation, useGetResponseIDQuery } from "api/apiSlice";
 
+const getTimeColor = (respondedAt) => {
+  const now = new Date();
+  const responded = new Date(respondedAt);
+  const diffMs = now.getTime() - responded.getTime();
+  const diffMinutes = diffMs / 60000;
+
+  if (diffMinutes < 10) return "bg-green-500";
+  if (diffMinutes < 60) return "bg-yellow-500";
+  return "bg-gray-400";
+};
+
+const formatResponseData = (data) => {
+  return data?.map((response) => {
+    const avatar = response?.name?.charAt(0)?.toUpperCase() || "?";
+    const color = getTimeColor(response?.respondedAt);
+
+    return {
+      ...response,
+      avatar,
+      color,
+    };
+  }) || [];
+};
+
 function CircularDetails() {
   const { id } = useParams();
   const { data: circular, isLoading } = useGetCircularIDQuery(id);
@@ -21,37 +45,13 @@ function CircularDetails() {
  });
   const [response, setResponse] = useState("");
 
-  const getTimeColor = (respondedAt) => {
-    const now = new Date();
-    const responded = new Date(respondedAt);
-    const diffMs = now.getTime() - responded.getTime();
-    const diffMinutes = diffMs / 60000;
-
-    if (diffMinutes < 10) return "bg-green-500";
-    if (diffMinutes < 60) return "bg-yellow-500";
-    return "bg-gray-400";
-  };
-
-  const formatResponseData = (data) => {
-    return data?.map((response) => {
-      const avatar = response?.name?.charAt(0)?.toUpperCase() || "?";
-      const color = getTimeColor(response?.respondedAt);
-
-      return {
-        ...response,
-        avatar,
-        color,
-      };
-    }) || [];
-  };
-
   const formattedResponses = useMemo(() => formatResponseData(responseData), [responseData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await respondToCircular({message: response, circularId: id}).unwrap();
+      await respondToCircular({message: response, circularId: id}).unwrap();
       setResponse("");
     } catch (err) {
       console.error("Failed to create circular:", err);
