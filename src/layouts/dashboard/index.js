@@ -516,7 +516,7 @@ function Dashboard() {
                 icon={<Target size={20} />}
                 title="My KPIs"
                 description="Track your progress"
-                onClick={() => navigate('/kpi/my-kpis')}
+                onClick={() => navigate('/kpi')}
                 color="warning"
               />
             </Grid>
@@ -573,7 +573,7 @@ function Dashboard() {
                       variant="text" 
                       color="info" 
                       size="small"
-                      onClick={() => navigate('/my-request')}
+                      onClick={() => navigate('/request')}
                     >
                       View All Requests <ArrowRight size={16} style={{ marginLeft: 4 }} />
                     </MDButton>
