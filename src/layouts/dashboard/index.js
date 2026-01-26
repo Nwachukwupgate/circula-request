@@ -268,7 +268,6 @@ function Dashboard() {
 
   // Calculate weekly request data for chart
   const getWeeklyRequestData = () => {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const today = new Date();
     const weekData = [0, 0, 0, 0, 0, 0, 0];
     

@@ -23,7 +23,7 @@ import MDButton from "components/MDButton";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import { useGetMyCircularQuery, useGetProfileQuery } from "api/apiSlice";
+import { useGetMyCircularQuery } from "api/apiSlice";
 import { useNavigate } from "react-router-dom";
 
 // Icons
@@ -36,7 +36,6 @@ import {
   Briefcase,
   Globe,
   Calendar,
-  Eye,
   MessageCircle,
   Megaphone,
   Inbox,
@@ -257,9 +256,8 @@ function Circular() {
   const [activeTab, setActiveTab] = useState(0);
   
   const { data: circularsData, isLoading, error } = useGetMyCircularQuery();
-  const { data: profile } = useGetProfileQuery();
 
-  const circulars = circularsData?.circulars || [];
+  const circulars = useMemo(() => circularsData?.circulars || [], [circularsData?.circulars]);
 
   // Filter circulars based on search and tab
   const filteredCirculars = useMemo(() => {

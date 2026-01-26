@@ -3,7 +3,6 @@ import {
     getAccessToken, 
     getRefreshToken, 
     setTokens, 
-    updateAccessToken, 
     clearTokens,
     getIsRefreshing,
     setRefreshing,

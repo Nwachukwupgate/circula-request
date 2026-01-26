@@ -3,9 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
-  Stepper,
-  Step,
-  StepLabel,
   IconButton,
   LinearProgress,
 } from '@mui/material';
