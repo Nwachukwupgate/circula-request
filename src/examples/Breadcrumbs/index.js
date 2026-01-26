@@ -17,6 +17,23 @@ import MDTypography from "components/MDTypography";
 function Breadcrumbs({ icon, title, route, light }) {
   const routes = route.slice(0, -1);
 
+  // Map pathname segments to their actual route paths
+  // This handles cases where the URL path doesn't match the actual route
+  const getRoutePath = (segment) => {
+    const routeMapping = {
+      'circulars': 'notifications', // Circular list page is at /notifications, not /circulars
+    };
+    return routeMapping[segment] || segment;
+  };
+
+  // Get display name for the segment (can be different from the route path)
+  const getDisplayName = (segment) => {
+    const displayMapping = {
+      'circulars': 'circular', // Show "circular" instead of "circulars"
+    };
+    return displayMapping[segment] || segment;
+  };
+
   return (
     <MDBox mr={{ xs: 0, xl: 8 }}>
       <MuiBreadcrumbs
@@ -37,21 +54,28 @@ function Breadcrumbs({ icon, title, route, light }) {
             <Icon>{icon}</Icon>
           </MDTypography>
         </Link>
-        {routes.map((el) => (
-          <Link to={`/${el}`} key={el}>
-            <MDTypography
-              component="span"
-              variant="button"
-              fontWeight="regular"
-              textTransform="capitalize"
-              color={light ? "white" : "dark"}
-              opacity={light ? 0.8 : 0.5}
-              sx={{ lineHeight: 0 }}
-            >
-              {el}
-            </MDTypography>
-          </Link>
-        ))}
+        {routes.map((el, index) => {
+          // Build the path using mapped route segments
+          const pathSegments = routes.slice(0, index + 1).map(seg => getRoutePath(seg));
+          const path = `/${pathSegments.join("/")}`;
+          const displayName = getDisplayName(el);
+          
+          return (
+            <Link to={path} key={path}>
+              <MDTypography
+                component="span"
+                variant="button"
+                fontWeight="regular"
+                textTransform="capitalize"
+                color={light ? "white" : "dark"}
+                opacity={light ? 0.8 : 0.5}
+                sx={{ lineHeight: 0 }}
+              >
+                {displayName}
+              </MDTypography>
+            </Link>
+          );
+        })}
         <MDTypography
           variant="button"
           fontWeight="regular"

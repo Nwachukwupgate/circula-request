@@ -585,114 +585,118 @@ function DashboardNavbar({ absolute, light, isMini }) {
         <MDBox color="inherit" mb={{ xs: 1, md: 0 }} sx={(theme) => navbarRow(theme, { isMini })}>
           <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
         </MDBox>
-        {isMini ? null : (
-          <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
+        <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
+          {!isMini && (
             <MDBox pr={1}>
               <MDInput label="Search here" />
             </MDBox>
-            <MDBox color={light ? "white" : "inherit"}>
-              <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarMobileMenu}
-                onClick={handleMiniSidenav}
-              >
-                <Icon sx={iconsStyle} fontSize="medium">
-                  {miniSidenav ? "menu_open" : "menu"}
-                </Icon>
-              </IconButton>
-              <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                onClick={handleConfiguratorOpen}
-              >
-                <Icon sx={iconsStyle}>settings</Icon>
-              </IconButton>
-              <Tooltip title="Help Center">
+          )}
+          <MDBox color={light ? "white" : "inherit"}>
+            {!isMini && (
+              <>
+                <IconButton
+                  size="small"
+                  disableRipple
+                  color="inherit"
+                  sx={navbarMobileMenu}
+                  onClick={handleMiniSidenav}
+                >
+                  <Icon sx={iconsStyle} fontSize="medium">
+                    {miniSidenav ? "menu_open" : "menu"}
+                  </Icon>
+                </IconButton>
                 <IconButton
                   size="small"
                   disableRipple
                   color="inherit"
                   sx={navbarIconButton}
-                  onClick={() => navigate('/help-center')}
+                  onClick={handleConfiguratorOpen}
                 >
-                  <Icon sx={iconsStyle}>help_outline</Icon>
+                  <Icon sx={iconsStyle}>settings</Icon>
                 </IconButton>
-              </Tooltip>
+                <Tooltip title="Help Center">
+                  <IconButton
+                    size="small"
+                    disableRipple
+                    color="inherit"
+                    sx={navbarIconButton}
+                    onClick={() => navigate('/help-center')}
+                  >
+                    <Icon sx={iconsStyle}>help_outline</Icon>
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
+            <IconButton
+              size="small"
+              disableRipple
+              color="inherit"
+              sx={navbarIconButton}
+              aria-controls="notification-menu"
+              aria-haspopup="true"
+              variant="contained"
+              onClick={handleOpenMenu}
+            >
+              <Badge 
+                badgeContent={unreadCount} 
+                color="error"
+                max={99}
+                sx={{
+                  "& .MuiBadge-badge": {
+                    fontSize: '0.65rem',
+                    height: 18,
+                    minWidth: 18,
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  }
+                }}
+              >
+                <Icon sx={iconsStyle}>notifications</Icon>
+              </Badge>
+            </IconButton>
+            {renderMenu()}
+            
+            {/* Profile Avatar & Dropdown */}
+            <Tooltip title="Account">
               <IconButton
                 size="small"
                 disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={handleOpenMenu}
+                sx={{ 
+                  ...navbarIconButton,
+                  ml: 1,
+                  p: 0.5,
+                }}
+                onClick={handleOpenProfileMenu}
               >
-                <Badge 
-                  badgeContent={unreadCount} 
-                  color="error"
-                  max={99}
-                  sx={{
-                    "& .MuiBadge-badge": {
-                      fontSize: '0.65rem',
-                      height: 18,
-                      minWidth: 18,
-                      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                    }
-                  }}
-              >
-                <Icon sx={iconsStyle}>notifications</Icon>
-                </Badge>
+                {profile?.profileImage ? (
+                  <MDAvatar
+                    src={profile.profileImage}
+                    alt={profile?.firstName || 'User'}
+                    size="sm"
+                    sx={{ width: 32, height: 32 }}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    {getUserInitials()}
+                  </Box>
+                )}
               </IconButton>
-              {renderMenu()}
-              
-              {/* Profile Avatar & Dropdown */}
-              <Tooltip title="Account">
-                <IconButton
-                  size="small"
-                  disableRipple
-                  sx={{ 
-                    ...navbarIconButton,
-                    ml: 1,
-                    p: 0.5,
-                  }}
-                  onClick={handleOpenProfileMenu}
-                >
-                  {profile?.profileImage ? (
-                    <MDAvatar
-                      src={profile.profileImage}
-                      alt={profile?.firstName || 'User'}
-                      size="sm"
-                      sx={{ width: 32, height: 32 }}
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '0.85rem',
-                      }}
-                    >
-                      {getUserInitials()}
-                    </Box>
-                  )}
-                </IconButton>
-              </Tooltip>
-              {renderProfileMenu()}
-            </MDBox>
+            </Tooltip>
+            {renderProfileMenu()}
           </MDBox>
-        )}
+        </MDBox>
       </Toolbar>
     </AppBar>
   );
