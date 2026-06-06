@@ -10,6 +10,8 @@ import {
     onRefreshSuccess,
     onRefreshFailure
 } from '../utils/tokenManager';
+import { setSubscriptionBlocked } from './subscriptionSlice';
+import { isSubscriptionBlockCode, getSubscriptionBlockFromLogin } from '../utils/subscription';
 
 // Base URL configuration
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -128,6 +130,20 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         }
     }
 
+    // Subscription / trial expired — surface renewal modal app-wide
+    if (result?.error?.status === 403) {
+        const errorCode = result?.error?.data?.code;
+        if (isSubscriptionBlockCode(errorCode)) {
+            api.dispatch(setSubscriptionBlocked({
+                code: errorCode,
+                message: result.error.data?.message,
+                companyId: null,
+                isCompanyAdmin: false,
+                company: null,
+            }));
+        }
+    }
+
     return result;
 };
 
@@ -135,7 +151,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithReauth,
-    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular', 'Kpi', 'AIInsights', 'Recommendations', 'DailyReminder', 'ResourceUsage', 'Notifications', 'Profile', 'Settings', 'Sessions'],
+    tagTypes: ['Login', 'Department', "Employees", 'Roles', 'Request', 'Circular', 'Kpi', 'AIInsights', 'Recommendations', 'DailyReminder', 'ResourceUsage', 'Notifications', 'Profile', 'Settings', 'Sessions', 'Subscription', 'SupportTickets'],
     
     endpoints: (builder) => ({
         // Mutation for user login
@@ -146,11 +162,15 @@ export const apiSlice = createApi({
                 body: credentials,
             }),
             // Handle login response to store tokens
-            async onQueryStarted(arg, { queryFulfilled }) {
+            async onQueryStarted(arg, { queryFulfilled, dispatch }) {
                 try {
                     const { data } = await queryFulfilled;
                     if (data.accessToken) {
                         setTokens(data.accessToken, data.refreshToken, data.user, data.expiresIn);
+                    }
+                    const block = getSubscriptionBlockFromLogin(data);
+                    if (block) {
+                        dispatch(setSubscriptionBlocked(block));
                     }
                 } catch (error) {
                     console.error('Login failed:', error);
@@ -762,6 +782,82 @@ export const apiSlice = createApi({
             invalidatesTags: ['Notifications'],
         }),
 
+        getSubscriptionStatus: builder.query({
+            query: (companyId) => `api/companies/${companyId}/subscription`,
+            providesTags: ['Subscription'],
+        }),
+
+        changeSubscriptionPlan: builder.mutation({
+            query: ({ companyId, plan, billingCycle }) => ({
+                url: `api/companies/${companyId}/subscription/change-plan`,
+                method: 'POST',
+                body: { plan, billingCycle },
+            }),
+            invalidatesTags: ['Subscription'],
+        }),
+
+        initializeSubscriptionPayment: builder.mutation({
+            query: ({ companyId, billingType = 'recurring' }) => ({
+                url: `api/companies/${companyId}/subscription/initialize-payment`,
+                method: 'POST',
+                body: { billingType },
+            }),
+        }),
+
+        verifySubscriptionPayment: builder.mutation({
+            query: ({ companyId, reference }) => ({
+                url: `api/companies/${companyId}/subscription/verify-payment/${encodeURIComponent(reference)}`,
+                method: 'GET',
+            }),
+            invalidatesTags: ['Subscription', 'Profile'],
+        }),
+
+        cancelSubscription: builder.mutation({
+            query: ({ companyId, reason, immediate }) => ({
+                url: `api/companies/${companyId}/subscription/cancel`,
+                method: 'POST',
+                body: { reason, immediate },
+            }),
+            invalidatesTags: ['Subscription', 'Profile'],
+        }),
+
+        activateSubscription: builder.mutation({
+            query: ({ companyId, paymentReference, paymentMethod }) => ({
+                url: `api/companies/${companyId}/subscription/activate`,
+                method: 'POST',
+                body: { paymentReference, paymentMethod },
+            }),
+            invalidatesTags: ['Subscription', 'Profile'],
+        }),
+
+        getMySupportTickets: builder.query({
+            query: () => 'api/contact/tickets',
+            providesTags: ['SupportTickets'],
+        }),
+
+        getSupportTicket: builder.query({
+            query: (ticketId) => `api/contact/tickets/${ticketId}`,
+            providesTags: (_r, _e, id) => [{ type: 'SupportTickets', id }],
+        }),
+
+        createSupportTicket: builder.mutation({
+            query: (body) => ({
+                url: 'api/contact/tickets',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['SupportTickets'],
+        }),
+
+        replySupportTicket: builder.mutation({
+            query: ({ ticketId, message }) => ({
+                url: `api/contact/tickets/${ticketId}/messages`,
+                method: 'POST',
+                body: { message },
+            }),
+            invalidatesTags: ['SupportTickets'],
+        }),
+
     }),
 });
 
@@ -842,5 +938,15 @@ export const {
     useLogoutAllMutation,
     useGetActiveSessionsQuery,
     useRevokeSessionMutation,
-    useVerifyTokenQuery
+    useVerifyTokenQuery,
+    useGetSubscriptionStatusQuery,
+    useChangeSubscriptionPlanMutation,
+    useInitializeSubscriptionPaymentMutation,
+    useVerifySubscriptionPaymentMutation,
+    useCancelSubscriptionMutation,
+    useActivateSubscriptionMutation,
+    useGetMySupportTicketsQuery,
+    useGetSupportTicketQuery,
+    useCreateSupportTicketMutation,
+    useReplySupportTicketMutation,
 } = apiSlice;

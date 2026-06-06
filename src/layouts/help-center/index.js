@@ -6,6 +6,7 @@ import Footer from "examples/Footer";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
+import ContactSupportPanel from "components/Support/ContactSupportPanel";
 import {
   Card,
   Grid,
@@ -23,12 +24,8 @@ import {
   Target,
   Bell,
   User,
-  BookOpen,
   HelpCircle,
-  PlayCircle,
   ExternalLink,
-  MessageCircle,
-  Mail,
   RefreshCw,
 } from 'lucide-react';
 
@@ -408,31 +405,12 @@ const HelpCenter = () => {
         </MDBox>
 
         {/* Contact Support */}
-        <Card sx={{ p: 4, textAlign: 'center', bgcolor: 'grey.50' }}>
-          <MDTypography variant="h5" fontWeight="medium" mb={2}>
-            Still Need Help?
+        <MDBox mb={5}>
+          <MDTypography variant="h5" fontWeight="medium" mb={3}>
+            Contact Support
           </MDTypography>
-          <MDTypography variant="body2" color="text" mb={3}>
-            Can't find what you're looking for? Our support team is here to help.
-          </MDTypography>
-          <MDBox display="flex" justifyContent="center" gap={2} flexWrap="wrap">
-            <MDButton
-              variant="outlined"
-              color="info"
-              startIcon={<Mail size={18} />}
-              onClick={() => window.location.href = 'mailto:support@circula-request.com'}
-            >
-              Email Support
-            </MDButton>
-            <MDButton
-              variant="gradient"
-              color="info"
-              startIcon={<MessageCircle size={18} />}
-            >
-              Live Chat
-            </MDButton>
-          </MDBox>
-        </Card>
+          <ContactSupportPanel />
+        </MDBox>
       </MDBox>
       <Footer />
     </DashboardLayout>

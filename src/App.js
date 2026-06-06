@@ -36,6 +36,8 @@ import ManagerKPIDetailsView from "layouts/kpi/pages/lineManager/ViewDetail";
 import PerformanceFeedback from "layouts/kpi/pages/lineManager/PerformanceFeedback";
 import NotificationsPage from "layouts/notifications";
 import HelpCenter from "layouts/help-center";
+import SubscriptionCallback from "layouts/subscription/SubscriptionCallback";
+import SubscriptionRenewalModalGate from "components/Subscription/SubscriptionRenewalModalGate";
 
 
 // Material Dashboard 2 React themes
@@ -240,11 +242,13 @@ export default function App() {
           <Route path="/authentication/sign-in" element={<SignIn />} />
           <Route path="/authentication/reset-password" element={<ResetPassword />} />
           <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/subscription/callback" element={<ProtectedRoute element={<SubscriptionCallback />} />} />
           {getRoutes(routes)}
           <Route path="/notification" element={<NotificationsPage />} />
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
           <Route path="/circulars/:id" element={<CircularDetails />} />
         </Routes>
+        <SubscriptionRenewalModalGate />
       </ThemeProvider>
     </CacheProvider>
   ) : (
@@ -270,6 +274,7 @@ export default function App() {
         <Route path="/authentication/sign-in" element={<SignIn />} />
         <Route path="/authentication/reset-password" element={<ResetPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/subscription/callback" element={<ProtectedRoute element={<SubscriptionCallback />} />} />
         <Route path="/circulars/:id" element={<CircularDetails />} />
         <Route path="/kpi/submitkpi" element={<SubmitKPIForm />} />
         <Route path="/kpi/feedback/:kpiId" element={<PerformanceFeedbackPage />} />
@@ -288,6 +293,7 @@ export default function App() {
           {getRoutes(filteredRoutes)}
           <Route path="*" element={<Navigate to={token ? "/dashboard" : "/authentication/sign-in"} />} />
         </Routes>
+        <SubscriptionRenewalModalGate />
     </ThemeProvider>
   );
 }

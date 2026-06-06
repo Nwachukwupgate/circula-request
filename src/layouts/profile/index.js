@@ -32,6 +32,7 @@ import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
 // Overview page components
 import Header from "layouts/profile/components/Header";
 import PlatformSettings from "layouts/profile/components/PlatformSettings";
+import SubscriptionManagement from "components/Subscription/SubscriptionManagement";
 
 // Format date helper
 const formatDate = (dateString) => {
@@ -368,6 +369,14 @@ function Overview() {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox mb={2} />
+      {data?.isCompanyAdmin && data?.companyId && (
+        <MDBox px={3} mb={2}>
+          <SubscriptionManagement
+            companyId={data.companyId}
+            isCompanyAdmin={data.isCompanyAdmin}
+          />
+        </MDBox>
+      )}
       <Header data={data} onEditProfile={handleEditProfile}>
         <MDBox mt={5} mb={3}>
           <Grid container spacing={1}>

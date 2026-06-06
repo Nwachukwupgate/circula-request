@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useLoginMutation } from "api/apiSlice";
 import { useDispatch } from "react-redux";
 import { GetUserToken } from "api/userSlice";
+import { setSubscriptionBlocked } from "api/subscriptionSlice";
+import { getSubscriptionBlockFromLogin } from "utils/subscription";
 import { setTokens } from "utils/tokenManager";
 
 //import Formik
@@ -65,10 +67,15 @@ function Basic() {
       
       if(accessToken) {
         // Store tokens using the token manager
-        setTokens(accessToken, refreshToken);
+        setTokens(accessToken, refreshToken, response.user, response.expiresIn);
         
         // Legacy support - also dispatch to Redux
         dispatch(GetUserToken(accessToken));
+
+        const subscriptionBlock = getSubscriptionBlockFromLogin(response);
+        if (subscriptionBlock) {
+          dispatch(setSubscriptionBlocked(subscriptionBlock));
+        }
         
         // Navigate to the original destination or dashboard
         window.location.href = from;

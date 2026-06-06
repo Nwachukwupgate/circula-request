@@ -8,6 +8,7 @@ import Store from './api/store'
 
 // Material Dashboard 2 React Context Provider
 import { MaterialUIControllerProvider } from "context";
+import SubscriptionGate from "components/Subscription/SubscriptionGate";
 
 const container = document.getElementById("app");
 const root = createRoot(container);
@@ -16,7 +17,9 @@ root.render(
   <BrowserRouter>
     <Provider store={Store}>
       <MaterialUIControllerProvider>
-        <App />
+        <SubscriptionGate>
+          <App />
+        </SubscriptionGate>
       </MaterialUIControllerProvider>
     </Provider>
   </BrowserRouter>
